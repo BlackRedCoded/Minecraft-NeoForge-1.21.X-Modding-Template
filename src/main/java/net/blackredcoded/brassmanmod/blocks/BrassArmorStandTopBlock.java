@@ -82,7 +82,7 @@ public class BrassArmorStandTopBlock extends Block {
             BlockEntity be = level.getBlockEntity(basePos);
             if (be instanceof BrassArmorStandBlockEntity stand) {
                 // Correct argument order: player, stand, hit, basePos, isTopBlock
-                return baseBlock.handleInteraction(player, stand, hit, basePos, true);
+                return baseBlock.handleInteraction(player, stand, hit, basePos);
             }
         }
 

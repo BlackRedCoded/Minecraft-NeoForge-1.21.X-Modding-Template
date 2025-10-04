@@ -1,10 +1,6 @@
 package net.blackredcoded.brassmanmod.blocks;
 
 import net.blackredcoded.brassmanmod.blockentity.BrassArmorStandBlockEntity;
-import net.blackredcoded.brassmanmod.items.BrassBootsItem;
-import net.blackredcoded.brassmanmod.items.BrassChestplateItem;
-import net.blackredcoded.brassmanmod.items.BrassHelmetItem;
-import net.blackredcoded.brassmanmod.items.BrassLeggingsItem;
 import net.blackredcoded.brassmanmod.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,6 +23,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -78,7 +75,7 @@ public class BrassArmorStandBaseBlock extends Block implements EntityBlock {
     }
 
     @Override
-    public VoxelShape getShape(BlockState s, BlockGetter g, BlockPos p, CollisionContext c) {
+    public @NotNull VoxelShape getShape(BlockState s, @NotNull BlockGetter g, @NotNull BlockPos p, @NotNull CollisionContext c) {
         return switch (s.getValue(FACING)) {
             case SOUTH -> SHAPE_SOUTH;
             case WEST  -> SHAPE_WEST;
@@ -96,16 +93,16 @@ public class BrassArmorStandBaseBlock extends Block implements EntityBlock {
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState s, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+    protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState s, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof BrassArmorStandBlockEntity stand) {
-            return handleInteraction(player, stand, hit, pos, false);
+            return handleInteraction(player, stand, hit, pos);
         }
         return InteractionResult.PASS;
     }
 
-    public InteractionResult handleInteraction(Player player, BrassArmorStandBlockEntity stand, BlockHitResult hit, BlockPos basePos, boolean clickedTop) {
+    public InteractionResult handleInteraction(Player player, BrassArmorStandBlockEntity stand, BlockHitResult hit, BlockPos basePos) {
         ItemStack held = player.getMainHandItem();
         boolean shift = player.isShiftKeyDown();
 
@@ -187,7 +184,7 @@ public class BrassArmorStandBaseBlock extends Block implements EntityBlock {
     }
 
     @Override
-    public void onPlace(BlockState bs, Level lvl, BlockPos pos, BlockState old, boolean moved) {
+    public void onPlace(@NotNull BlockState bs, Level lvl, @NotNull BlockPos pos, @NotNull BlockState old, boolean moved) {
         if (!lvl.isClientSide) {
             BlockPos top = pos.above();
             if (lvl.getBlockState(top).isAir()) {
@@ -202,7 +199,7 @@ public class BrassArmorStandBaseBlock extends Block implements EntityBlock {
     }
 
     @Override
-    public BlockState playerWillDestroy(Level lvl, BlockPos pos, BlockState bs, Player pl) {
+    public @NotNull BlockState playerWillDestroy(Level lvl, @NotNull BlockPos pos, @NotNull BlockState bs, @NotNull Player pl) {
         if (!lvl.isClientSide && lvl.getBlockEntity(pos) instanceof BrassArmorStandBlockEntity stand) {
             for (int i = 0; i < 4; i++) {
                 ItemStack a = stand.getArmor(i);
@@ -217,12 +214,12 @@ public class BrassArmorStandBaseBlock extends Block implements EntityBlock {
     }
 
     @Override
-    protected List<ItemStack> getDrops(BlockState bs, net.minecraft.world.level.storage.loot.LootParams.Builder b) {
+    protected @NotNull List<ItemStack> getDrops(@NotNull BlockState bs, net.minecraft.world.level.storage.loot.LootParams.@NotNull Builder b) {
         return List.of(new ItemStack(ModBlocks.BRASS_ARMOR_STAND.get()));
     }
 
     @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState bs) {
+    public @Nullable BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState bs) {
         return new BrassArmorStandBlockEntity(pos, bs);
     }
 }

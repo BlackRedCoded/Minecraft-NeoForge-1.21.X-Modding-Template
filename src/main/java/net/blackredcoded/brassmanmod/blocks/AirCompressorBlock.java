@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 
 public class AirCompressorBlock extends DirectionalKineticBlock implements IBE<AirCompressorBlockEntity> {
     public static final MapCodec<AirCompressorBlock> CODEC = simpleCodec(AirCompressorBlock::new);
@@ -30,12 +31,12 @@ public class AirCompressorBlock extends DirectionalKineticBlock implements IBE<A
     }
 
     @Override
-    public MapCodec<AirCompressorBlock> codec() {
+    public @NotNull MapCodec<AirCompressorBlock> codec() {
         return CODEC;
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
         return SHAPE;
     }
 
@@ -64,15 +65,12 @@ public class AirCompressorBlock extends DirectionalKineticBlock implements IBE<A
             return false; // Top - armor stand placement
         }
 
-        if (face == blockFacing) {
-            return false; // Front - decorative terminal
-        }
-
-        return true; // Bottom, back, left, right accept power
+        return face != blockFacing; // Front - decorative terminal
+// Bottom, back, left, right accept power
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+    protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult) {
         if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
             if (level.getBlockEntity(pos) instanceof AirCompressorBlockEntity blockEntity) {
                 serverPlayer.openMenu(blockEntity, pos);

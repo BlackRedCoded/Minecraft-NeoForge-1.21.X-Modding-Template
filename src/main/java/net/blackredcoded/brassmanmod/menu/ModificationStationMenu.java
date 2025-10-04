@@ -1,7 +1,5 @@
 package net.blackredcoded.brassmanmod.menu;
 
-import net.blackredcoded.brassmanmod.items.BrassChestplateItem;
-import net.blackredcoded.brassmanmod.items.BrassLeggingsItem;
 import net.blackredcoded.brassmanmod.items.upgrades.UpgradeModuleItem;
 import net.blackredcoded.brassmanmod.registry.ModMenuTypes;
 import net.blackredcoded.brassmanmod.upgrade.ArmorUpgradeHelper;
@@ -13,6 +11,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class ModificationStationMenu extends AbstractContainerMenu {
     private final Container container;
@@ -33,7 +32,7 @@ public class ModificationStationMenu extends AbstractContainerMenu {
         // Armor input slot (accepts any armor item)
         this.addSlot(new Slot(container, ARMOR_SLOT, 27, 47) {
             @Override
-            public boolean mayPlace(ItemStack stack) {
+            public boolean mayPlace(@NotNull ItemStack stack) {
                 return stack.getItem() instanceof ArmorItem;
             }
 
@@ -47,7 +46,7 @@ public class ModificationStationMenu extends AbstractContainerMenu {
         // Upgrade module slot (only accepts upgrade items)
         this.addSlot(new Slot(container, UPGRADE_SLOT, 76, 47) {
             @Override
-            public boolean mayPlace(ItemStack stack) {
+            public boolean mayPlace(@NotNull ItemStack stack) {
                 return stack.getItem() instanceof UpgradeModuleItem;
             }
 
@@ -61,12 +60,12 @@ public class ModificationStationMenu extends AbstractContainerMenu {
         // Result slot (display only)
         this.addSlot(new Slot(container, RESULT_SLOT, 134, 47) {
             @Override
-            public boolean mayPlace(ItemStack stack) {
+            public boolean mayPlace(@NotNull ItemStack stack) {
                 return false;
             }
 
             @Override
-            public void onTake(Player player, ItemStack stack) {
+            public void onTake(@NotNull Player player, @NotNull ItemStack stack) {
                 ItemStack upgradeStack = container.getItem(UPGRADE_SLOT);
                 if (!upgradeStack.isEmpty()) {
                     upgradeStack.shrink(1);
@@ -91,7 +90,7 @@ public class ModificationStationMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public void slotsChanged(Container container) {
+    public void slotsChanged(@NotNull Container container) {
         super.slotsChanged(container);
         ItemStack armorStack = container.getItem(ARMOR_SLOT);
         ItemStack upgradeStack = container.getItem(UPGRADE_SLOT);
@@ -144,11 +143,11 @@ public class ModificationStationMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public ItemStack quickMoveStack(Player player, int index) {
+    public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index) {
         ItemStack itemStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
 
-        if (slot != null && slot.hasItem()) {
+        if (slot.hasItem()) {
             ItemStack slotStack = slot.getItem();
             itemStack = slotStack.copy();
 
@@ -194,12 +193,12 @@ public class ModificationStationMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public boolean stillValid(Player player) {
+    public boolean stillValid(@NotNull Player player) {
         return this.container.stillValid(player);
     }
 
     @Override
-    public void removed(Player player) {
+    public void removed(@NotNull Player player) {
         super.removed(player);
         this.clearContainer(player, this.container);
     }
