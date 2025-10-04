@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "brassmanmod:block/air_compressor"
+    },
+    "facing=south": {
+      "model": "brassmanmod:block/air_compressor",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "brassmanmod:block/air_compressor",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "brassmanmod:block/air_compressor",
+      "y": 90
+    }
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "brass": "brassmanmod:block/brass_armor_stand",
+    "particle": "brassmanmod:block/brass_armor_stand"
+  },
+  "elements": [
+    {
+      "comment": "Left leg continuation",
+      "from": [5, 0, 7],
+      "to": [7, 7, 9],
+      "faces": {
+        "north": {"uv": [0, 0, 2, 7], "texture": "#brass"},
+        "east": {"uv": [0, 0, 2, 7], "texture": "#brass"},
+        "south": {"uv": [0, 0, 2, 7], "texture": "#brass"},
+        "west": {"uv": [0, 0, 2, 7], "texture": "#brass"},
+        "up": {"uv": [0, 0, 2, 2], "texture": "#brass"},
+        "down": {"uv": [0, 0, 2, 2], "texture": "#brass"}
+      }
+    },
+    {
+      "comment": "Right leg continuation",
+      "from": [9, 0, 7],
+      "to": [11, 7, 9],
+      "faces": {
+        "north": {"uv": [0, 0, 2, 7], "texture": "#brass"},
+        "east": {"uv": [0, 0, 2, 7], "texture": "#brass"},
+        "south": {"uv": [0, 0, 2, 7], "texture": "#brass"},
+        "west": {"uv": [0, 0, 2, 7], "texture": "#brass"},
+        "up": {"uv": [0, 0, 2, 2], "texture": "#brass"},
+        "down": {"uv": [0, 0, 2, 2], "texture": "#brass"}
+      }
+    },
+    {
+      "comment": "Arm pole",
+      "from": [2, 6, 6.5],
+      "to": [14, 9, 9.5],
+      "faces": {
+        "north": {"uv": [0, 0, 12, 3], "texture": "#brass"},
+        "east": {"uv": [0, 0, 3, 3], "texture": "#brass"},
+        "south": {"uv": [0, 0, 12, 3], "texture": "#brass"},
+        "west": {"uv": [0, 0, 3, 3], "texture": "#brass"},
+        "up": {"uv": [2, 6, 14, 10], "texture": "#brass"},
+        "down": {"uv": [2, 6, 14, 10], "texture": "#brass"}
+      }
+    },
+    {
+      "comment": "Neck/Head pole",
+      "from": [7, 9, 7],
+      "to": [9, 15, 9],
+      "faces": {
+        "north": {"uv": [0, 0, 2, 6], "texture": "#brass"},
+        "east": {"uv": [0, 0, 2, 6], "texture": "#brass"},
+        "south": {"uv": [0, 0, 2, 6], "texture": "#brass"},
+        "west": {"uv": [0, 0, 2, 6], "texture": "#brass"},
+        "up": {"uv": [0, 0, 2, 2], "texture": "#brass"},
+        "down": {"uv": [0, 0, 2, 2], "texture": "#brass"}
+      }
+    }
+  ]
+}

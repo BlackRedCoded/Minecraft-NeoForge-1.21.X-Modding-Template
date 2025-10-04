@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "brassmanmod:block/air_compressor_side",
+    "down": "brassmanmod:block/air_compressor_side",
+    "up": "brassmanmod:block/air_compressor_top",
+    "north": "brassmanmod:block/air_compressor_front",
+    "south": "brassmanmod:block/air_compressor_side",
+    "east": "brassmanmod:block/air_compressor_side",
+    "west": "brassmanmod:block/air_compressor_side"
+  }
+}

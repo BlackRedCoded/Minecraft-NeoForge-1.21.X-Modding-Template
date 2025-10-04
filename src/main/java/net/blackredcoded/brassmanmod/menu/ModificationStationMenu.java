@@ -1,0 +1,206 @@
+package net.blackredcoded.brassmanmod.menu;
+
+import net.blackredcoded.brassmanmod.items.BrassChestplateItem;
+import net.blackredcoded.brassmanmod.items.BrassLeggingsItem;
+import net.blackredcoded.brassmanmod.items.upgrades.UpgradeModuleItem;
+import net.blackredcoded.brassmanmod.registry.ModMenuTypes;
+import net.blackredcoded.brassmanmod.upgrade.ArmorUpgradeHelper;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemStack;
+
+public class ModificationStationMenu extends AbstractContainerMenu {
+    private final Container container;
+    public static final int ARMOR_SLOT = 0;
+    public static final int UPGRADE_SLOT = 1;
+    public static final int RESULT_SLOT = 2;
+
+    public ModificationStationMenu(int containerId, Inventory playerInventory) {
+        this(containerId, playerInventory, new SimpleContainer(3));
+    }
+
+    public ModificationStationMenu(int containerId, Inventory playerInventory, Container container) {
+        super(ModMenuTypes.MODIFICATION_STATION.get(), containerId);
+        this.container = container;
+        checkContainerSize(container, 3);
+        container.startOpen(playerInventory.player);
+
+        // Armor input slot (accepts any armor item)
+        this.addSlot(new Slot(container, ARMOR_SLOT, 27, 47) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return stack.getItem() instanceof ArmorItem;
+            }
+
+            @Override
+            public void setChanged() {
+                super.setChanged();
+                ModificationStationMenu.this.slotsChanged(container);
+            }
+        });
+
+        // Upgrade module slot (only accepts upgrade items)
+        this.addSlot(new Slot(container, UPGRADE_SLOT, 76, 47) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return stack.getItem() instanceof UpgradeModuleItem;
+            }
+
+            @Override
+            public void setChanged() {
+                super.setChanged();
+                ModificationStationMenu.this.slotsChanged(container);
+            }
+        });
+
+        // Result slot (display only)
+        this.addSlot(new Slot(container, RESULT_SLOT, 134, 47) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return false;
+            }
+
+            @Override
+            public void onTake(Player player, ItemStack stack) {
+                ItemStack upgradeStack = container.getItem(UPGRADE_SLOT);
+                if (!upgradeStack.isEmpty()) {
+                    upgradeStack.shrink(1);
+                }
+                container.setItem(ARMOR_SLOT, ItemStack.EMPTY);
+                ModificationStationMenu.this.slotsChanged(container);
+                super.onTake(player, stack);
+            }
+        });
+
+        // Player inventory
+        for (int row = 0; row < 3; ++row) {
+            for (int col = 0; col < 9; ++col) {
+                this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 84 + row * 18));
+            }
+        }
+
+        // Player hotbar
+        for (int col = 0; col < 9; ++col) {
+            this.addSlot(new Slot(playerInventory, col, 8 + col * 18, 142));
+        }
+    }
+
+    @Override
+    public void slotsChanged(Container container) {
+        super.slotsChanged(container);
+        ItemStack armorStack = container.getItem(ARMOR_SLOT);
+        ItemStack upgradeStack = container.getItem(UPGRADE_SLOT);
+
+        // Clear result if inputs are empty
+        if (armorStack.isEmpty() || upgradeStack.isEmpty()) {
+            container.setItem(RESULT_SLOT, ItemStack.EMPTY);
+            return;
+        }
+
+        // Validate armor type
+        if (!(armorStack.getItem() instanceof ArmorItem)) {
+            container.setItem(RESULT_SLOT, ItemStack.EMPTY);
+            return;
+        }
+
+        // Validate upgrade type
+        if (!(upgradeStack.getItem() instanceof UpgradeModuleItem upgradeItem)) {
+            container.setItem(RESULT_SLOT, ItemStack.EMPTY);
+            return;
+        }
+
+        // Check upgrade limits
+        String upgradeType = upgradeItem.getUpgradeType();
+        int maxAllowed = upgradeItem.getMaxStacksPerArmor();
+        int currentCount = ArmorUpgradeHelper.getUpgradeCount(armorStack, upgradeType);
+        int totalUpgrades = ArmorUpgradeHelper.getTotalUpgradeCount(armorStack);
+
+        // Can't add more of this upgrade type
+        if (currentCount >= maxAllowed) {
+            container.setItem(RESULT_SLOT, ItemStack.EMPTY);
+            return;
+        }
+
+        // Can't exceed total upgrade slots
+        if (totalUpgrades >= ArmorUpgradeHelper.MAX_TOTAL_UPGRADES) {
+            container.setItem(RESULT_SLOT, ItemStack.EMPTY);
+            return;
+        }
+
+        // Create result with upgrade applied
+        ItemStack result = armorStack.copy();
+        boolean success = ArmorUpgradeHelper.addUpgrade(result, upgradeType, maxAllowed);
+
+        if (success) {
+            container.setItem(RESULT_SLOT, result);
+        } else {
+            container.setItem(RESULT_SLOT, ItemStack.EMPTY);
+        }
+    }
+
+    @Override
+    public ItemStack quickMoveStack(Player player, int index) {
+        ItemStack itemStack = ItemStack.EMPTY;
+        Slot slot = this.slots.get(index);
+
+        if (slot != null && slot.hasItem()) {
+            ItemStack slotStack = slot.getItem();
+            itemStack = slotStack.copy();
+
+            if (index == RESULT_SLOT) {
+                if (!this.moveItemStackTo(slotStack, 3, 39, true)) {
+                    return ItemStack.EMPTY;
+                }
+                slot.onQuickCraft(slotStack, itemStack);
+            } else if (index >= 3) {
+                if (slotStack.getItem() instanceof ArmorItem) {
+                    if (!this.moveItemStackTo(slotStack, ARMOR_SLOT, ARMOR_SLOT + 1, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                } else if (slotStack.getItem() instanceof UpgradeModuleItem) {
+                    if (!this.moveItemStackTo(slotStack, UPGRADE_SLOT, UPGRADE_SLOT + 1, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                } else if (index < 30) {
+                    if (!this.moveItemStackTo(slotStack, 30, 39, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                } else if (!this.moveItemStackTo(slotStack, 3, 30, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (!this.moveItemStackTo(slotStack, 3, 39, false)) {
+                return ItemStack.EMPTY;
+            }
+
+            if (slotStack.isEmpty()) {
+                slot.set(ItemStack.EMPTY);
+            } else {
+                slot.setChanged();
+            }
+
+            if (slotStack.getCount() == itemStack.getCount()) {
+                return ItemStack.EMPTY;
+            }
+
+            slot.onTake(player, slotStack);
+        }
+
+        return itemStack;
+    }
+
+    @Override
+    public boolean stillValid(Player player) {
+        return this.container.stillValid(player);
+    }
+
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        this.clearContainer(player, this.container);
+    }
+}

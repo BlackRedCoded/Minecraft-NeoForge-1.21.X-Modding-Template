@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "brassmanmod:block/brass_modification_station"
+  }
+}

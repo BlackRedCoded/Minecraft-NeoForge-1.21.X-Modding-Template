@@ -1,0 +1,24 @@
+{
+  "item.brassmanmod.brass_pneumatic_core": "Pressure Air Core",
+
+  "item.brassmanmod.brass_helmet": "Brass Man Helmet",
+  "item.brassmanmod.brass_chestplate": "Brass Man Chestplate",
+  "item.brassmanmod.brass_leggings": "Brass Man Leggings",
+  "item.brassmanmod.brass_boots": "Brass Man Boots",
+  "item.brassmanmod.jarvis_communicator": "Jarvis Communicator",
+
+  "item.brassmanmod.power_cell_upgrade": "Power Cell Upgrade",
+  "item.brassmanmod.air_tank_upgrade": "Air Tank Upgrade",
+  "item.brassmanmod.speed_amplifier_upgrade": "Speed Boost Upgrade",
+  "item.brassmanmod.air_efficiency_upgrade": "Air efficiency Upgrade",
+  "item.brassmanmod.power_efficiency_upgrade": "Power efficiency Upgrade",
+
+  "item.brassmanmod.air_compressor": "Air Compressor",
+  "item.brassmanmod.brass_armor_stand": "Brass Armor Stand",
+
+  "block.brassmanmod.air_compressor": "Air Compressor",
+  "block.brassmanmod.brass_armor_stand": "Brass Armor Stand",
+  "block.brassmanmod.brass_modification_station": "Brass Modification Station",
+
+  "container.brassmanmod.air_compressor": "Air Compressor"
+}

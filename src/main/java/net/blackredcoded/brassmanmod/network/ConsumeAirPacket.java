@@ -1,0 +1,59 @@
+package net.blackredcoded.brassmanmod.network;
+
+import net.blackredcoded.brassmanmod.BrassManMod;
+import net.blackredcoded.brassmanmod.items.BrassChestplateItem;
+import net.blackredcoded.brassmanmod.upgrade.ArmorUpgradeHelper;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+
+public record ConsumeAirPacket(int amount) implements CustomPacketPayload {
+
+    public static final Type<ConsumeAirPacket> TYPE =
+            new Type<>(ResourceLocation.fromNamespaceAndPath(BrassManMod.MOD_ID, "consume_air"));
+
+    public static final StreamCodec<FriendlyByteBuf, ConsumeAirPacket> STREAM_CODEC =
+            StreamCodec.composite(
+                    ByteBufCodecs.INT, ConsumeAirPacket::amount,
+                    ConsumeAirPacket::new
+            );
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
+
+    public static void handle(ConsumeAirPacket packet, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            if (context.player() instanceof ServerPlayer player) {
+                ItemStack chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
+                if (chestplate.getItem() instanceof BrassChestplateItem brass) {
+
+                    // DEBUG: Check efficiency upgrades
+                    int airEffCount = ArmorUpgradeHelper.getUpgradeCount(chestplate, ArmorUpgradeHelper.AIR_EFFICIENCY);
+                    float multiplier = ArmorUpgradeHelper.getAirEfficiencyMultiplier(chestplate);
+                    int baseAmount = packet.amount;
+
+                    System.out.println("=== AIR CONSUMPTION DEBUG ===");
+                    System.out.println("Air Efficiency Upgrades: " + airEffCount);
+                    System.out.println("Efficiency Multiplier: " + multiplier);
+                    System.out.println("Base Air Cost: " + baseAmount);
+                    System.out.println("Actual Air Cost: " + Math.max(1, (int)(baseAmount * multiplier)));
+                    System.out.println("Current Air: " + brass.air(chestplate));
+
+                    // Use the instance method that applies efficiency
+                    BrassChestplateItem.consumeAir(chestplate, packet.amount);
+
+                    System.out.println("Air After Consumption: " + brass.air(chestplate));
+                    System.out.println("============================");
+                }
+            }
+        });
+    }
+}
