@@ -15,7 +15,7 @@ public class ModNetworking {
     public static void register(RegisterPayloadHandlersEvent event) {
         final PayloadRegistrar registrar = event.registrar("1");
 
-        // FIXED: Added ConvertMaterialsPacket registration
+        // Server to Client packets (playToServer)
         registrar.playToServer(
                 ConvertMaterialsPacket.TYPE,
                 ConvertMaterialsPacket.STREAM_CODEC,
@@ -44,6 +44,18 @@ public class ModNetworking {
                 ConsumeNightvisionPowerPacket.TYPE,
                 ConsumeNightvisionPowerPacket.STREAM_CODEC,
                 ConsumeNightvisionPowerPacket::handle
+        );
+
+        registrar.playToServer(
+                ApplyDyePacket.TYPE,
+                ApplyDyePacket.STREAM_CODEC,
+                ApplyDyePacket::handle
+        );
+
+        registrar.playToClient(
+                SyncFlightConfigPacket.TYPE,
+                SyncFlightConfigPacket.STREAM_CODEC,
+                SyncFlightConfigPacket::handle
         );
     }
 

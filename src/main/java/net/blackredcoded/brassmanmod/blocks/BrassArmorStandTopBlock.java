@@ -19,6 +19,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class BrassArmorStandTopBlock extends Block {
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext ctx) {
+    public @NotNull VoxelShape getShape(BlockState state, @NotNull BlockGetter world, @NotNull BlockPos pos, @NotNull CollisionContext ctx) {
         return switch (state.getValue(FACING)) {
             case SOUTH -> SHAPE_SOUTH;
             case WEST  -> SHAPE_WEST;
@@ -71,7 +72,7 @@ public class BrassArmorStandTopBlock extends Block {
     }
 
     @Override
-    public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+    public @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hit) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
@@ -90,7 +91,7 @@ public class BrassArmorStandTopBlock extends Block {
     }
 
     @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+    public @NotNull BlockState playerWillDestroy(Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player) {
         if (!level.isClientSide) {
             BlockPos basePos = pos.below();
             BlockState baseState = level.getBlockState(basePos);
@@ -111,7 +112,7 @@ public class BrassArmorStandTopBlock extends Block {
     }
 
     @Override
-    protected List<ItemStack> getDrops(BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
+    protected @NotNull List<ItemStack> getDrops(@NotNull BlockState state, net.minecraft.world.level.storage.loot.LootParams.@NotNull Builder params) {
         return List.of(); // Drops handled by base block
     }
 }

@@ -1,13 +1,13 @@
 package net.blackredcoded.brassmanmod.config;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 public class FlightConfig {
-    private static final Map<UUID, PlayerFlightData> CONFIG_MAP = new HashMap<>();
+
+    // Client-side cached config
+    public static final PlayerFlightData CLIENT_CONFIG = new PlayerFlightData();
 
     public static class PlayerFlightData {
         public int flightSpeed = 20;
@@ -18,7 +18,6 @@ public class FlightConfig {
         public int speedBoost = 0;
         public int jumpBoost = 0;
 
-        // NEW: Fallsave options
         public boolean fallsaveHover = false;
         public boolean fallsaveFlight = false;
         public int fallsavePowerToAir = 0;
@@ -52,63 +51,91 @@ public class FlightConfig {
         }
     }
 
+    private static final String JARVIS_DATA_KEY = "BrassManJarvisConfig";
+
     public static PlayerFlightData get(Player player) {
         if (player == null) {
             return new PlayerFlightData();
         }
-        return CONFIG_MAP.computeIfAbsent(player.getUUID(), k -> new PlayerFlightData());
+
+        // Client-side: return cached config
+        if (player.level().isClientSide) {
+            return CLIENT_CONFIG;
+        }
+
+        // Server-side: load from persistent data
+        PlayerFlightData data = new PlayerFlightData();
+        if (player instanceof ServerPlayer serverPlayer) {
+            CompoundTag persistentData = serverPlayer.getPersistentData();
+            if (persistentData.contains(JARVIS_DATA_KEY)) {
+                data.load(persistentData.getCompound(JARVIS_DATA_KEY));
+            }
+        }
+        return data;
     }
 
     public static void save(Player player, PlayerFlightData data) {
-        if (player != null) {
-            CONFIG_MAP.put(player.getUUID(), data);
+        if (player instanceof ServerPlayer serverPlayer) {
+            CompoundTag persistentData = serverPlayer.getPersistentData();
+            persistentData.put(JARVIS_DATA_KEY, data.save());
+
+            // Sync to client
+            syncToClient(serverPlayer, data);
         }
+    }
+
+    private static void syncToClient(ServerPlayer player, PlayerFlightData data) {
+        // Send packet to client - you need to import your packet sender here
+        net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(
+                player,
+                new net.blackredcoded.brassmanmod.network.SyncFlightConfigPacket(data.save())
+        );
     }
 
     public static void setFlightSpeed(Player player, int speed) {
-        if (player != null) {
-            get(player).flightSpeed = Math.max(1, Math.min(100, speed));
-        }
+        PlayerFlightData data = get(player);
+        data.flightSpeed = Math.max(1, Math.min(100, speed));
+        save(player, data);
     }
 
     public static void setFlightEnabled(Player player, boolean enabled) {
-        if (player != null) {
-            get(player).flightEnabled = enabled;
-        }
+        PlayerFlightData data = get(player);
+        data.flightEnabled = enabled;
+        save(player, data);
     }
 
     public static void setHoverEnabled(Player player, boolean enabled) {
-        if (player != null) {
-            get(player).hoverEnabled = enabled;
-        }
+        PlayerFlightData data = get(player);
+        data.hoverEnabled = enabled;
+        save(player, data);
     }
 
     public static void setFallsaveEnabled(Player player, boolean enabled) {
-        if (player != null) {
-            get(player).fallsaveEnabled = enabled;
-        }
+        PlayerFlightData data = get(player);
+        data.fallsaveEnabled = enabled;
+        save(player, data);
     }
 
     public static void setNightvisionEnabled(Player player, boolean enabled) {
-        if (player != null) {
-            get(player).nightvisionEnabled = enabled;
-        }
+        PlayerFlightData data = get(player);
+        data.nightvisionEnabled = enabled;
+        save(player, data);
     }
 
     public static void setSpeedBoost(Player player, int boost) {
-        if (player != null) {
-            get(player).speedBoost = Math.max(0, Math.min(100, boost));
-        }
+        PlayerFlightData data = get(player);
+        data.speedBoost = Math.max(0, Math.min(100, boost));
+        save(player, data);
     }
 
     public static void setJumpBoost(Player player, int boost) {
-        if (player != null) {
-            get(player).jumpBoost = Math.max(0, Math.min(100, boost));
-        }
+        PlayerFlightData data = get(player);
+        data.jumpBoost = Math.max(0, Math.min(100, boost));
+        save(player, data);
     }
 
     public static int getFlightSpeed(Player player) {
-        return player != null ? get(player).flightSpeed : 20;
+        return get(player).flightSpeed;
     }
 
     public static boolean isFlightEnabled(Player player) {
@@ -128,10 +155,10 @@ public class FlightConfig {
     }
 
     public static int getSpeedBoost(Player player) {
-        return player != null ? get(player).speedBoost : 0;
+        return get(player).speedBoost;
     }
 
     public static int getJumpBoost(Player player) {
-        return player != null ? get(player).jumpBoost : 0;
+        return get(player).jumpBoost;
     }
 }

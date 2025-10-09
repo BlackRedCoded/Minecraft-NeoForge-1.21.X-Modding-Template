@@ -27,9 +27,11 @@ public class FlightHandler {
     private static int floatingTicks = 0;
     private static int airConsumeTicks = 0;
     private static boolean fallsaveTriggered = false;
+    private static ClientTickEvent.Post event;
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
+        FlightHandler.event = event;
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
         if (player == null || !player.level().isClientSide) return;
@@ -91,7 +93,7 @@ public class FlightHandler {
         }
 
         // FLIGHT: Space pressed + flight enabled
-        if (spacePressed && airAmount > 0 && config.flightEnabled) {
+        if (spacePressed && config.flightEnabled) {
             if (!isFlying) {
                 startFlying(player);
             }
@@ -131,12 +133,23 @@ public class FlightHandler {
             }
 
             if (shiftPressed) {
+                // FIXED: 2× faster base speed and acceleration, correct sign
                 Vec3 currentMovement = player.getDeltaMovement();
-                double sinkSpeed = -0.05 + (floatingTicks * -0.001);
-                sinkSpeed = Math.max(sinkSpeed, -0.15);
-                player.setDeltaMovement(currentMovement.multiply(0.9, 0.1, 0.9).add(0, sinkSpeed, 0));
+                double baseSink = -0.6;                   // initial downward speed
+                double accelPerTick = -0.008;             // acceleration per tick (more negative)
+                double sinkSpeed = baseSink + (floatingTicks * accelPerTick);
+                sinkSpeed = Math.max(sinkSpeed, -3.2);    // max sink speed cap (2× faster max of previous -1.6)
+                player.setDeltaMovement(
+                        currentMovement.x * 0.9,
+                        sinkSpeed,
+                        currentMovement.z * 0.9
+                );
             } else {
-                player.setDeltaMovement(player.getDeltaMovement().multiply(0.8, 0.05, 0.8));
+                player.setDeltaMovement(
+                        player.getDeltaMovement().x * 0.8,
+                        player.getDeltaMovement().y * 0.05,
+                        player.getDeltaMovement().z * 0.8
+                );
             }
 
             player.setPose(Pose.STANDING);
@@ -149,23 +162,31 @@ public class FlightHandler {
 
     private static void spawnParticles(LocalPlayer player) {
         Vec3 pos = player.position();
-        double px = pos.x, py = pos.y, pz = pos.z;
-        double[][] offsets = {
-                { -0.3, 0.1,  0.0 },
-                {  0.3, 0.1,  0.0 },
-                { -0.5, 1.2,  0.2 },
-                {  0.5, 1.2,  0.2 }
+        float yaw = (float) Math.toRadians(player.getYRot()); // Player's horizontal rotation
+
+        // Relative offsets: [left-right, up-down, forward-back]
+        double[][] relativeOffsets = {
+                { -0.3, 0.1,  0.0 },  // Left arm/leg
+                {  0.3, 0.1,  0.0 },  // Right arm/leg
+                { -0.3, 1.2,  0.0 },  // Left shoulder
+                {  0.3, 1.2,  0.0 }   // Right shoulder
         };
-        for (double[] off : offsets) {
+
+        for (double[] offset : relativeOffsets) {
+            // Rotate offsets based on player yaw
+            double rotatedX = offset[0] * Math.cos(yaw) - offset[2] * Math.sin(yaw);
+            double rotatedZ = offset[0] * Math.sin(yaw) + offset[2] * Math.cos(yaw);
+
             player.level().addParticle(
                     ParticleTypes.CLOUD,
-                    px + off[0],
-                    py + off[1],
-                    pz + off[2],
-                    0.0, 0.05, 0.0
+                    pos.x + rotatedX,
+                    pos.y + offset[1],
+                    pos.z + rotatedZ,
+                    0.0, -0.05, 0.0  // Slight downward velocity
             );
         }
     }
+
 
     private static boolean isFalling(LocalPlayer player) {
         BlockPos pos = player.blockPosition();
@@ -193,5 +214,13 @@ public class FlightHandler {
             player.setPose(Pose.STANDING);
             player.setSwimming(false);
         }
+    }
+
+    public static ClientTickEvent.Post getEvent() {
+        return event;
+    }
+
+    public static void setEvent(ClientTickEvent.Post event) {
+        FlightHandler.event = event;
     }
 }
