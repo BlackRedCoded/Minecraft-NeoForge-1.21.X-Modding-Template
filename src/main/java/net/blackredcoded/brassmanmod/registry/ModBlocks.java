@@ -5,7 +5,6 @@ import net.blackredcoded.brassmanmod.blocks.AirCompressorBlock;
 import net.blackredcoded.brassmanmod.blocks.BrassArmorStandBaseBlock;
 import net.blackredcoded.brassmanmod.blocks.BrassArmorStandTopBlock;
 import net.blackredcoded.brassmanmod.blocks.BrassModificationStationBlock;
-import net.blackredcoded.brassmanmod.blocks.CustomizationStationBlock;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -52,14 +51,6 @@ public class ModBlocks {
                     .requiresCorrectToolForDrops()
                     .noOcclusion()));
 
-    public static final Supplier<Block> CUSTOMIZATION_STATION = BLOCKS.register("customization_station",
-            () -> new CustomizationStationBlock(BlockBehaviour.Properties.of()
-                    .mapColor(MapColor.METAL)
-                    .strength(3.5f, 6.0f)
-                    .sound(SoundType.ANVIL)
-                    .requiresCorrectToolForDrops()
-                    .noOcclusion()));
-
     public static void register(IEventBus eventBus) {
         BLOCKS.register(eventBus);
     }
@@ -71,7 +62,5 @@ public class ModBlocks {
                 () -> new BlockItem(BRASS_ARMOR_STAND.get(), new Item.Properties()));
         items.register("brass_modification_station",
                 () -> new BlockItem(BRASS_MODIFICATION_STATION.get(), new Item.Properties()));
-        items.register("customization_station",
-                () -> new BlockItem(CUSTOMIZATION_STATION.get(), new Item.Properties()));
     }
 }

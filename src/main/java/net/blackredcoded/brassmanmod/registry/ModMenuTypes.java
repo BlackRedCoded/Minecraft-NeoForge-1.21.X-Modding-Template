@@ -3,7 +3,6 @@ package net.blackredcoded.brassmanmod.registry;
 import net.blackredcoded.brassmanmod.BrassManMod;
 import net.blackredcoded.brassmanmod.menu.AirCompressorMenu;
 import net.blackredcoded.brassmanmod.menu.ModificationStationMenu;
-import net.blackredcoded.brassmanmod.screen.CustomizationStationScreenHandler;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
@@ -24,10 +23,6 @@ public class ModMenuTypes {
     public static final Supplier<MenuType<ModificationStationMenu>> MODIFICATION_STATION =
             MENU_TYPES.register("modification_station",
                     () -> new MenuType<>(ModificationStationMenu::new, FeatureFlags.DEFAULT_FLAGS));
-
-    public static final Supplier<MenuType<CustomizationStationScreenHandler>> CUSTOMIZATION_STATION =
-            MENU_TYPES.register("customization_station",
-                    () -> new MenuType<>(CustomizationStationScreenHandler::new, FeatureFlags.DEFAULT_FLAGS));
 
     public static void register(IEventBus eventBus) {
         MENU_TYPES.register(eventBus);

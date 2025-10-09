@@ -15,8 +15,8 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -60,6 +60,7 @@ public class BrassManMod {
                         output.accept(ModBlocks.AIR_COMPRESSOR.get());
                         output.accept(ModBlocks.BRASS_ARMOR_STAND.get());
                         output.accept(ModBlocks.BRASS_MODIFICATION_STATION.get());
+
                         // Note: BRASS_ARMOR_STAND_TOP is not added - it's auto-placed
                     })
                     .build()

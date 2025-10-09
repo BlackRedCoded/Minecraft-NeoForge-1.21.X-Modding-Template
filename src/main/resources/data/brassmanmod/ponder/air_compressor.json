@@ -1,0 +1,57 @@
+{
+  "stories": {
+    "my_crushing_wheel/usage": {
+      "title": "Air Compressor",
+      "description": "How to charge your Brass Man Suit with the Air Compressor",
+      "scenes": [
+        {
+          "anchor": "air_compressor",
+          "text": "Place your Air Compressor on the ground.",
+          "rotation": [ 30.0, 30.0 ],
+          "zoom": 72.0
+        },
+        {
+          "anchor": "air_compressor/setup",
+          "text": "Place a Brass Armor Stand on top of the Air Compressor.",
+          "rotation": [ 45.0, 30.0 ],
+          "zoom": 64.0,
+          "highlight": {
+            "type": "block",
+            "pos": [ 0, 1, 0 ]
+          }
+        },
+        {
+          "anchor": "air_compressor/setup2",
+          "text": "Put a Brass Chestplate onto the Brass Armor Stand using Right-Click.",
+          "rotation": [ 45.0, 30.0 ],
+          "zoom": 64.0,
+          "highlight": {
+            "type": "block",
+            "pos": [ 0, 1, 0 ]
+          }
+        },
+        {
+          "anchor": "air_compressor/power_input",
+          "text": "Input rotational speed into one of the power input sides.",
+          "rotation": [ 45.0, 30.0 ],
+          "zoom": 64.0,
+          "highlight": {
+            "type": "block",
+            "pos": [ 0, 1, 0 ]
+          }
+        },
+        {
+          "anchor": "air_compressor/charging",
+          "text": "The Brass Chestplate will charge with Power and Compressed Air with a speed based on the rotational speed.",
+          "rotation": [ 45.0, 10.0 ],
+          "zoom": 64.0,
+          "highlight": {
+            "type": "block",
+            "pos": [ 0, -1, 0 ]
+          }
+        }
+      ]
+    }
+  },
+  "tags": [ "air_compressor/usage" ]
+}

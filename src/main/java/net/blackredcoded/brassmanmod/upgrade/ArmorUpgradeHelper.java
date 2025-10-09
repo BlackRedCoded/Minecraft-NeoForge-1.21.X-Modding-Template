@@ -89,5 +89,5 @@ public class ArmorUpgradeHelper {
         return total;
     }
 
-    public static final int MAX_TOTAL_UPGRADES = 10; // Increased to accommodate efficiency upgrades
+    public static final int MAX_TOTAL_UPGRADES = 15; // Increased to accommodate efficiency upgrades
 }

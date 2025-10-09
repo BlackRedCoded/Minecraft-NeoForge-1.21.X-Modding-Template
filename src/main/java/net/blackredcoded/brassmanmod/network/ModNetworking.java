@@ -46,12 +46,6 @@ public class ModNetworking {
                 ConsumeNightvisionPowerPacket::handle
         );
 
-        registrar.playToServer(
-                ApplyDyePacket.TYPE,
-                ApplyDyePacket.STREAM_CODEC,
-                ApplyDyePacket::handle
-        );
-
         registrar.playToClient(
                 SyncFlightConfigPacket.TYPE,
                 SyncFlightConfigPacket.STREAM_CODEC,

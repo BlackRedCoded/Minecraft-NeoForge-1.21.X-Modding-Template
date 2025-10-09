@@ -42,7 +42,7 @@ public class BrassLeggingsItem extends ArmorItem {
             tooltip.add(Component.literal(""));
             tooltip.add(Component.literal("━━━ Information ━━━").withStyle(ChatFormatting.DARK_GRAY));
             tooltip.add(Component.literal("Powered hydraulic systems enhance").withStyle(ChatFormatting.GRAY));
-            tooltip.add(Component.literal("leg strength and movement speed").withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.literal("jumping height and movement speed").withStyle(ChatFormatting.GRAY));
             tooltip.add(Component.literal("Upgrade at Modification Station").withStyle(ChatFormatting.LIGHT_PURPLE));
         } else {
             tooltip.add(Component.literal(""));

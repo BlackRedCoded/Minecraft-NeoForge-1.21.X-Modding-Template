@@ -20,5 +20,8 @@
   "block.brassmanmod.brass_armor_stand": "Brass Armor Stand",
   "block.brassmanmod.brass_modification_station": "Brass Modification Station",
 
-  "container.brassmanmod.air_compressor": "Air Compressor"
+  "container.brassmanmod.air_compressor": "Air Compressor",
+
+  "ponder.air_compressor.title": "Air Compressor",
+  "ponder.air_compressor.description": "Use the compressor to charge your brass man suit."
 }
