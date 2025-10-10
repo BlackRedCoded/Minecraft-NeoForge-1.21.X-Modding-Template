@@ -5,6 +5,7 @@ import net.blackredcoded.brassmanmod.blocks.AirCompressorBlock;
 import net.blackredcoded.brassmanmod.blocks.BrassArmorStandBaseBlock;
 import net.blackredcoded.brassmanmod.blocks.BrassArmorStandTopBlock;
 import net.blackredcoded.brassmanmod.blocks.BrassModificationStationBlock;
+import net.blackredcoded.brassmanmod.blocks.DataLinkBlock;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -18,6 +19,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.function.Supplier;
 
 public class ModBlocks {
+
     public static final DeferredRegister<Block> BLOCKS =
             DeferredRegister.create(BuiltInRegistries.BLOCK, BrassManMod.MOD_ID);
 
@@ -51,6 +53,13 @@ public class ModBlocks {
                     .requiresCorrectToolForDrops()
                     .noOcclusion()));
 
+    public static final Supplier<Block> DATA_LINK = BLOCKS.register("data_link",
+            () -> new DataLinkBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0f)
+                    .sound(SoundType.METAL)
+                    .noOcclusion()));
+
     public static void register(IEventBus eventBus) {
         BLOCKS.register(eventBus);
     }
@@ -62,5 +71,7 @@ public class ModBlocks {
                 () -> new BlockItem(BRASS_ARMOR_STAND.get(), new Item.Properties()));
         items.register("brass_modification_station",
                 () -> new BlockItem(BRASS_MODIFICATION_STATION.get(), new Item.Properties()));
+        items.register("data_link",
+                () -> new BlockItem(DATA_LINK.get(), new Item.Properties()));
     }
 }

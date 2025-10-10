@@ -20,9 +20,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -57,6 +55,7 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
             wasWorking = shouldWork;
             setChanged();
         }
+
         // Charge every 10 ticks if running
         if (shouldWork && tickCounter % 10 == 0 && Math.abs(getSpeed()) >= 1) {
             var armorStand = getArmorStandAbove();
@@ -64,7 +63,7 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
         }
     }
 
-    /** Converts input stack into material counts when button 0 is clicked */
+    /** Converts input stack into material counts when Convert button is clicked */
     public void convertInputToMaterials() {
         ItemStack input = inventory.get(0);
         if (input.isEmpty()) return;
@@ -76,76 +75,77 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
         setChanged();
     }
 
-    /** Repair brass helmet (button 1) */
-    public boolean repairHelmet() {
+    /** Repair armor by slot (0=helmet, 1=chestplate, 2=leggings, 3=boots) */
+    public boolean repairArmorSlot(int slot) {
         var stand = getArmorStandAbove();
         if (stand == null) return false;
-        ItemStack helmet = stand.getArmor(0);
-        if (helmet.isEmpty() || !helmet.isDamaged() || !(helmet.getItem() instanceof BrassHelmetItem))
-            return false;
-        int pct = (helmet.getDamageValue() * 100) / helmet.getMaxDamage();
-        int b = round5(pct / 2), e = round5(pct / 3), g = round5(pct / 5);
-        if (!consumeMaterials(b, e, g)) return false;
-        helmet.setDamageValue(0);
+        ItemStack armor = stand.getArmor(slot);
+        if (armor.isEmpty() || !armor.isDamaged()) return false;
+
+        // Check if correct armor type
+        boolean validType = switch (slot) {
+            case 0 -> armor.getItem() instanceof BrassHelmetItem;
+            case 1 -> armor.getItem() instanceof BrassChestplateItem;
+            case 2 -> armor.getItem() instanceof BrassLeggingsItem;
+            case 3 -> armor.getItem() instanceof BrassBootsItem;
+            default -> false;
+        };
+
+        if (!validType) return false;
+
+        int damageTaken = armor.getDamageValue();
+        int maxDurability = armor.getMaxDamage();
+        double damagePercent = (double) damageTaken / maxDurability;
+
+        // Calculate costs based on slot
+        int brassCost, electronicsCost, glassCost;
+        switch (slot) {
+            case 0: // Helmet
+                brassCost = (int) Math.ceil(damagePercent * 60 / 5) * 5;
+                electronicsCost = (int) Math.ceil(damagePercent * 120 / 5) * 5;
+                glassCost = (int) Math.ceil(damagePercent * 30 / 5) * 5;
+                break;
+            case 1: // Chestplate
+                brassCost = (int) Math.ceil(damagePercent * 120 / 5) * 5;
+                electronicsCost = (int) Math.ceil(damagePercent * 180 / 5) * 5;
+                glassCost = (int) Math.ceil(damagePercent * 10 / 5) * 5;
+                break;
+            case 2: // Leggings
+                brassCost = (int) Math.ceil(damagePercent * 100 / 5) * 5;
+                electronicsCost = (int) Math.ceil(damagePercent * 150 / 5) * 5;
+                glassCost = 0;
+                break;
+            case 3: // Boots
+                brassCost = (int) Math.ceil(damagePercent * 50 / 5) * 5;
+                electronicsCost = (int) Math.ceil(damagePercent * 90 / 5) * 5;
+                glassCost = 0;
+                break;
+            default:
+                return false;
+        }
+
+        if (!consumeMaterials(brassCost, electronicsCost, glassCost)) return false;
+
+        armor.setDamageValue(0);
         stand.setChanged();
+        setChanged();
         return true;
     }
 
-    /** Repair brass chestplate (button 2) */
-    public boolean repairChestplate() {
-        var stand = getArmorStandAbove();
-        if (stand == null) return false;
-        ItemStack cp = stand.getArmor(1);
-        if (cp.isEmpty() || !cp.isDamaged() || !(cp.getItem() instanceof BrassChestplateItem))
-            return false;
-        int pct = (cp.getDamageValue() * 100) / cp.getMaxDamage();
-        int b = round5((pct * 2) / 3), e = round5(pct / 2);
-        if (!consumeMaterials(b, e, 0)) return false;
-        cp.setDamageValue(0);
-        stand.setChanged();
-        return true;
-    }
-
-    /** Repair brass leggings (button 3) */
-    public boolean repairLeggings() {
-        var stand = getArmorStandAbove();
-        if (stand == null) return false;
-        ItemStack lg = stand.getArmor(2);
-        if (lg.isEmpty() || !lg.isDamaged() || !(lg.getItem() instanceof BrassLeggingsItem))
-            return false;
-        int pct = (lg.getDamageValue() * 100) / lg.getMaxDamage();
-        int b = round5(pct / 2), e = round5(pct / 3);
-        if (!consumeMaterials(b, e, 0)) return false;
-        lg.setDamageValue(0);
-        stand.setChanged();
-        return true;
-    }
-
-    /** Repair brass boots (button 4) */
-    public boolean repairBoots() {
-        var stand = getArmorStandAbove();
-        if (stand == null) return false;
-        ItemStack bt = stand.getArmor(3);
-        if (bt.isEmpty() || !bt.isDamaged() || !(bt.getItem() instanceof BrassBootsItem))
-            return false;
-        int pct = (bt.getDamageValue() * 100) / bt.getMaxDamage();
-        int b = round5(pct / 3), e = round5(pct / 4);
-        if (!consumeMaterials(b, e, 0)) return false;
-        bt.setDamageValue(0);
-        stand.setChanged();
-        return true;
-    }
-
-    private int round5(int v) {
-        return v == 0 ? 0 : ((v + 4) / 5) * 5;
-    }
+    // Legacy methods for backwards compatibility
+    public boolean repairHelmet() { return repairArmorSlot(0); }
+    public boolean repairChestplate() { return repairArmorSlot(1); }
+    public boolean repairLeggings() { return repairArmorSlot(2); }
+    public boolean repairBoots() { return repairArmorSlot(3); }
 
     public int getMaterial(int type) { return materials[type]; }
     public void setMaterial(int type, int amt) { materials[type] = Math.max(0, amt); setChanged(); }
 
     public boolean consumeMaterials(int b, int e, int g) {
         if (materials[0] >= b && materials[1] >= e && materials[2] >= g) {
-            materials[0] -= b; materials[1] -= e; materials[2] -= g;
+            materials[0] -= b;
+            materials[1] -= e;
+            materials[2] -= g;
             setChanged();
             return true;
         }

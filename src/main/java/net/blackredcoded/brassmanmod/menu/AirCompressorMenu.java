@@ -1,7 +1,9 @@
 package net.blackredcoded.brassmanmod.menu;
 
 import net.blackredcoded.brassmanmod.blockentity.AirCompressorBlockEntity;
+import net.blackredcoded.brassmanmod.blockentity.BrassArmorStandBlockEntity;
 import net.blackredcoded.brassmanmod.registry.ModMenuTypes;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -14,7 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class AirCompressorMenu extends AbstractContainerMenu {
-
     private final AirCompressorBlockEntity blockEntity;
     private final ContainerLevelAccess access;
     private final ContainerData data;
@@ -27,7 +28,6 @@ public class AirCompressorMenu extends AbstractContainerMenu {
     // Server constructor
     public AirCompressorMenu(int containerId, Inventory playerInventory, BlockEntity blockEntity) {
         super(ModMenuTypes.AIR_COMPRESSOR_MENU.get(), containerId);
-
         if (blockEntity instanceof AirCompressorBlockEntity compressor) {
             this.blockEntity = compressor;
             this.data = new SimpleContainerData(3);
@@ -38,7 +38,6 @@ public class AirCompressorMenu extends AbstractContainerMenu {
         this.access = ContainerLevelAccess.create(blockEntity.getLevel(), blockEntity.getBlockPos());
         this.addDataSlots(this.data);
         this.addSlot(new Slot(this.blockEntity, 0, 8, 50));
-
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
     }
@@ -47,11 +46,9 @@ public class AirCompressorMenu extends AbstractContainerMenu {
     public ItemStack quickMoveStack(Player player, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
-
         if (slot.hasItem()) {
             ItemStack stack = slot.getItem();
             itemstack = stack.copy();
-
             if (index < 1) {
                 if (!this.moveItemStackTo(stack, 1, this.slots.size(), true)) {
                     return ItemStack.EMPTY;
@@ -61,14 +58,12 @@ public class AirCompressorMenu extends AbstractContainerMenu {
                     return ItemStack.EMPTY;
                 }
             }
-
             if (stack.isEmpty()) {
                 slot.set(ItemStack.EMPTY);
             } else {
                 slot.setChanged();
             }
         }
-
         return itemstack;
     }
 
@@ -83,6 +78,29 @@ public class AirCompressorMenu extends AbstractContainerMenu {
 
     public int getMaterial(int type) {
         return this.data.get(type);
+    }
+
+    public ItemStack[] getArmorStacks() {
+        // Get the armor stand block entity (1 block above the compressor)
+        BlockPos armorStandPos = this.blockEntity.getBlockPos().above();
+        if (this.blockEntity.getLevel() != null) {
+            BlockEntity be = this.blockEntity.getLevel().getBlockEntity(armorStandPos);
+            if (be instanceof BrassArmorStandBlockEntity armorStand) {
+                return new ItemStack[] {
+                        armorStand.getArmor(0), // helmet
+                        armorStand.getArmor(1), // chestplate
+                        armorStand.getArmor(2), // leggings
+                        armorStand.getArmor(3)  // boots
+                };
+            }
+        }
+        // Return empty stacks if armor stand not found
+        return new ItemStack[] {
+                ItemStack.EMPTY,
+                ItemStack.EMPTY,
+                ItemStack.EMPTY,
+                ItemStack.EMPTY
+        };
     }
 
     @Override

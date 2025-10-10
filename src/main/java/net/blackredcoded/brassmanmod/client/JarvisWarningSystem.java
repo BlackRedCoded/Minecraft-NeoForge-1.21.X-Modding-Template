@@ -13,10 +13,15 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.CustomizeGuiOverlayEvent;
 
 @EventBusSubscriber(modid = BrassManMod.MOD_ID, value = Dist.CLIENT)
 public class JarvisWarningSystem {
 
+    private static int currentChestplateDur = 0;
+    private static int currentLeggingsDur = 0;
+    private static int currentBootsDur = 0;
+    private static int currentHelmetDur = 0;
     private static int tickCounter = 0;
     private static boolean lowPowerWarned = false;
     private static boolean criticalPowerWarned = false;
@@ -25,7 +30,10 @@ public class JarvisWarningSystem {
     private static boolean lowHealthWarned = false;
     private static boolean lowHungerWarned = false;
     private static boolean lowBreathWarned = false;
-
+    private static boolean lowChestplateDurWarned = false;
+    private static boolean lowLeggingsDurWarned = false;
+    private static boolean lowBootsDurWarned = false;
+    private static boolean lowHelmetDurWarned = false;
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
@@ -38,8 +46,39 @@ public class JarvisWarningSystem {
         tickCounter++;
 
         if (tickCounter % 20 != 0) return;
-
+        EquipmentSlot[] armorSlots = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
         ItemStack chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
+        ItemStack leggings = player.getItemBySlot(EquipmentSlot.LEGS);
+        ItemStack boots = player.getItemBySlot(EquipmentSlot.FEET);
+        ItemStack helmet = player.getItemBySlot(EquipmentSlot.HEAD);
+        currentBootsDur = boots.getMaxDamage() - boots.getDamageValue();
+        currentLeggingsDur = leggings.getMaxDamage() - leggings.getDamageValue();
+        currentChestplateDur = chestplate.getMaxDamage() - chestplate.getDamageValue();
+        currentHelmetDur = helmet.getMaxDamage() - helmet.getDamageValue();
+        if (currentChestplateDur <= chestplate.getMaxDamage() / 10) {
+            if (!lowChestplateDurWarned) {
+                sendJarvisMessage(player, "WARNING: Chestplate has low durability! (Chestplate Durability: " + currentChestplateDur + ")", ChatFormatting.DARK_RED);
+                lowChestplateDurWarned = true;
+            }
+        }
+        if (currentLeggingsDur <= leggings.getMaxDamage() / 10) {
+            if (!lowLeggingsDurWarned) {
+                sendJarvisMessage(player, "WARNING: Leggings has low durability! (Leggings  Durability: " + currentLeggingsDur + ")", ChatFormatting.DARK_RED);
+                lowLeggingsDurWarned = true;
+            }
+        }
+        if (currentBootsDur <= boots.getMaxDamage() / 10) {
+            if (!lowBootsDurWarned) {
+                sendJarvisMessage(player, "WARNING: Boots has low durability! (Boots  Durability: " + currentBootsDur + ")", ChatFormatting.DARK_RED);
+                lowBootsDurWarned = true;
+            }
+        }
+        if (currentHelmetDur <= helmet.getMaxDamage() / 10) {
+            if (!lowHelmetDurWarned) {
+                sendJarvisMessage(player, "WARNING: Helmet has low durability! (Helmet Durability: " + currentHelmetDur + ")", ChatFormatting.DARK_RED);
+                lowHelmetDurWarned = true;
+            }
+        }
         if (chestplate.getItem() instanceof BrassChestplateItem brass) {
             int power = brass.power(chestplate);
             int air = brass.air(chestplate);
@@ -114,7 +153,7 @@ public class JarvisWarningSystem {
         player.displayClientMessage(
                 Component.literal("JARVIS: ").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD)
                         .append(Component.literal(message).withStyle(color)),
-                false
+                true
         );
     }
 }

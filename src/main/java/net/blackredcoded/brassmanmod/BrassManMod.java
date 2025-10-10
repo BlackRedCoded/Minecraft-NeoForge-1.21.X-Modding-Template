@@ -59,9 +59,9 @@ public class BrassManMod {
                         // Blocks
                         output.accept(ModBlocks.AIR_COMPRESSOR.get());
                         output.accept(ModBlocks.BRASS_ARMOR_STAND.get());
-                        output.accept(ModBlocks.BRASS_MODIFICATION_STATION.get());
-
+                        output.accept(ModBlocks.DATA_LINK.get());
                         // Note: BRASS_ARMOR_STAND_TOP is not added - it's auto-placed
+                        output.accept(ModBlocks.BRASS_MODIFICATION_STATION.get());
                     })
                     .build()
     );

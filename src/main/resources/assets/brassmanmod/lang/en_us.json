@@ -19,7 +19,9 @@
   "block.brassmanmod.air_compressor": "Air Compressor",
   "block.brassmanmod.brass_armor_stand": "Brass Armor Stand",
   "block.brassmanmod.brass_modification_station": "Brass Modification Station",
+  "block.brassmanmod.data_link": "Data Link",
 
+  "container.brassmanmod.data_link": "Data Link",
   "container.brassmanmod.air_compressor": "Air Compressor",
 
   "ponder.air_compressor.title": "Air Compressor",

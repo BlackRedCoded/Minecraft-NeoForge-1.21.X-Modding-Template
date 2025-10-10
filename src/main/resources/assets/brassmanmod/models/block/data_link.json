@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "front": "brassmanmod:block/data_link",
+    "side": "brassmanmod:block/data_link_side",
+    "particle": "brassmanmod:block/data_link"
+  },
+  "elements": [
+    {
+      "comment": "Main flat panel (8x8x2 pixels)",
+      "from": [4, 4, 14],
+      "to": [12, 12, 16],
+      "faces": {
+        "north": {"uv": [0, 0, 8, 8], "texture": "#side"},
+        "east": {"uv": [0, 0, 2, 8], "texture": "#side"},
+        "south": {"uv": [0, 0, 8, 8], "texture": "#front"},
+        "west": {"uv": [0, 0, 2, 8], "texture": "#side"},
+        "up": {"uv": [0, 0, 8, 2], "texture": "#side"},
+        "down": {"uv": [0, 0, 8, 2], "texture": "#side"}
+      }
+    },
+    {
+      "comment": "Small antenna on top",
+      "from": [7, 12, 15],
+      "to": [9, 14, 15.5],
+      "faces": {
+        "north": {"uv": [0, 0, 2, 2], "texture": "#side"},
+        "east": {"uv": [0, 0, 0.5, 2], "texture": "#side"},
+        "south": {"uv": [0, 0, 2, 2], "texture": "#side"},
+        "west": {"uv": [0, 0, 0.5, 2], "texture": "#side"},
+        "up": {"uv": [0, 0, 2, 0.5], "texture": "#side"}
+      }
+    }
+  ]
+}

@@ -1,12 +1,14 @@
 package net.blackredcoded.brassmanmod.registry;
 
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class MaterialConverter {
-
     // Material types
     public static final int BRASS = 0;
     public static final int ELECTRONICS = 1;
@@ -19,26 +21,9 @@ public class MaterialConverter {
     private static final Map<Item, int[]> CONVERSIONS = new HashMap<>();
 
     static {
-        // Brass conversions
-        register(Items.COPPER_INGOT, 50, 0, 0); // Brass Ingot (using copper as placeholder)
-        register(Items.IRON_NUGGET, 5, 0, 0); // Brass Nugget (placeholder)
-
-        // Electronics conversions
-        register(Items.REDSTONE, 0, 5, 0);
-        register(Items.REPEATER, 0, 15, 0);
-        register(Items.COMPARATOR, 0, 20, 0);
-
-        // Glass conversions
-        register(Items.GLASS, 0, 0, 10);
-        register(Items.GLASS_PANE, 0, 0, 5);
-
-        // Complex items (multiple materials)
-        register(Items.CLOCK, 25, 30, 5); // Precision Mechanism placeholder
-        register(Items.PISTON, 15, 20, 0);
-    }
-
-    private static void register(Item item, int brass, int electronics, int glass) {
-        CONVERSIONS.put(item, new int[]{brass, electronics, glass});
+        // Load all conversions from the registry
+        RegistrationHelper helper = new RegistrationHelper();
+        MaterialConversionRegistry.registerConversions(helper);
     }
 
     public static int[] getMaterials(Item item) {
@@ -47,5 +32,37 @@ public class MaterialConverter {
 
     public static boolean canConvert(Item item) {
         return CONVERSIONS.containsKey(item);
+    }
+
+    /**
+     * Helper class for registering conversions in MaterialConversionRegistry
+     */
+    public static class RegistrationHelper {
+        /**
+         * Register a modded item by resource location (e.g., "create:brass_ingot")
+         */
+        public void registerByName(String itemId, int brass, int electronics, int glass) {
+            try {
+                ResourceLocation loc = ResourceLocation.parse(itemId);
+                Item item = BuiltInRegistries.ITEM.get(loc);
+                if (item != Items.AIR) {
+                    CONVERSIONS.put(item, new int[]{brass, electronics, glass});
+                }
+            } catch (Exception e) {
+                // Item not found or mod not loaded - skip silently
+            }
+        }
+
+        /**
+         * Register a vanilla Minecraft item by name (e.g., "REDSTONE", "GLASS")
+         */
+        public void registerVanilla(String itemName, int brass, int electronics, int glass) {
+            try {
+                Item item = (Item) Items.class.getField(itemName).get(null);
+                CONVERSIONS.put(item, new int[]{brass, electronics, glass});
+            } catch (Exception e) {
+                // Item not found - skip silently
+            }
+        }
     }
 }

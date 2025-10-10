@@ -86,8 +86,8 @@ public class BrassArmorHudOverlay implements LayeredDraw.Layer {
 
         y += 15;
 
-        EquipmentSlot[] armorSlots = {EquipmentSlot.FEET, EquipmentSlot.LEGS, EquipmentSlot.CHEST, EquipmentSlot.HEAD};
-        String[] armorNames = {"BOOTS", "LEGS", "CHEST", "HELMET"};
+        EquipmentSlot[] armorSlots = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
+        String[] armorNames = {"HELMET", "CHESTPLATE", "LEGGINGS", "BOOTS"};
 
         for (int i = 0; i < 4; i++) {
             ItemStack armor = player.getItemBySlot(armorSlots[i]);
