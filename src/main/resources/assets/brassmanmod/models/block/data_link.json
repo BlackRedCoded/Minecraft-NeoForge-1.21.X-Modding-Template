@@ -11,24 +11,25 @@
       "from": [4, 4, 14],
       "to": [12, 12, 16],
       "faces": {
-        "north": {"uv": [0, 0, 8, 8], "texture": "#side"},
-        "east": {"uv": [0, 0, 2, 8], "texture": "#side"},
-        "south": {"uv": [0, 0, 8, 8], "texture": "#front"},
-        "west": {"uv": [0, 0, 2, 8], "texture": "#side"},
-        "up": {"uv": [0, 0, 8, 2], "texture": "#side"},
-        "down": {"uv": [0, 0, 8, 2], "texture": "#side"}
+        "north": {"uv": [0, 0, 16, 16], "texture": "#side"},
+        "east": {"uv": [0, 0, 4, 16], "texture": "#side"},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#front"},
+        "west": {"uv": [12, 0, 16, 16], "texture": "#side"},
+        "up": {"uv": [0, 0, 16, 4], "texture": "#side"},
+        "down": {"uv": [0, 12, 16, 16], "texture": "#side"}
       }
     },
     {
-      "comment": "Small antenna on top",
-      "from": [7, 12, 15],
-      "to": [9, 14, 15.5],
+      "comment": "Antenna on left side (1x6x1 pixels, extends back from Z:13 to Z:15)",
+      "from": [12, 11, 13],
+      "to": [13, 16, 15],
       "faces": {
-        "north": {"uv": [0, 0, 2, 2], "texture": "#side"},
-        "east": {"uv": [0, 0, 0.5, 2], "texture": "#side"},
-        "south": {"uv": [0, 0, 2, 2], "texture": "#side"},
-        "west": {"uv": [0, 0, 0.5, 2], "texture": "#side"},
-        "up": {"uv": [0, 0, 2, 0.5], "texture": "#side"}
+        "north": {"uv": [0, 0, 1, 5], "texture": "#side"},
+        "east": {"uv": [1, 0, 3, 5], "texture": "#side"},
+        "south": {"uv": [0, 0, 1, 5], "texture": "#side"},
+        "west": {"uv": [1, 0, 3, 5], "texture": "#side"},
+        "up": {"uv": [0, 0, 1, 2], "texture": "#side"},
+        "down": {"uv": [0, 0, 1, 2], "texture": "#side"}
       }
     }
   ]

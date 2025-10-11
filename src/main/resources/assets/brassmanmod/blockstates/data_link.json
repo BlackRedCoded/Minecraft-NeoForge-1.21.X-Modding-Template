@@ -1,10 +1,26 @@
 {
   "variants": {
-    "facing=north": { "model": "brassmanmod:block/data_link" },
-    "facing=south": { "model": "brassmanmod:block/data_link", "y": 180 },
-    "facing=west": { "model": "brassmanmod:block/data_link", "y": 270 },
-    "facing=east": { "model": "brassmanmod:block/data_link", "y": 90 },
-    "facing=up": { "model": "brassmanmod:block/data_link", "x": 270 },
-    "facing=down": { "model": "brassmanmod:block/data_link", "x": 90 }
+    "facing=north": {
+      "model": "brassmanmod:block/data_link"
+    },
+    "facing=south": {
+      "model": "brassmanmod:block/data_link",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "brassmanmod:block/data_link",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "brassmanmod:block/data_link",
+      "y": 90
+    },
+    "facing=up": {
+      "model": "brassmanmod:block/data_link_vertical"
+    },
+    "facing=down": {
+      "model": "brassmanmod:block/data_link_vertical",
+      "x": 180
+    }
   }
 }
