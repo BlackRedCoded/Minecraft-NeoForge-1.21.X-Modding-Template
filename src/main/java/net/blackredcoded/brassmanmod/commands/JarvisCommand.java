@@ -5,11 +5,15 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.blackredcoded.brassmanmod.config.FlightConfig;
+import net.blackredcoded.brassmanmod.items.BrassHelmetItem;
+import net.blackredcoded.brassmanmod.items.JarvisCommunicatorItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
 
 public class JarvisCommand {
 
@@ -17,60 +21,50 @@ public class JarvisCommand {
         dispatcher.register(Commands.literal("jarvis")
                 .then(Commands.literal("flight")
                         .then(Commands.argument("enabled", BoolArgumentType.bool())
-                                .executes(JarvisCommand::toggleFlight)
-                        )
-                )
+                                .executes(JarvisCommand::toggleFlight)))
                 .then(Commands.literal("hover")
                         .then(Commands.argument("enabled", BoolArgumentType.bool())
-                                .executes(JarvisCommand::toggleHover)
-                        )
-                )
+                                .executes(JarvisCommand::toggleHover)))
                 .then(Commands.literal("nightvision")
                         .then(Commands.argument("enabled", BoolArgumentType.bool())
-                                .executes(JarvisCommand::toggleNightvision)
-                        )
-                )
+                                .executes(JarvisCommand::toggleNightvision)))
+                .then(Commands.literal("hud")
+                        .then(Commands.argument("enabled", BoolArgumentType.bool())
+                                .executes(JarvisCommand::toggleHud)))
                 .then(Commands.literal("flightspeed")
                         .then(Commands.argument("percent", IntegerArgumentType.integer(0, 100))
-                                .executes(JarvisCommand::setFlightSpeed)
-                        )
-                )
+                                .executes(JarvisCommand::setFlightSpeed)))
                 .then(Commands.literal("speedboost")
                         .then(Commands.argument("percent", IntegerArgumentType.integer(0, 100))
-                                .executes(JarvisCommand::setSpeedBoost)
-                        )
-                )
+                                .executes(JarvisCommand::setSpeedBoost)))
                 .then(Commands.literal("jumpboost")
                         .then(Commands.argument("percent", IntegerArgumentType.integer(0, 100))
-                                .executes(JarvisCommand::setJumpBoost)
-                        )
-                )
+                                .executes(JarvisCommand::setJumpBoost)))
                 .then(Commands.literal("fallsave")
                         .then(Commands.literal("hover")
                                 .then(Commands.argument("enabled", BoolArgumentType.bool())
-                                        .executes(JarvisCommand::setFallsaveHover)
-                                )
-                        )
+                                        .executes(JarvisCommand::setFallsaveHover)))
                         .then(Commands.literal("flight")
                                 .then(Commands.argument("enabled", BoolArgumentType.bool())
-                                        .executes(JarvisCommand::setFallsaveFlight)
-                                )
-                        )
-                        .then(Commands.literal("powertoair")
-                                .then(Commands.argument("amount", IntegerArgumentType.integer(0, 1000))
-                                        .executes(JarvisCommand::setFallsavePowerToAir)
-                                )
-                        )
-                )
+                                        .executes(JarvisCommand::setFallsaveFlight)))
+                        // REMOVED: powertoair command
+                        .then(Commands.literal("callsuit")
+                                .then(Commands.argument("enabled", BoolArgumentType.bool())
+                                        .executes(JarvisCommand::setFallsaveCallSuit))))
                 .then(Commands.literal("status")
-                        .executes(JarvisCommand::showStatus)
-                )
+                        .executes(JarvisCommand::showStatus))
         );
+    }
+
+    private static boolean hasJarvisAccess(ServerPlayer player) {
+        ItemStack helmet = player.getItemBySlot(EquipmentSlot.HEAD);
+        return helmet.getItem() instanceof BrassHelmetItem ||
+                helmet.getItem() instanceof JarvisCommunicatorItem;
     }
 
     private static int toggleFlight(CommandContext<CommandSourceStack> context) {
         ServerPlayer player = context.getSource().getPlayer();
-        if (player == null) return 0;
+        if (player == null || !hasJarvisAccess(player)) return 0;
 
         boolean enabled = BoolArgumentType.getBool(context, "enabled");
         FlightConfig.PlayerFlightData data = FlightConfig.get(player);
@@ -84,7 +78,7 @@ public class JarvisCommand {
 
     private static int toggleHover(CommandContext<CommandSourceStack> context) {
         ServerPlayer player = context.getSource().getPlayer();
-        if (player == null) return 0;
+        if (player == null || !hasJarvisAccess(player)) return 0;
 
         boolean enabled = BoolArgumentType.getBool(context, "enabled");
         FlightConfig.PlayerFlightData data = FlightConfig.get(player);
@@ -98,7 +92,7 @@ public class JarvisCommand {
 
     private static int toggleNightvision(CommandContext<CommandSourceStack> context) {
         ServerPlayer player = context.getSource().getPlayer();
-        if (player == null) return 0;
+        if (player == null || !hasJarvisAccess(player)) return 0;
 
         boolean enabled = BoolArgumentType.getBool(context, "enabled");
         FlightConfig.PlayerFlightData data = FlightConfig.get(player);
@@ -110,9 +104,23 @@ public class JarvisCommand {
         return 1;
     }
 
+    private static int toggleHud(CommandContext<CommandSourceStack> context) {
+        ServerPlayer player = context.getSource().getPlayer();
+        if (player == null || !hasJarvisAccess(player)) return 0;
+
+        boolean enabled = BoolArgumentType.getBool(context, "enabled");
+        FlightConfig.PlayerFlightData data = FlightConfig.get(player);
+        data.hudEnabled = enabled;
+        FlightConfig.save(player, data);
+
+        player.sendSystemMessage(Component.literal("JARVIS: HUD display " + (enabled ? "enabled" : "disabled"))
+                .withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED));
+        return 1;
+    }
+
     private static int setFlightSpeed(CommandContext<CommandSourceStack> context) {
         ServerPlayer player = context.getSource().getPlayer();
-        if (player == null) return 0;
+        if (player == null || !hasJarvisAccess(player)) return 0;
 
         int percent = IntegerArgumentType.getInteger(context, "percent");
         FlightConfig.PlayerFlightData data = FlightConfig.get(player);
@@ -126,7 +134,7 @@ public class JarvisCommand {
 
     private static int setSpeedBoost(CommandContext<CommandSourceStack> context) {
         ServerPlayer player = context.getSource().getPlayer();
-        if (player == null) return 0;
+        if (player == null || !hasJarvisAccess(player)) return 0;
 
         int percent = IntegerArgumentType.getInteger(context, "percent");
         FlightConfig.PlayerFlightData data = FlightConfig.get(player);
@@ -140,7 +148,7 @@ public class JarvisCommand {
 
     private static int setJumpBoost(CommandContext<CommandSourceStack> context) {
         ServerPlayer player = context.getSource().getPlayer();
-        if (player == null) return 0;
+        if (player == null || !hasJarvisAccess(player)) return 0;
 
         int percent = IntegerArgumentType.getInteger(context, "percent");
         FlightConfig.PlayerFlightData data = FlightConfig.get(player);
@@ -152,10 +160,9 @@ public class JarvisCommand {
         return 1;
     }
 
-    // NEW: Fallsave hover toggle
     private static int setFallsaveHover(CommandContext<CommandSourceStack> context) {
         ServerPlayer player = context.getSource().getPlayer();
-        if (player == null) return 0;
+        if (player == null || !hasJarvisAccess(player)) return 0;
 
         boolean enabled = BoolArgumentType.getBool(context, "enabled");
         FlightConfig.PlayerFlightData data = FlightConfig.get(player);
@@ -167,10 +174,9 @@ public class JarvisCommand {
         return 1;
     }
 
-    // NEW: Fallsave flight toggle
     private static int setFallsaveFlight(CommandContext<CommandSourceStack> context) {
         ServerPlayer player = context.getSource().getPlayer();
-        if (player == null) return 0;
+        if (player == null || !hasJarvisAccess(player)) return 0;
 
         boolean enabled = BoolArgumentType.getBool(context, "enabled");
         FlightConfig.PlayerFlightData data = FlightConfig.get(player);
@@ -182,25 +188,25 @@ public class JarvisCommand {
         return 1;
     }
 
-    // NEW: Fallsave power-to-air conversion
-    private static int setFallsavePowerToAir(CommandContext<CommandSourceStack> context) {
-        ServerPlayer player = context.getSource().getPlayer();
-        if (player == null) return 0;
+    // REMOVED: setFallsavePowerToAir method
 
-        int amount = IntegerArgumentType.getInteger(context, "amount");
+    private static int setFallsaveCallSuit(CommandContext<CommandSourceStack> context) {
+        ServerPlayer player = context.getSource().getPlayer();
+        if (player == null || !hasJarvisAccess(player)) return 0;
+
+        boolean enabled = BoolArgumentType.getBool(context, "enabled");
         FlightConfig.PlayerFlightData data = FlightConfig.get(player);
-        data.fallsavePowerToAir = amount;
+        data.fallsaveCallSuit = enabled;
         FlightConfig.save(player, data);
 
-        int airGenerated = amount / 10;
-        player.sendSystemMessage(Component.literal("JARVIS: Fallsave power-to-air set to " + amount + " power (" + airGenerated + " air)")
-                .withStyle(ChatFormatting.GOLD));
+        player.sendSystemMessage(Component.literal("JARVIS: Fallsave auto-call suit " + (enabled ? "enabled" : "disabled"))
+                .withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED));
         return 1;
     }
 
     private static int showStatus(CommandContext<CommandSourceStack> context) {
         ServerPlayer player = context.getSource().getPlayer();
-        if (player == null) return 0;
+        if (player == null || !hasJarvisAccess(player)) return 0;
 
         FlightConfig.PlayerFlightData data = FlightConfig.get(player);
 
@@ -211,6 +217,8 @@ public class JarvisCommand {
                 .withStyle(data.hoverEnabled ? ChatFormatting.GREEN : ChatFormatting.RED));
         player.sendSystemMessage(Component.literal("Night Vision: " + (data.nightvisionEnabled ? "✓" : "✗"))
                 .withStyle(data.nightvisionEnabled ? ChatFormatting.GREEN : ChatFormatting.RED));
+        player.sendSystemMessage(Component.literal("HUD Display: " + (data.hudEnabled ? "✓" : "✗"))
+                .withStyle(data.hudEnabled ? ChatFormatting.GREEN : ChatFormatting.RED));
         player.sendSystemMessage(Component.literal("Flight Speed: " + data.flightSpeed + "%").withStyle(ChatFormatting.AQUA));
         player.sendSystemMessage(Component.literal("Speed Boost: " + data.speedBoost + "%").withStyle(ChatFormatting.YELLOW));
         player.sendSystemMessage(Component.literal("Jump Boost: " + data.jumpBoost + "%").withStyle(ChatFormatting.GREEN));
@@ -219,10 +227,10 @@ public class JarvisCommand {
                 .withStyle(data.fallsaveHover ? ChatFormatting.GREEN : ChatFormatting.RED));
         player.sendSystemMessage(Component.literal("Fallsave Flight: " + (data.fallsaveFlight ? "✓" : "✗"))
                 .withStyle(data.fallsaveFlight ? ChatFormatting.GREEN : ChatFormatting.RED));
-        player.sendSystemMessage(Component.literal("Fallsave Power→Air: " + data.fallsavePowerToAir + " power (" + (data.fallsavePowerToAir / 10) + " air)")
-                .withStyle(ChatFormatting.GOLD));
+        player.sendSystemMessage(Component.literal("Fallsave Call Suit: " + (data.fallsaveCallSuit ? "✓" : "✗"))
+                .withStyle(data.fallsaveCallSuit ? ChatFormatting.GREEN : ChatFormatting.RED));
+        // REMOVED: Power-to-Air status line
 
         return 1;
     }
-
 }

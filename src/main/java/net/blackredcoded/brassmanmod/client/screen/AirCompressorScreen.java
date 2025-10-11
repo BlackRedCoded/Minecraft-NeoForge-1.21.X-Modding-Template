@@ -1,6 +1,8 @@
 package net.blackredcoded.brassmanmod.client.screen;
 
-import net.blackredcoded.brassmanmod.BrassManMod;
+import net.blackredcoded.brassmanmod.network.CallSuitPacket;
+import net.blackredcoded.brassmanmod.network.RenameCompressorPacket;
+import net.minecraft.client.gui.components.EditBox;
 import net.blackredcoded.brassmanmod.items.BrassChestplateItem;
 import net.blackredcoded.brassmanmod.menu.AirCompressorMenu;
 import net.blackredcoded.brassmanmod.network.ConvertMaterialsPacket;
@@ -10,19 +12,19 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMenu> {
-    private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(BrassManMod.MOD_ID, "textures/gui/air_compressor.png");
 
     private int selectedArmorSlot = -1;
     private int hoveredArmorSlot = -1;
+    private EditBox nameField;
 
     public AirCompressorScreen(AirCompressorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -38,6 +40,16 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
         int leftPos = (this.width - this.imageWidth) / 2;
         int topPos = (this.height - this.imageHeight) / 2;
 
+        // ===== NAME TEXT FIELD =====
+        nameField = new EditBox(this.font, leftPos + 2, topPos + 2, 100, 12, Component.literal("Compressor Name"));
+        nameField.setMaxLength(16);
+        nameField.setValue(menu.getBlockEntity().getCustomName().getString());
+        nameField.setTextColor(0xFFFFFF);
+        nameField.setBordered(false);
+        nameField.setResponder(this::onNameChanged);
+        this.addRenderableWidget(nameField);
+
+        // ===== EXISTING BUTTONS =====
         this.addRenderableWidget(Button.builder(
                         Component.literal("Convert"),
                         button -> ConvertMaterialsPacket.send(this.menu.getBlockEntity().getBlockPos()))
@@ -53,6 +65,42 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
                         })
                 .bounds(leftPos + 90, topPos + 63, 60, 18)
                 .build());
+
+        // ===== NEW: CALL SUIT BUTTON =====
+        this.addRenderableWidget(Button.builder(
+                        Component.literal("Call Suit"),
+                        button -> {
+                            // Check if any armor exists on the stand
+                            ItemStack[] armorStacks = menu.getArmorStacks();
+                            boolean hasArmor = false;
+                            for (ItemStack stack : armorStacks) {
+                                if (!stack.isEmpty()) {
+                                    hasArmor = true;
+                                    break;
+                                }
+                            }
+
+                            if (hasArmor) {
+                                CallSuitPacket packet = new CallSuitPacket(this.menu.getBlockEntity().getBlockPos());
+                                PacketDistributor.sendToServer(packet);
+                            } else {
+                                // Show error message to player
+                                if (minecraft != null && minecraft.player != null) {
+                                    minecraft.player.displayClientMessage(
+                                            Component.literal("No armor on stand!").withStyle(style -> style.withColor(0xFF0000)),
+                                            true
+                                    );
+                                }
+                            }
+                        })
+                .bounds(leftPos + 90, topPos + 44, 60, 18)
+                .build());
+    }
+
+    private void onNameChanged(String newName) {
+        if (!newName.trim().isEmpty()) {
+            RenameCompressorPacket.send(menu.getBlockEntity().getBlockPos(), Component.literal(newName));
+        }
     }
 
     @Override
@@ -60,31 +108,43 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
         int x = (this.width - this.imageWidth) / 2;
         int y = (this.height - this.imageHeight) / 2;
 
+        // Main background
         guiGraphics.fill(x, y, x + this.imageWidth, y + this.imageHeight, 0xFFC6C6C6);
+
+        // Border
         guiGraphics.fill(x, y, x + this.imageWidth, y + 1, 0xFF8B8B8B);
         guiGraphics.fill(x, y, x + 1, y + this.imageHeight, 0xFF8B8B8B);
         guiGraphics.fill(x + this.imageWidth - 1, y, x + this.imageWidth, y + this.imageHeight, 0xFFFFFFFF);
         guiGraphics.fill(x, y + this.imageHeight - 1, x + this.imageWidth, y + this.imageHeight, 0xFFFFFFFF);
 
+        // Name field background
+        guiGraphics.fill(x + 7, y + 5, x + 169, y + 28, 0xFFC6C6C6);
+
+        // Input slot (slot 0)
         renderSlot(guiGraphics, x + 7, y + 49);
 
+        // Charging slot (slot 1)
+        renderSlot(guiGraphics, x + 129, y + 23);
+
+        // Armor slots
         hoveredArmorSlot = -1;
         for (int i = 0; i < 4; i++) {
             int slotX = x + 151;
             int slotY = y + 3 + (i * 20);
             renderArmorSlot(guiGraphics, slotX, slotY, i);
-
             if (mouseX >= slotX && mouseX < slotX + 18 && mouseY >= slotY && mouseY < slotY + 18) {
                 hoveredArmorSlot = i;
             }
         }
 
+        // Player inventory slots
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 9; ++col) {
                 renderSlot(guiGraphics, x + 7 + col * 18, y + 83 + row * 18);
             }
         }
 
+        // Player hotbar slots
         for (int col = 0; col < 9; ++col) {
             renderSlot(guiGraphics, x + 7 + col * 18, y + 141);
         }
@@ -114,39 +174,26 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
             ItemStack chestplate = menu.getArmorStacks()[1];
             if (chestplate.getItem() instanceof BrassChestplateItem chestItem) {
                 int air = chestItem.air(chestplate);
-                int maxAir = chestItem.getMaxAir(chestplate);
+                int maxAir = BrassChestplateItem.getMaxAir(chestplate);
                 int power = chestItem.power(chestplate);
-                int maxPower = chestItem.getMaxPower(chestplate);
+                int maxPower = BrassChestplateItem.getMaxPower(chestplate);
 
                 int airBarHeight = maxAir > 0 ? (int) ((float) air / maxAir * 16) : 0;
                 int powerBarHeight = maxPower > 0 ? (int) ((float) power / maxPower * 16) : 0;
 
-                // === LEFT BAR: Air (Cyan) - OUTSIDE slot ===
-                int leftBarX = x - 4;  // 4 pixels to the left of slot
-                int barY = y + 1;      // Same Y as slot content
-
-                // White outline
+                // LEFT BAR: Air (Cyan)
+                int leftBarX = x - 4;
+                int barY = y + 1;
                 guiGraphics.fill(leftBarX - 1, barY - 1, leftBarX + 3, barY + 17, 0xFFFFFFFF);
-
-                // Dark gray background
                 guiGraphics.fill(leftBarX, barY, leftBarX + 2, barY + 16, 0xFF444444);
-
-                // Cyan filled portion (from bottom up)
                 if (airBarHeight > 0) {
                     guiGraphics.fill(leftBarX, barY + 16 - airBarHeight, leftBarX + 2, barY + 16, 0xFF00FFFF);
                 }
 
-                // === RIGHT BAR: Power (Yellow) - OUTSIDE slot ===
-                int rightBarX = x + 20;  // 2 pixels to the right of slot (was 19, now 20)
-
-                // Black outline (changed from white)
-
+                // RIGHT BAR: Power (Yellow)
+                int rightBarX = x + 20;
                 guiGraphics.fill(rightBarX - 1, barY - 1, rightBarX + 3, barY + 17, 0xFFFFFFFF);
-
-                // Dark gray background
                 guiGraphics.fill(rightBarX, barY, rightBarX + 2, barY + 16, 0xFF444444);
-
-                // Yellow filled portion (from bottom up)
                 if (powerBarHeight > 0) {
                     guiGraphics.fill(rightBarX, barY + 16 - powerBarHeight, rightBarX + 2, barY + 16, 0xFFFFD700);
                 }
@@ -154,28 +201,24 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
         }
     }
 
-
-
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(1.2F, 1.2F, 1.2F);
-        guiGraphics.drawString(this.font, this.title,
-                (int)(this.titleLabelX / 1.2F), (int)(this.titleLabelY / 1.2F), 0x404040, false);
         guiGraphics.pose().popPose();
-
         guiGraphics.drawString(this.font, this.playerInventoryTitle,
                 this.inventoryLabelX, this.inventoryLabelY, 0x404040, false);
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
         int x = (this.width - this.imageWidth) / 2;
         int y = (this.height - this.imageHeight) / 2;
 
+        // Render armor items
         ItemStack[] armorStacks = menu.getArmorStacks();
         for (int i = 0; i < 4; i++) {
             ItemStack stack = armorStacks[i];
@@ -196,6 +239,7 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
             renderTooltip(guiGraphics, mouseX, mouseY);
         }
 
+        // Render material counts with cost/gain overlays
         int brass = this.menu.getMaterial(MaterialConverter.BRASS);
         int electronics = this.menu.getMaterial(MaterialConverter.ELECTRONICS);
         int glass = this.menu.getMaterial(MaterialConverter.GLASS);
@@ -227,50 +271,50 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
         if (costs != null) {
             if (costs[0] > 0) {
                 String costText = " -" + costs[0];
-                guiGraphics.drawString(this.font, costText, currentXBrass, y + 18, 0xFFCC0000, false); // Darker red
+                guiGraphics.drawString(this.font, costText, currentXBrass, y + 18, 0xFFCC0000, false);
                 currentXBrass += this.font.width(costText);
             }
             if (costs[1] > 0) {
                 String costText = " -" + costs[1];
-                guiGraphics.drawString(this.font, costText, currentXElectronics, y + 28, 0xFFCC0000, false); // Darker red
+                guiGraphics.drawString(this.font, costText, currentXElectronics, y + 28, 0xFFCC0000, false);
                 currentXElectronics += this.font.width(costText);
             }
             if (costs[2] > 0) {
                 String costText = " -" + costs[2];
-                guiGraphics.drawString(this.font, costText, currentXGlass, y + 38, 0xFFCC0000, false); // Darker red
+                guiGraphics.drawString(this.font, costText, currentXGlass, y + 38, 0xFFCC0000, false);
                 currentXGlass += this.font.width(costText);
             }
         }
 
         if (gains != null) {
             if (gains[0] > 0) {
-                guiGraphics.drawString(this.font, " +" + gains[0], currentXBrass, y + 18, 0xFF00AA00, false); // Medium green
+                guiGraphics.drawString(this.font, " +" + gains[0], currentXBrass, y + 18, 0xFF00AA00, false);
             }
             if (gains[1] > 0) {
-                guiGraphics.drawString(this.font, " +" + gains[1], currentXElectronics, y + 28, 0xFF00AA00, false); // Medium green
+                guiGraphics.drawString(this.font, " +" + gains[1], currentXElectronics, y + 28, 0xFF00AA00, false);
             }
             if (gains[2] > 0) {
-                guiGraphics.drawString(this.font, " +" + gains[2], currentXGlass, y + 38, 0xFF00AA00, false); // Medium green
+                guiGraphics.drawString(this.font, " +" + gains[2], currentXGlass, y + 38, 0xFF00AA00, false);
             }
         }
     }
 
     private List<Component> getArmorTooltip(ItemStack armor, int slot) {
         List<Component> tooltip = new ArrayList<>();
-
         tooltip.add(armor.getHoverName());
 
         int damage = armor.getDamageValue();
         int maxDurability = armor.getMaxDamage();
         int remaining = maxDurability - damage;
+
         tooltip.add(Component.literal("Durability: " + remaining + "/" + maxDurability)
                 .withStyle(style -> style.withColor(damage > 0 ? 0xFFAAAA : 0xAAAAAA)));
 
         if (slot == 1 && armor.getItem() instanceof BrassChestplateItem chestItem) {
             int air = chestItem.air(armor);
-            int maxAir = chestItem.getMaxAir(armor);
+            int maxAir = BrassChestplateItem.getMaxAir(armor);
             int power = chestItem.power(armor);
-            int maxPower = chestItem.getMaxPower(armor);
+            int maxPower = BrassChestplateItem.getMaxPower(armor);
 
             tooltip.add(Component.literal(""));
             tooltip.add(Component.literal("Air: " + air + "/" + maxAir)
@@ -339,23 +383,40 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
         return new int[]{brassCost, electronicsCost, glassCost};
     }
 
-    /**
-     * Calculate material gains using MaterialConverter registry
-     * Now works with ALL items in the conversion list!
-     */
     private int[] calculateMaterialGains(ItemStack stack) {
         if (stack.isEmpty()) {
             return null;
         }
 
-        // Use MaterialConverter to get conversion values for ANY registered item
         int[] materials = MaterialConverter.getMaterials(stack.getItem());
-
-        // If no materials can be extracted, return null
         if (materials[0] == 0 && materials[1] == 0 && materials[2] == 0) {
             return null;
         }
 
         return materials;
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (nameField != null && nameField.isFocused()) {
+            if (nameField.keyPressed(keyCode, scanCode, modifiers)) {
+                return true;
+            }
+        }
+
+        if (this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
+            return true;
+        }
+
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean charTyped(char codePoint, int modifiers) {
+        if (nameField.isFocused() && nameField.charTyped(codePoint, modifiers)) {
+            return true;
+        }
+
+        return super.charTyped(codePoint, modifiers);
     }
 }

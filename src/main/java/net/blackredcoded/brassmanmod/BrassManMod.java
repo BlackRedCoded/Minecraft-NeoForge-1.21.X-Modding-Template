@@ -3,10 +3,7 @@ package net.blackredcoded.brassmanmod;
 import net.blackredcoded.brassmanmod.client.BrassArmorHudOverlay;
 import net.blackredcoded.brassmanmod.commands.JarvisCommand;
 import net.blackredcoded.brassmanmod.commands.SetStatsCommand;
-import net.blackredcoded.brassmanmod.registry.ModBlockEntities;
-import net.blackredcoded.brassmanmod.registry.ModBlocks;
-import net.blackredcoded.brassmanmod.registry.ModItems;
-import net.blackredcoded.brassmanmod.registry.ModMenuTypes;
+import net.blackredcoded.brassmanmod.registry.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -62,6 +59,7 @@ public class BrassManMod {
                         output.accept(ModBlocks.DATA_LINK.get());
                         // Note: BRASS_ARMOR_STAND_TOP is not added - it's auto-placed
                         output.accept(ModBlocks.BRASS_MODIFICATION_STATION.get());
+                        output.accept(ModBlocks.COMPRESSOR_NETWORK_TERMINAL.get());
                     })
                     .build()
     );
@@ -71,6 +69,7 @@ public class BrassManMod {
         ModBlockEntities.register(modEventBus);
         ModItems.register(modEventBus);
         ModMenuTypes.register(modEventBus);
+        ModEntityTypes.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
 
         if (FMLEnvironment.dist == Dist.CLIENT) {

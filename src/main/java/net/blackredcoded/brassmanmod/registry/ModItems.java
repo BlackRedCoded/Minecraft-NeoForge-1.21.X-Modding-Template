@@ -51,6 +51,9 @@ public class ModItems {
     public static final Supplier<Item> POWER_EFFICIENCY_UPGRADE = ITEMS.register("power_efficiency_upgrade",
             () -> new PowerEfficiencyUpgradeItem(new Item.Properties()));
 
+    public static final Supplier<Item> COMPRESSOR_NETWORK_TABLET = ITEMS.register("compressor_network_tablet",
+            () -> new CompressorNetworkTabletItem(new Item.Properties().stacksTo(1).durability(100)));
+
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

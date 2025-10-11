@@ -1,5 +1,9 @@
 package net.blackredcoded.brassmanmod.blockentity;
 
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import org.jetbrains.annotations.Nullable;
 import net.blackredcoded.brassmanmod.blocks.AirCompressorBlock;
 import net.blackredcoded.brassmanmod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -57,10 +61,12 @@ public class DataLinkBlockEntity extends BlockEntity {
         return frequencyItem;
     }
 
-    public void setFrequencyItem(ItemStack stack) {
-        this.frequencyItem = stack.copy();
-        setChanged();
-        scanForCompressor();
+    public void setFrequencyItem(ItemStack item) {
+        this.frequencyItem = item.isEmpty() ? ItemStack.EMPTY : item.copy();
+        this.setChanged();
+        if (this.level != null && !this.level.isClientSide) {
+            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
+        }
     }
 
     /**
@@ -70,6 +76,7 @@ public class DataLinkBlockEntity extends BlockEntity {
         if (this.frequencyItem.isEmpty() || other.frequencyItem.isEmpty()) {
             return false;
         }
+
         return ItemStack.isSameItemSameComponents(this.frequencyItem, other.frequencyItem);
     }
 
@@ -85,7 +92,11 @@ public class DataLinkBlockEntity extends BlockEntity {
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
 
-        if (!frequencyItem.isEmpty()) {
+        // Safe handling for empty ItemStack
+        if (frequencyItem.isEmpty()) {
+            tag.putBoolean("HasFrequency", false);
+        } else {
+            tag.putBoolean("HasFrequency", true);
             tag.put("FrequencyItem", frequencyItem.save(registries));
         }
 
@@ -98,8 +109,11 @@ public class DataLinkBlockEntity extends BlockEntity {
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
 
-        if (tag.contains("FrequencyItem")) {
+        // Load frequency item safely
+        if (tag.getBoolean("HasFrequency") && tag.contains("FrequencyItem")) {
             frequencyItem = ItemStack.parse(registries, tag.getCompound("FrequencyItem")).orElse(ItemStack.EMPTY);
+        } else {
+            frequencyItem = ItemStack.EMPTY;
         }
 
         if (tag.contains("LinkedCompressor")) {
@@ -113,5 +127,18 @@ public class DataLinkBlockEntity extends BlockEntity {
         if (level != null && !level.isClientSide) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
+    }
+
+    @Nullable
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = new CompoundTag();
+        this.saveAdditional(tag, registries);
+        return tag;
     }
 }

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "brassmanmod:block/compressor_network_terminal"
+    },
+    "facing=south": {
+      "model": "brassmanmod:block/compressor_network_terminal",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "brassmanmod:block/compressor_network_terminal",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "brassmanmod:block/compressor_network_terminal",
+      "y": 90
+    }
+  }
+}

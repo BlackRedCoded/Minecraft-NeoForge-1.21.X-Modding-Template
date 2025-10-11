@@ -1,5 +1,4 @@
 {
-  "parent": "minecraft:block/block",
   "textures": {
     "front": "brassmanmod:block/data_link",
     "side": "brassmanmod:block/data_link_side",
@@ -7,28 +6,29 @@
   },
   "elements": [
     {
-      "comment": "Main flat panel (8x8x2 pixels) - horizontal when on ceiling/floor",
+      "comment": "Main flat panel (8x8x2 pixels)",
       "from": [4, 0, 4],
       "to": [12, 2, 12],
       "faces": {
-        "north": {"uv": [0, 14, 16, 16], "texture": "#side"},
-        "east": {"uv": [0, 14, 16, 16], "texture": "#side"},
-        "south": {"uv": [0, 14, 16, 16], "texture": "#side"},
-        "west": {"uv": [0, 14, 16, 16], "texture": "#side"},
+        "north": {"uv": [0, 0, 16, 4], "texture": "#side"},
+        "east": {"uv": [0, 0, 16, 4], "texture": "#side"},
+        "south": {"uv": [0, 0, 16, 4], "texture": "#side"},
+        "west": {"uv": [0, 0, 16, 4], "texture": "#side"},
         "up": {"uv": [0, 0, 16, 16], "texture": "#front"},
         "down": {"uv": [0, 0, 16, 16], "texture": "#side"}
       }
     },
     {
-      "comment": "Antenna sticks up (1x6x1 pixels)",
-      "from": [12, 2, 7],
-      "to": [13, 8, 8],
+      "comment": "Antenna (1x6x1 pixels) - moved 0.5 down, bottom texture fixed",
+      "from": [12, 1, 10.5],
+      "to": [13, 7, 11.5],
       "faces": {
         "north": {"uv": [0, 0, 1, 6], "texture": "#side"},
         "east": {"uv": [0, 0, 1, 6], "texture": "#side"},
         "south": {"uv": [0, 0, 1, 6], "texture": "#side"},
         "west": {"uv": [0, 0, 1, 6], "texture": "#side"},
-        "up": {"uv": [0, 0, 1, 1], "texture": "#side"}
+        "up": {"uv": [0, 0, 1, 1], "texture": "#side"},
+        "down": {"uv": [0, 0, 1, 1], "texture": "#side"}
       }
     }
   ]

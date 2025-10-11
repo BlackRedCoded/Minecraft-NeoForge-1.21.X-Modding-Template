@@ -46,6 +46,36 @@ public class ModNetworking {
                 ConsumeNightvisionPowerPacket::handle
         );
 
+        registrar.playToServer(
+                OpenRemoteCompressorPacket.TYPE,
+                OpenRemoteCompressorPacket.STREAM_CODEC,
+                OpenRemoteCompressorPacket::handle
+        );
+
+        registrar.playToServer(
+                RenameCompressorPacket.TYPE,
+                RenameCompressorPacket.STREAM_CODEC,
+                RenameCompressorPacket::handle
+        );
+
+        registrar.playToServer(
+                LinkTabletPacket.TYPE,
+                LinkTabletPacket.STREAM_CODEC,
+                LinkTabletPacket::handle
+        );
+
+        registrar.playToServer(
+                DrainTabletBatteryPacket.TYPE,
+                DrainTabletBatteryPacket.STREAM_CODEC,
+                DrainTabletBatteryPacket::handle
+        );
+
+        registrar.playToServer(
+                CallSuitPacket.TYPE,
+                CallSuitPacket.STREAM_CODEC,
+                CallSuitPacket::handle
+        );
+
         registrar.playToClient(
                 SyncFlightConfigPacket.TYPE,
                 SyncFlightConfigPacket.STREAM_CODEC,

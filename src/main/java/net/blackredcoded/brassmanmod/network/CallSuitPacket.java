@@ -1,0 +1,80 @@
+package net.blackredcoded.brassmanmod.network;
+
+import io.netty.buffer.ByteBuf;
+import net.blackredcoded.brassmanmod.blockentity.AirCompressorBlockEntity;
+import net.blackredcoded.brassmanmod.blockentity.BrassArmorStandBlockEntity;
+import net.blackredcoded.brassmanmod.entity.FlyingSuitEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+
+public record CallSuitPacket(BlockPos compressorPos) implements CustomPacketPayload {
+    public static final Type<CallSuitPacket> TYPE =
+            new Type<>(ResourceLocation.fromNamespaceAndPath("brassmanmod", "call_suit"));
+
+    public static final StreamCodec<ByteBuf, CallSuitPacket> STREAM_CODEC = StreamCodec.composite(
+            BlockPos.STREAM_CODEC,
+            CallSuitPacket::compressorPos,
+            CallSuitPacket::new
+    );
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
+
+    public static void handle(CallSuitPacket packet, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            if (!(context.player() instanceof ServerPlayer player)) return;
+
+            BlockEntity be = player.level().getBlockEntity(packet.compressorPos);
+            if (!(be instanceof AirCompressorBlockEntity compressor)) {
+                player.displayClientMessage(Component.literal("Error: Compressor not found!"), true);
+                return;
+            }
+
+            // Get armor stand above compressor
+            BlockPos standPos = packet.compressorPos.above();
+            BlockEntity standBE = player.level().getBlockEntity(standPos);
+            if (!(standBE instanceof BrassArmorStandBlockEntity armorStand)) {
+                player.displayClientMessage(Component.literal("Error: No armor stand found!"), true);
+                return;
+            }
+
+            // Get armor from stand
+            ItemStack helmet = armorStand.getArmor(0);
+            ItemStack chestplate = armorStand.getArmor(1);
+            ItemStack leggings = armorStand.getArmor(2);
+            ItemStack boots = armorStand.getArmor(3);
+
+            // Check if any armor exists
+            if (helmet.isEmpty() && chestplate.isEmpty() && leggings.isEmpty() && boots.isEmpty()) {
+                player.displayClientMessage(Component.literal("No armor on stand!"), true);
+                return;
+            }
+
+            // Create flying suit entity
+            FlyingSuitEntity flyingSuit = new FlyingSuitEntity(
+                    player.level(), standPos, player,
+                    helmet, chestplate, leggings, boots
+            );
+
+            player.level().addFreshEntity(flyingSuit);
+
+            // Clear armor from stand
+            armorStand.setArmor(0, ItemStack.EMPTY);
+            armorStand.setArmor(1, ItemStack.EMPTY);
+            armorStand.setArmor(2, ItemStack.EMPTY);
+            armorStand.setArmor(3, ItemStack.EMPTY);
+
+            player.displayClientMessage(Component.literal("Suit incoming!"), true);
+        });
+    }
+}

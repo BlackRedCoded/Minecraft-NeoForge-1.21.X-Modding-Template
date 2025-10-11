@@ -3,6 +3,7 @@ package net.blackredcoded.brassmanmod.client;
 import net.blackredcoded.brassmanmod.BrassManMod;
 import net.blackredcoded.brassmanmod.config.FlightConfig;
 import net.blackredcoded.brassmanmod.items.BrassChestplateItem;
+import net.blackredcoded.brassmanmod.items.JarvisCommunicatorItem;
 import net.blackredcoded.brassmanmod.network.ConsumeAirPacket;
 import net.blackredcoded.brassmanmod.network.FallsavePacket;
 import net.minecraft.ChatFormatting;
@@ -36,6 +37,27 @@ public class FlightHandler {
         LocalPlayer player = mc.player;
         if (player == null || !player.level().isClientSide) return;
 
+        FlightConfig.PlayerFlightData config = FlightConfig.get(player);
+
+        // FIXED: Check for fallsave FIRST (before chestplate check)
+        // This allows fallsave to work with just JARVIS helmet!
+        if (!player.onGround() && player.getDeltaMovement().y < -0.5) {
+            if (!fallsaveTriggered && isFalling(player)) {
+                // Check if player has JARVIS access (helmet or communicator)
+                if (JarvisCommunicatorItem.hasJarvis(player)) {
+                    PacketDistributor.sendToServer(new FallsavePacket());
+                    fallsaveTriggered = true;
+                    player.displayClientMessage(
+                            Component.literal("JARVIS: Fall detected! Emergency protocols engaged").withStyle(ChatFormatting.RED),
+                            true
+                    );
+                }
+            }
+        } else if (player.onGround()) {
+            fallsaveTriggered = false;
+        }
+
+        // NOW check for chestplate (only needed for flight/hover, not fallsave)
         ItemStack chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
         if (!(chestplate.getItem() instanceof BrassChestplateItem)) {
             stopFlying(player);
@@ -43,21 +65,6 @@ public class FlightHandler {
         }
 
         int airAmount = BrassChestplateItem.getAir(chestplate);
-        FlightConfig.PlayerFlightData config = FlightConfig.get(player);
-
-        // Always trigger fallsave when falling
-        if (!player.onGround() && player.getDeltaMovement().y < -0.5) {
-            if (!fallsaveTriggered && isFalling(player)) {
-                PacketDistributor.sendToServer(new FallsavePacket());
-                fallsaveTriggered = true;
-                player.displayClientMessage(
-                        Component.literal("JARVIS: Fall detected! Emergency protocols engaged").withStyle(ChatFormatting.RED),
-                        true
-                );
-            }
-        } else if (player.onGround()) {
-            fallsaveTriggered = false;
-        }
 
         if (airAmount <= 0) {
             stopFlying(player);
@@ -68,7 +75,6 @@ public class FlightHandler {
         boolean shiftPressed = mc.options.keyShift.isDown();
         boolean isInAir = player.level().getBlockState(player.blockPosition().below()).isAir();
         int speedPercent = config.flightSpeed;
-
         int ticksPerAir;
         if (speedPercent <= 10) {
             ticksPerAir = 50;
@@ -97,7 +103,6 @@ public class FlightHandler {
             if (!isFlying) {
                 startFlying(player);
             }
-
             player.fallDistance = 0;
             airConsumeTicks++;
             if (airConsumeTicks >= ticksPerAir) {
@@ -121,7 +126,6 @@ public class FlightHandler {
             player.setPose(Pose.STANDING);
             player.setSwimming(false);
             floatingTicks = 0;
-
             spawnParticles(player);
         }
         // HOVER: In air + hover enabled (independent of flight)
@@ -133,12 +137,11 @@ public class FlightHandler {
             }
 
             if (shiftPressed) {
-                // FIXED: 2× faster base speed and acceleration, correct sign
                 Vec3 currentMovement = player.getDeltaMovement();
-                double baseSink = -0.6;                   // initial downward speed
-                double accelPerTick = -0.008;             // acceleration per tick (more negative)
+                double baseSink = -0.6;
+                double accelPerTick = -0.008;
                 double sinkSpeed = baseSink + (floatingTicks * accelPerTick);
-                sinkSpeed = Math.max(sinkSpeed, -3.2);    // max sink speed cap (2× faster max of previous -1.6)
+                sinkSpeed = Math.max(sinkSpeed, -3.2);
                 player.setDeltaMovement(
                         currentMovement.x * 0.9,
                         sinkSpeed,
@@ -162,31 +165,25 @@ public class FlightHandler {
 
     private static void spawnParticles(LocalPlayer player) {
         Vec3 pos = player.position();
-        float yaw = (float) Math.toRadians(player.getYRot()); // Player's horizontal rotation
-
-        // Relative offsets: [left-right, up-down, forward-back]
+        float yaw = (float) Math.toRadians(player.getYRot());
         double[][] relativeOffsets = {
-                { -0.3, 0.1,  0.0 },  // Left arm/leg
-                {  0.3, 0.1,  0.0 },  // Right arm/leg
-                { -0.3, 1.2,  0.0 },  // Left shoulder
-                {  0.3, 1.2,  0.0 }   // Right shoulder
+                { -0.3, 0.1, 0.0 },
+                { 0.3, 0.1, 0.0 },
+                { -0.3, 1.2, 0.0 },
+                { 0.3, 1.2, 0.0 }
         };
-
         for (double[] offset : relativeOffsets) {
-            // Rotate offsets based on player yaw
             double rotatedX = offset[0] * Math.cos(yaw) - offset[2] * Math.sin(yaw);
             double rotatedZ = offset[0] * Math.sin(yaw) + offset[2] * Math.cos(yaw);
-
             player.level().addParticle(
                     ParticleTypes.CLOUD,
                     pos.x + rotatedX,
                     pos.y + offset[1],
                     pos.z + rotatedZ,
-                    0.0, -0.05, 0.0  // Slight downward velocity
+                    0.0, -0.05, 0.0
             );
         }
     }
-
 
     private static boolean isFalling(LocalPlayer player) {
         BlockPos pos = player.blockPosition();

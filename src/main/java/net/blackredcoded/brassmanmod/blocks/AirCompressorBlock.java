@@ -5,11 +5,14 @@ import com.simibubi.create.content.kinetics.base.DirectionalKineticBlock;
 import com.simibubi.create.foundation.block.IBE;
 import net.blackredcoded.brassmanmod.blockentity.AirCompressorBlockEntity;
 import net.blackredcoded.brassmanmod.registry.ModBlockEntities;
+import net.blackredcoded.brassmanmod.util.CompressorRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -20,10 +23,11 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class AirCompressorBlock extends DirectionalKineticBlock implements IBE<AirCompressorBlockEntity> {
-    public static final MapCodec<AirCompressorBlock> CODEC = simpleCodec(AirCompressorBlock::new);
 
+    public static final MapCodec<AirCompressorBlock> CODEC = simpleCodec(AirCompressorBlock::new);
     private static final VoxelShape SHAPE = box(0, 0, 0, 16, 16, 16);
 
     public AirCompressorBlock(Properties properties) {
@@ -48,25 +52,51 @@ public class AirCompressorBlock extends DirectionalKineticBlock implements IBE<A
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction direction = context.getNearestLookingDirection().getOpposite();
-
         // Force horizontal placement only - no UP or DOWN
         if (direction == Direction.UP || direction == Direction.DOWN) {
             direction = context.getHorizontalDirection().getOpposite();
         }
-
         return this.defaultBlockState().setValue(FACING, direction);
+    }
+
+    // NEW: Track owner when placed
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+
+        if (!level.isClientSide && placer instanceof ServerPlayer player) {
+            // Register this compressor to the player
+            CompressorRegistry.registerCompressor(player.getUUID(), pos);
+
+            // Store owner in BlockEntity
+            if (level.getBlockEntity(pos) instanceof AirCompressorBlockEntity compressor) {
+                compressor.setOwner(player.getUUID());
+            }
+        }
+    }
+
+    // NEW: Unregister when broken
+    @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        if (!level.isClientSide) {
+            // Get owner from BlockEntity before it's destroyed
+            if (level.getBlockEntity(pos) instanceof AirCompressorBlockEntity compressor) {
+                if (compressor.getOwner() != null) {
+                    CompressorRegistry.unregisterCompressor(compressor.getOwner(), pos);
+                }
+            }
+        }
+        return super.playerWillDestroy(level, pos, state, player);
     }
 
     @Override
     public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
         Direction blockFacing = state.getValue(FACING);
-
         if (face == Direction.UP) {
             return false; // Top - armor stand placement
         }
-
         return face != blockFacing; // Front - decorative terminal
-// Bottom, back, left, right accept power
+        // Bottom, back, left, right accept power
     }
 
     @Override

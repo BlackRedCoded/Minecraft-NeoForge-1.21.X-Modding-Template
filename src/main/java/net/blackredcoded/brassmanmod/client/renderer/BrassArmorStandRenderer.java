@@ -23,8 +23,8 @@ import net.minecraft.world.item.ItemStack;
 
 public class BrassArmorStandRenderer implements BlockEntityRenderer<BrassArmorStandBlockEntity> {
 
-    private final HumanoidArmorModel<net.minecraft.world.entity.LivingEntity> innerArmorModel;
-    private final HumanoidArmorModel<net.minecraft.world.entity.LivingEntity> outerArmorModel;
+    private final HumanoidArmorModel<?> innerArmorModel;
+    private final HumanoidArmorModel<?> outerArmorModel;
 
     public BrassArmorStandRenderer(BlockEntityRendererProvider.Context context) {
         this.innerArmorModel = new HumanoidArmorModel<>(context.bakeLayer(ModelLayers.PLAYER_INNER_ARMOR));
@@ -34,25 +34,21 @@ public class BrassArmorStandRenderer implements BlockEntityRenderer<BrassArmorSt
     @Override
     public void render(BrassArmorStandBlockEntity armorStand, float partialTick, PoseStack poseStack,
                        MultiBufferSource buffer, int packedLight, int packedOverlay) {
-
         Direction facing = armorStand.getBlockState().getValue(BrassArmorStandBaseBlock.FACING);
-
         poseStack.pushPose();
 
-        // FIXED: Much higher to get armor out of ground
-        poseStack.translate(0.5, 3, 0.5); // Raised from 1.8 to 2.5
+        poseStack.translate(0.5, 3, 0.5);
 
-        // Apply facing rotation first
+        // FIXED: Corrected EAST/WEST rotation
         float yRotation = switch (facing) {
-            case SOUTH -> 180.0F;  // FIXED: Swapped from 0.0F
-            case WEST -> 270.0F;   // FIXED: Swapped from 90.0F
-            case EAST -> 90.0F;    // FIXED: Swapped from 270.0F
-            case NORTH -> 0.0F;    // FIXED: Swapped from 180.0F
+            case NORTH -> 0.0F;      // Face NORTH
+            case SOUTH -> 180.0F;    // Face SOUTH
+            case WEST -> 90.0F;      // Face WEST
+            case EAST -> 270.0F;     // Face EAST (was 90°, now 270°)
             default -> 0.0F;
         };
-        poseStack.mulPose(Axis.YP.rotationDegrees(yRotation));
 
-        // Perfect adult size scaling
+        poseStack.mulPose(Axis.YP.rotationDegrees(yRotation));
         poseStack.scale(-1.95F, -1.95F, 1.95F);
 
         // Render armor pieces
@@ -67,7 +63,6 @@ public class BrassArmorStandRenderer implements BlockEntityRenderer<BrassArmorSt
     private void renderArmorPiece(BrassArmorStandBlockEntity armorStand, EquipmentSlot equipmentSlot,
                                   PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         ItemStack itemStack = armorStand.getArmor(getSlotIndex(equipmentSlot));
-
         if (itemStack.isEmpty() || !(itemStack.getItem() instanceof ArmorItem armorItem)) {
             return;
         }
@@ -75,16 +70,13 @@ public class BrassArmorStandRenderer implements BlockEntityRenderer<BrassArmorSt
         Holder<ArmorMaterial> armorMaterial = armorItem.getMaterial();
         boolean isInnerModel = equipmentSlot == EquipmentSlot.LEGS;
         HumanoidArmorModel<?> model = isInnerModel ? innerArmorModel : outerArmorModel;
-
         ResourceLocation armorTexture = getArmorResource(armorMaterial, equipmentSlot, isInnerModel);
         VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.armorCutoutNoCull(armorTexture));
 
-        // Apply piece-specific adjustments
         poseStack.pushPose();
 
         if (equipmentSlot == EquipmentSlot.HEAD) {
-            // FIXED: Scale helmet smaller AND lower its position
-            poseStack.translate(0, 0.3, 0); // Lower helmet by 0.2 blocks
+            poseStack.translate(0, 0.3, 0);
             poseStack.scale(0.65F, 0.65F, 0.65F);
         }
 
@@ -94,32 +86,25 @@ public class BrassArmorStandRenderer implements BlockEntityRenderer<BrassArmorSt
         poseStack.popPose();
     }
 
-
     private void setupArmorModel(HumanoidArmorModel<?> model, EquipmentSlot slot) {
-        // Reset all parts to invisible
         model.setAllVisible(false);
 
         // Set armor stand pose
         model.rightArm.xRot = 0.0F;
         model.rightArm.yRot = 0.0F;
         model.rightArm.zRot = 0.1F;
-
         model.leftArm.xRot = 0.0F;
         model.leftArm.yRot = 0.0F;
         model.leftArm.zRot = -0.1F;
-
         model.rightLeg.xRot = 0.0F;
         model.rightLeg.yRot = 0.0F;
         model.rightLeg.zRot = 0.05F;
-
         model.leftLeg.xRot = 0.0F;
         model.leftLeg.yRot = 0.0F;
         model.leftLeg.zRot = -0.05F;
-
         model.head.xRot = 0.0F;
         model.head.yRot = 0.0F;
         model.head.zRot = 0.0F;
-
         model.body.xRot = 0.0F;
         model.body.yRot = 0.0F;
         model.body.zRot = 0.0F;

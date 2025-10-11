@@ -25,6 +25,11 @@ public class BrassArmorHudOverlay implements LayeredDraw.Layer {
     public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         if (minecraft.player == null) return;
 
+        // CHECK: Is HUD enabled via JARVIS?
+        if (!FlightConfig.isHudEnabled(minecraft.player)) {
+            return; // HUD disabled, don't render anything
+        }
+
         ItemStack helmet = minecraft.player.getItemBySlot(EquipmentSlot.HEAD);
         if (!(helmet.getItem() instanceof BrassHelmetItem)) return;
 
@@ -33,13 +38,11 @@ public class BrassArmorHudOverlay implements LayeredDraw.Layer {
 
         int power = brassChest.power(chestplate);
         int air = brassChest.air(chestplate);
-
         if (power <= 0) return;
 
         int screenWidth = minecraft.getWindow().getGuiScaledWidth();
         int screenHeight = minecraft.getWindow().getGuiScaledHeight();
 
-        // FIXED: Pass chestplate to get upgraded max values
         renderPowerAndAir(guiGraphics, power, air, chestplate, screenWidth, screenHeight);
         renderArmorDurability(guiGraphics, minecraft.player, screenWidth, screenHeight);
         renderFlightConfig(guiGraphics, minecraft.player, screenWidth, screenHeight);

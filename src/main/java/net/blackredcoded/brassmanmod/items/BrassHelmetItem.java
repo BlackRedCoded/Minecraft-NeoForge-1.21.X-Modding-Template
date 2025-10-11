@@ -1,5 +1,6 @@
 package net.blackredcoded.brassmanmod.items;
 
+import net.blackredcoded.brassmanmod.config.FlightConfig;
 import net.blackredcoded.brassmanmod.upgrade.ArmorUpgradeHelper;
 import net.minecraft.core.Holder;
 import net.minecraft.world.entity.Entity;
@@ -25,6 +26,11 @@ public class BrassHelmetItem extends ArmorItem {
     }
 
     private void consumePowerForHUD(ItemStack helmet, Player player) {
+        // Don't consume power if HUD is disabled
+        if (!FlightConfig.isHudEnabled(player)) {
+            return;
+        }
+
         ItemStack chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
         if (chestplate.getItem() instanceof BrassChestplateItem brassChest) {
             int power = brassChest.power(chestplate);
@@ -33,4 +39,5 @@ public class BrassHelmetItem extends ArmorItem {
             }
         }
     }
+
 }

@@ -16,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class AirCompressorMenu extends AbstractContainerMenu {
+
     private final AirCompressorBlockEntity blockEntity;
     private final ContainerLevelAccess access;
     private final ContainerData data;
@@ -28,6 +29,7 @@ public class AirCompressorMenu extends AbstractContainerMenu {
     // Server constructor
     public AirCompressorMenu(int containerId, Inventory playerInventory, BlockEntity blockEntity) {
         super(ModMenuTypes.AIR_COMPRESSOR_MENU.get(), containerId);
+
         if (blockEntity instanceof AirCompressorBlockEntity compressor) {
             this.blockEntity = compressor;
             this.data = new SimpleContainerData(3);
@@ -37,7 +39,11 @@ public class AirCompressorMenu extends AbstractContainerMenu {
 
         this.access = ContainerLevelAccess.create(blockEntity.getLevel(), blockEntity.getBlockPos());
         this.addDataSlots(this.data);
-        this.addSlot(new Slot(this.blockEntity, 0, 8, 50));
+
+        // Add slots
+        this.addSlot(new Slot(this.blockEntity, 0, 8, 50));        // INPUT_SLOT (existing)
+        this.addSlot(new Slot(this.blockEntity, 1, 130, 24));      // CHARGING_SLOT (new - between repair button and armor)
+
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
     }
@@ -46,24 +52,31 @@ public class AirCompressorMenu extends AbstractContainerMenu {
     public ItemStack quickMoveStack(Player player, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
+
         if (slot.hasItem()) {
             ItemStack stack = slot.getItem();
             itemstack = stack.copy();
-            if (index < 1) {
-                if (!this.moveItemStackTo(stack, 1, this.slots.size(), true)) {
+
+            // Slots 0-1 are block entity slots (input + charging)
+            if (index < 2) {
+                // Moving from block entity to player inventory
+                if (!this.moveItemStackTo(stack, 2, this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
             } else {
-                if (!this.moveItemStackTo(stack, 0, 1, false)) {
+                // Moving from player inventory to block entity
+                if (!this.moveItemStackTo(stack, 0, 2, false)) {
                     return ItemStack.EMPTY;
                 }
             }
+
             if (stack.isEmpty()) {
                 slot.set(ItemStack.EMPTY);
             } else {
                 slot.setChanged();
             }
         }
+
         return itemstack;
     }
 
@@ -94,6 +107,7 @@ public class AirCompressorMenu extends AbstractContainerMenu {
                 };
             }
         }
+
         // Return empty stacks if armor stand not found
         return new ItemStack[] {
                 ItemStack.EMPTY,

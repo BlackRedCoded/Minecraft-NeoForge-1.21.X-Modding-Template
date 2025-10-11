@@ -5,7 +5,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 public class FlightConfig {
-
     // Client-side cached config
     public static final PlayerFlightData CLIENT_CONFIG = new PlayerFlightData();
 
@@ -17,10 +16,13 @@ public class FlightConfig {
         public boolean nightvisionEnabled = false;
         public int speedBoost = 0;
         public int jumpBoost = 0;
-
         public boolean fallsaveHover = false;
         public boolean fallsaveFlight = false;
-        public int fallsavePowerToAir = 0;
+        // REMOVED: public int fallsavePowerToAir = 0;
+
+        // NEW FIELDS
+        public boolean hudEnabled = true;
+        public boolean fallsaveCallSuit = false;
 
         public CompoundTag save() {
             CompoundTag tag = new CompoundTag();
@@ -33,7 +35,9 @@ public class FlightConfig {
             tag.putInt("JumpBoost", jumpBoost);
             tag.putBoolean("FallsaveHover", fallsaveHover);
             tag.putBoolean("FallsaveFlight", fallsaveFlight);
-            tag.putInt("FallsavePowerToAir", fallsavePowerToAir);
+            // REMOVED: tag.putInt("FallsavePowerToAir", fallsavePowerToAir);
+            tag.putBoolean("HudEnabled", hudEnabled);
+            tag.putBoolean("FallsaveCallSuit", fallsaveCallSuit);
             return tag;
         }
 
@@ -47,7 +51,9 @@ public class FlightConfig {
             jumpBoost = tag.getInt("JumpBoost");
             fallsaveHover = tag.getBoolean("FallsaveHover");
             fallsaveFlight = tag.getBoolean("FallsaveFlight");
-            fallsavePowerToAir = tag.getInt("FallsavePowerToAir");
+            // REMOVED: fallsavePowerToAir = tag.getInt("FallsavePowerToAir");
+            hudEnabled = tag.contains("HudEnabled") ? tag.getBoolean("HudEnabled") : true;
+            fallsaveCallSuit = tag.getBoolean("FallsaveCallSuit");
         }
     }
 
@@ -58,12 +64,10 @@ public class FlightConfig {
             return new PlayerFlightData();
         }
 
-        // Client-side: return cached config
         if (player.level().isClientSide) {
             return CLIENT_CONFIG;
         }
 
-        // Server-side: load from persistent data
         PlayerFlightData data = new PlayerFlightData();
         if (player instanceof ServerPlayer serverPlayer) {
             CompoundTag persistentData = serverPlayer.getPersistentData();
@@ -78,14 +82,11 @@ public class FlightConfig {
         if (player instanceof ServerPlayer serverPlayer) {
             CompoundTag persistentData = serverPlayer.getPersistentData();
             persistentData.put(JARVIS_DATA_KEY, data.save());
-
-            // Sync to client
             syncToClient(serverPlayer, data);
         }
     }
 
     private static void syncToClient(ServerPlayer player, PlayerFlightData data) {
-        // Send packet to client - you need to import your packet sender here
         net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(
                 player,
                 new net.blackredcoded.brassmanmod.network.SyncFlightConfigPacket(data.save())
@@ -132,6 +133,14 @@ public class FlightConfig {
         PlayerFlightData data = get(player);
         data.jumpBoost = Math.max(0, Math.min(100, boost));
         save(player, data);
+    }
+
+    public static boolean isHudEnabled(Player player) {
+        return player != null && get(player).hudEnabled;
+    }
+
+    public static boolean isFallsaveCallSuitEnabled(Player player) {
+        return player != null && get(player).fallsaveCallSuit;
     }
 
     public static int getFlightSpeed(Player player) {

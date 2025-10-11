@@ -1,11 +1,7 @@
 package net.blackredcoded.brassmanmod.registry;
 
 import net.blackredcoded.brassmanmod.BrassManMod;
-import net.blackredcoded.brassmanmod.blocks.AirCompressorBlock;
-import net.blackredcoded.brassmanmod.blocks.BrassArmorStandBaseBlock;
-import net.blackredcoded.brassmanmod.blocks.BrassArmorStandTopBlock;
-import net.blackredcoded.brassmanmod.blocks.BrassModificationStationBlock;
-import net.blackredcoded.brassmanmod.blocks.DataLinkBlock;
+import net.blackredcoded.brassmanmod.blocks.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -60,6 +56,13 @@ public class ModBlocks {
                     .sound(SoundType.METAL)
                     .noOcclusion()));
 
+    public static final Supplier<Block> COMPRESSOR_NETWORK_TERMINAL = BLOCKS.register("compressor_network_terminal",
+            () -> new CompressorNetworkTerminalBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0f)
+                    .sound(SoundType.METAL)
+                    .noOcclusion()));
+
     public static void register(IEventBus eventBus) {
         BLOCKS.register(eventBus);
     }
@@ -73,5 +76,7 @@ public class ModBlocks {
                 () -> new BlockItem(BRASS_MODIFICATION_STATION.get(), new Item.Properties()));
         items.register("data_link",
                 () -> new BlockItem(DATA_LINK.get(), new Item.Properties()));
+        items.register("compressor_network_terminal",
+                () -> new BlockItem(COMPRESSOR_NETWORK_TERMINAL.get(), new Item.Properties()));
     }
 }
