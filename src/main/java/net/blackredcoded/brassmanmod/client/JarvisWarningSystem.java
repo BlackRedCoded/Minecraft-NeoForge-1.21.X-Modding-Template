@@ -13,7 +13,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.CustomizeGuiOverlayEvent;
 
 @EventBusSubscriber(modid = BrassManMod.MOD_ID, value = Dist.CLIENT)
 public class JarvisWarningSystem {
@@ -22,7 +21,9 @@ public class JarvisWarningSystem {
     private static int currentLeggingsDur = 0;
     private static int currentBootsDur = 0;
     private static int currentHelmetDur = 0;
+
     private static int tickCounter = 0;
+
     private static boolean lowPowerWarned = false;
     private static boolean criticalPowerWarned = false;
     private static boolean lowAirWarned = false;
@@ -34,6 +35,7 @@ public class JarvisWarningSystem {
     private static boolean lowLeggingsDurWarned = false;
     private static boolean lowBootsDurWarned = false;
     private static boolean lowHelmetDurWarned = false;
+
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
@@ -44,41 +46,76 @@ public class JarvisWarningSystem {
         if (!JarvisCommunicatorItem.hasJarvis(player)) return;
 
         tickCounter++;
-
         if (tickCounter % 20 != 0) return;
-        EquipmentSlot[] armorSlots = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
+
         ItemStack chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
         ItemStack leggings = player.getItemBySlot(EquipmentSlot.LEGS);
         ItemStack boots = player.getItemBySlot(EquipmentSlot.FEET);
         ItemStack helmet = player.getItemBySlot(EquipmentSlot.HEAD);
-        currentBootsDur = boots.getMaxDamage() - boots.getDamageValue();
-        currentLeggingsDur = leggings.getMaxDamage() - leggings.getDamageValue();
-        currentChestplateDur = chestplate.getMaxDamage() - chestplate.getDamageValue();
-        currentHelmetDur = helmet.getMaxDamage() - helmet.getDamageValue();
-        if (currentChestplateDur <= chestplate.getMaxDamage() / 10) {
-            if (!lowChestplateDurWarned) {
-                sendJarvisMessage(player, "WARNING: Chestplate has low durability! (Chestplate Durability: " + currentChestplateDur + ")", ChatFormatting.DARK_RED);
-                lowChestplateDurWarned = true;
+
+        // FIXED: Only check durability for items that HAVE durability (maxDamage > 0)
+
+        // Chestplate durability check
+        if (!chestplate.isEmpty() && chestplate.getMaxDamage() > 0) {
+            currentChestplateDur = chestplate.getMaxDamage() - chestplate.getDamageValue();
+            if (currentChestplateDur <= chestplate.getMaxDamage() / 10) {
+                if (!lowChestplateDurWarned) {
+                    sendJarvisMessage(player, "WARNING: Chestplate has low durability! (Durability: " + currentChestplateDur + ")", ChatFormatting.DARK_RED);
+                    lowChestplateDurWarned = true;
+                }
+            } else {
+                lowChestplateDurWarned = false;
             }
+        } else {
+            lowChestplateDurWarned = false; // Reset if item removed or has no durability
         }
-        if (currentLeggingsDur <= leggings.getMaxDamage() / 10) {
-            if (!lowLeggingsDurWarned) {
-                sendJarvisMessage(player, "WARNING: Leggings has low durability! (Leggings  Durability: " + currentLeggingsDur + ")", ChatFormatting.DARK_RED);
-                lowLeggingsDurWarned = true;
+
+        // Leggings durability check
+        if (!leggings.isEmpty() && leggings.getMaxDamage() > 0) {
+            currentLeggingsDur = leggings.getMaxDamage() - leggings.getDamageValue();
+            if (currentLeggingsDur <= leggings.getMaxDamage() / 10) {
+                if (!lowLeggingsDurWarned) {
+                    sendJarvisMessage(player, "WARNING: Leggings has low durability! (Durability: " + currentLeggingsDur + ")", ChatFormatting.DARK_RED);
+                    lowLeggingsDurWarned = true;
+                }
+            } else {
+                lowLeggingsDurWarned = false;
             }
+        } else {
+            lowLeggingsDurWarned = false;
         }
-        if (currentBootsDur <= boots.getMaxDamage() / 10) {
-            if (!lowBootsDurWarned) {
-                sendJarvisMessage(player, "WARNING: Boots has low durability! (Boots  Durability: " + currentBootsDur + ")", ChatFormatting.DARK_RED);
-                lowBootsDurWarned = true;
+
+        // Boots durability check
+        if (!boots.isEmpty() && boots.getMaxDamage() > 0) {
+            currentBootsDur = boots.getMaxDamage() - boots.getDamageValue();
+            if (currentBootsDur <= boots.getMaxDamage() / 10) {
+                if (!lowBootsDurWarned) {
+                    sendJarvisMessage(player, "WARNING: Boots has low durability! (Durability: " + currentBootsDur + ")", ChatFormatting.DARK_RED);
+                    lowBootsDurWarned = true;
+                }
+            } else {
+                lowBootsDurWarned = false;
             }
+        } else {
+            lowBootsDurWarned = false;
         }
-        if (currentHelmetDur <= helmet.getMaxDamage() / 10) {
-            if (!lowHelmetDurWarned) {
-                sendJarvisMessage(player, "WARNING: Helmet has low durability! (Helmet Durability: " + currentHelmetDur + ")", ChatFormatting.DARK_RED);
-                lowHelmetDurWarned = true;
+
+        // Helmet durability check
+        if (!helmet.isEmpty() && helmet.getMaxDamage() > 0) {
+            currentHelmetDur = helmet.getMaxDamage() - helmet.getDamageValue();
+            if (currentHelmetDur <= helmet.getMaxDamage() / 10) {
+                if (!lowHelmetDurWarned) {
+                    sendJarvisMessage(player, "WARNING: Helmet has low durability! (Durability: " + currentHelmetDur + ")", ChatFormatting.DARK_RED);
+                    lowHelmetDurWarned = true;
+                }
+            } else {
+                lowHelmetDurWarned = false;
             }
+        } else {
+            lowHelmetDurWarned = false;
         }
+
+        // Power and Air checks (only if chestplate is BrassChestplateItem)
         if (chestplate.getItem() instanceof BrassChestplateItem brass) {
             int power = brass.power(chestplate);
             int air = brass.air(chestplate);
@@ -116,6 +153,7 @@ public class JarvisWarningSystem {
             }
         }
 
+        // Health check
         float health = player.getHealth();
         float maxHealth = player.getMaxHealth();
         if (health < maxHealth * 0.25f) {
@@ -127,6 +165,7 @@ public class JarvisWarningSystem {
             lowHealthWarned = false;
         }
 
+        // Hunger check
         int hunger = player.getFoodData().getFoodLevel();
         if (hunger < 5) {
             if (!lowHungerWarned) {
@@ -137,6 +176,7 @@ public class JarvisWarningSystem {
             lowHungerWarned = false;
         }
 
+        // Breath check
         int breath = player.getAirSupply();
         int maxBreath = player.getMaxAirSupply();
         if (player.isUnderWater() && breath < maxBreath * 0.3f) {
