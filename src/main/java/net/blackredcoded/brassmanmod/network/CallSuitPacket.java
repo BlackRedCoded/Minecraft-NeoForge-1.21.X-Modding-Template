@@ -4,6 +4,8 @@ import io.netty.buffer.ByteBuf;
 import net.blackredcoded.brassmanmod.blockentity.AirCompressorBlockEntity;
 import net.blackredcoded.brassmanmod.blockentity.BrassArmorStandBlockEntity;
 import net.blackredcoded.brassmanmod.entity.FlyingSuitEntity;
+import net.blackredcoded.brassmanmod.items.*;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -28,6 +30,27 @@ public record CallSuitPacket(BlockPos compressorPos) implements CustomPacketPayl
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
+    }
+
+    // ADDED: Brass suit validation
+    private static boolean isBrassSuit(ItemStack helmet, ItemStack chestplate, ItemStack leggings, ItemStack boots) {
+        // At minimum, must have brass chestplate to fly
+        if (!(chestplate.getItem() instanceof BrassChestplateItem)) {
+            return false;
+        }
+
+        // Check other pieces - they should be brass armor or empty
+        if (!helmet.isEmpty() && !(helmet.getItem() instanceof BrassHelmetItem)) {
+            return false;
+        }
+        if (!leggings.isEmpty() && !(leggings.getItem() instanceof BrassLeggingsItem)) {
+            return false;
+        }
+        if (!boots.isEmpty() && !(boots.getItem() instanceof BrassBootsItem)) {
+            return false;
+        }
+
+        return true;
     }
 
     public static void handle(CallSuitPacket packet, IPayloadContext context) {
@@ -60,12 +83,21 @@ public record CallSuitPacket(BlockPos compressorPos) implements CustomPacketPayl
                 return;
             }
 
+            // FIXED: Validate it's a brass suit
+            if (!isBrassSuit(helmet, chestplate, leggings, boots)) {
+                player.displayClientMessage(
+                        Component.literal("Only brass suits can be called! This stand has non-brass armor.")
+                                .withStyle(ChatFormatting.RED),
+                        true
+                );
+                return;
+            }
+
             // Create flying suit entity
             FlyingSuitEntity flyingSuit = new FlyingSuitEntity(
                     player.level(), standPos, player,
                     helmet, chestplate, leggings, boots
             );
-
             player.level().addFreshEntity(flyingSuit);
 
             // Clear armor from stand
@@ -74,7 +106,7 @@ public record CallSuitPacket(BlockPos compressorPos) implements CustomPacketPayl
             armorStand.setArmor(2, ItemStack.EMPTY);
             armorStand.setArmor(3, ItemStack.EMPTY);
 
-            player.displayClientMessage(Component.literal("Suit incoming!"), true);
+            player.displayClientMessage(Component.literal("Brass suit incoming!").withStyle(ChatFormatting.GREEN), true);
         });
     }
 }

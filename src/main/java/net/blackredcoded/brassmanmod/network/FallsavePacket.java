@@ -5,8 +5,7 @@ import net.blackredcoded.brassmanmod.blockentity.AirCompressorBlockEntity;
 import net.blackredcoded.brassmanmod.blockentity.BrassArmorStandBlockEntity;
 import net.blackredcoded.brassmanmod.config.FlightConfig;
 import net.blackredcoded.brassmanmod.entity.FlyingSuitEntity;
-import net.blackredcoded.brassmanmod.items.BrassChestplateItem;
-import net.blackredcoded.brassmanmod.items.JarvisCommunicatorItem;
+import net.blackredcoded.brassmanmod.items.*;
 import net.blackredcoded.brassmanmod.util.CompressorRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -69,17 +68,38 @@ public record FallsavePacket() implements CustomPacketPayload {
         return JarvisCommunicatorItem.hasJarvis(player);
     }
 
+    // ADDED: Brass suit validation
+    private static boolean isBrassSuit(ItemStack helmet, ItemStack chestplate, ItemStack leggings, ItemStack boots) {
+        // At minimum, must have brass chestplate to fly
+        if (!(chestplate.getItem() instanceof BrassChestplateItem)) {
+            return false;
+        }
+
+        // Check other pieces - they should be brass armor or empty
+        if (!helmet.isEmpty() && !(helmet.getItem() instanceof BrassHelmetItem)) {
+            return false;
+        }
+        if (!leggings.isEmpty() && !(leggings.getItem() instanceof BrassLeggingsItem)) {
+            return false;
+        }
+        if (!boots.isEmpty() && !(boots.getItem() instanceof BrassBootsItem)) {
+            return false;
+        }
+
+        return true;
+    }
+
     private static void callBestSuit(ServerPlayer player) {
         if (!(player.level() instanceof ServerLevel serverLevel)) return;
 
-        // FIXED: Check if player already has a chestplate with air
+        // Check if player already has a chestplate with air
         ItemStack currentChestplate = player.getItemBySlot(EquipmentSlot.CHEST);
         if (currentChestplate.getItem() instanceof BrassChestplateItem brass) {
             int currentAir = brass.air(currentChestplate);
             if (currentAir > 0) {
                 player.sendSystemMessage(Component.literal("JARVIS: Current suit still has air (" + currentAir + "). No need for backup.")
                         .withStyle(ChatFormatting.YELLOW));
-                return; // Don't call suit if current one has air
+                return;
             }
         }
 
@@ -111,6 +131,11 @@ public record FallsavePacket() implements CustomPacketPayload {
                 ItemStack leggings = armorStand.getArmor(2);
                 ItemStack boots = armorStand.getArmor(3);
 
+                // FIXED: Only accept brass suits!
+                if (!isBrassSuit(helmet, chestplate, leggings, boots)) {
+                    continue; // Skip non-brass suits
+                }
+
                 // Check if there's any armor at all
                 boolean hasArmor = !helmet.isEmpty() || !chestplate.isEmpty() ||
                         !leggings.isEmpty() || !boots.isEmpty();
@@ -134,7 +159,7 @@ public record FallsavePacket() implements CustomPacketPayload {
         }
 
         if (availableSuits.isEmpty()) {
-            player.sendSystemMessage(Component.literal("JARVIS: No suits available on your compressors!")
+            player.sendSystemMessage(Component.literal("JARVIS: No brass suits available on your compressors!")
                     .withStyle(ChatFormatting.RED));
             return;
         }
@@ -170,7 +195,7 @@ public record FallsavePacket() implements CustomPacketPayload {
         bestSuit.armorStand.setArmor(2, ItemStack.EMPTY);
         bestSuit.armorStand.setArmor(3, ItemStack.EMPTY);
 
-        player.sendSystemMessage(Component.literal("JARVIS: Emergency suit deployed! (Charge: " + bestSuit.totalCharge + ")")
+        player.sendSystemMessage(Component.literal("JARVIS: Emergency brass suit deployed! (Charge: " + bestSuit.totalCharge + ")")
                 .withStyle(ChatFormatting.GREEN));
     }
 
