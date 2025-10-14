@@ -1,8 +1,8 @@
 package net.blackredcoded.brassmanmod.event;
 
 import net.blackredcoded.brassmanmod.BrassManMod;
-import net.blackredcoded.brassmanmod.items.BrassBootsItem;
-import net.blackredcoded.brassmanmod.items.BrassChestplateItem;
+import net.blackredcoded.brassmanmod.items.BrassManBootsItem;
+import net.blackredcoded.brassmanmod.items.BrassManChestplateItem;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -23,11 +23,11 @@ public class BrassBootsFallDamageHandler {
 
         // Check if wearing brass boots
         ItemStack boots = player.getItemBySlot(EquipmentSlot.FEET);
-        if (!(boots.getItem() instanceof BrassBootsItem)) return;
+        if (!(boots.getItem() instanceof BrassManBootsItem)) return;
 
         // Check for chestplate with power
         ItemStack chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
-        if (!(chestplate.getItem() instanceof BrassChestplateItem brass)) return;
+        if (!(chestplate.getItem() instanceof BrassManChestplateItem brass)) return;
 
         int currentPower = brass.power(chestplate);
         if (currentPower <= 0) return;

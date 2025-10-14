@@ -2,10 +2,11 @@ package net.blackredcoded.brassmanmod.client;
 
 import net.blackredcoded.brassmanmod.BrassManMod;
 import net.blackredcoded.brassmanmod.config.FlightConfig;
-import net.blackredcoded.brassmanmod.items.BrassChestplateItem;
+import net.blackredcoded.brassmanmod.items.BrassManChestplateItem;
 import net.blackredcoded.brassmanmod.items.JarvisCommunicatorItem;
 import net.blackredcoded.brassmanmod.network.ConsumeAirPacket;
 import net.blackredcoded.brassmanmod.network.FallsavePacket;
+import net.blackredcoded.brassmanmod.network.GrantAdvancementPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -28,6 +29,7 @@ public class FlightHandler {
     private static int floatingTicks = 0;
     private static int airConsumeTicks = 0;
     private static boolean fallsaveTriggered = false;
+    private static boolean firstFlightGranted = false;
     private static ClientTickEvent.Post event;
 
     @SubscribeEvent
@@ -39,11 +41,9 @@ public class FlightHandler {
 
         FlightConfig.PlayerFlightData config = FlightConfig.get(player);
 
-        // FIXED: Check for fallsave FIRST (before chestplate check)
-        // This allows fallsave to work with just JARVIS helmet!
+        // Fallsave check (works with just JARVIS helmet!)
         if (!player.onGround() && player.getDeltaMovement().y < -0.5) {
             if (!fallsaveTriggered && isFalling(player)) {
-                // Check if player has JARVIS access (helmet or communicator)
                 if (JarvisCommunicatorItem.hasJarvis(player)) {
                     PacketDistributor.sendToServer(new FallsavePacket());
                     fallsaveTriggered = true;
@@ -57,14 +57,14 @@ public class FlightHandler {
             fallsaveTriggered = false;
         }
 
-        // NOW check for chestplate (only needed for flight/hover, not fallsave)
+        // Check for chestplate (only needed for flight/hover)
         ItemStack chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
-        if (!(chestplate.getItem() instanceof BrassChestplateItem)) {
+        if (!(chestplate.getItem() instanceof BrassManChestplateItem)) {
             stopFlying(player);
             return;
         }
 
-        int airAmount = BrassChestplateItem.getAir(chestplate);
+        int airAmount = BrassManChestplateItem.getAir(chestplate);
 
         if (airAmount <= 0) {
             stopFlying(player);
@@ -128,7 +128,7 @@ public class FlightHandler {
             floatingTicks = 0;
             spawnParticles(player);
         }
-        // HOVER: In air + hover enabled (independent of flight)
+        // HOVER: In air + hover enabled
         else if (isInAir && airAmount > 0 && config.hoverEnabled) {
             floatingTicks++;
             player.fallDistance = 0;
@@ -200,6 +200,12 @@ public class FlightHandler {
             isFlying = true;
             airConsumeTicks = 0;
             player.setSwimming(false);
+
+            // Grant "First Flight" advancement (only once)
+            if (!firstFlightGranted) {
+                PacketDistributor.sendToServer(new GrantAdvancementPacket("brassmanmod:brass_man/first_flight"));
+                firstFlightGranted = true;
+            }
         }
     }
 

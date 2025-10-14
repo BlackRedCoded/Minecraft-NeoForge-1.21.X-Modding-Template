@@ -1,10 +1,7 @@
 package net.blackredcoded.brassmanmod.registry;
 
 import net.blackredcoded.brassmanmod.BrassManMod;
-import net.blackredcoded.brassmanmod.menu.AirCompressorMenu;
-import net.blackredcoded.brassmanmod.menu.CompressorNetworkTerminalMenu;
-import net.blackredcoded.brassmanmod.menu.ModificationStationMenu;
-import net.blackredcoded.brassmanmod.menu.RemoteSuitMenu;
+import net.blackredcoded.brassmanmod.menu.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
@@ -33,6 +30,10 @@ public class ModMenuTypes {
     public static final Supplier<MenuType<RemoteSuitMenu>> REMOTE_SUIT_MENU =
             MENU_TYPES.register("remote_suit_menu",
                     () -> IMenuTypeExtension.create(RemoteSuitMenu::new));
+
+    public static final Supplier<MenuType<KineticMotorMenu>> KINETIC_MOTOR_MENU =
+            MENU_TYPES.register("kinetic_motor_menu",
+                    () -> IMenuTypeExtension.create(KineticMotorMenu::new));
 
     public static void register(IEventBus eventBus) {
         MENU_TYPES.register(eventBus);

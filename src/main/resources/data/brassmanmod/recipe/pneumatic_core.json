@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "accept_mirrored": false,
+  "pattern": [
+    "BTB",
+    "TCT",
+    "BTB"
+  ],
+  "key": {
+    "B": {
+      "item": "create:brass_ingot"
+    },
+    "T": {
+      "item": "create:fluid_tank"
+    },
+    "C": {
+      "item": "create:copper_backtank"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "brassmanmod:pneumatic_core"
+  }
+}

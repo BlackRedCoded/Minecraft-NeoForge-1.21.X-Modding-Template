@@ -5,6 +5,7 @@ import net.blackredcoded.brassmanmod.blockentity.AirCompressorBlockEntity;
 import net.blackredcoded.brassmanmod.blockentity.BrassArmorStandBlockEntity;
 import net.blackredcoded.brassmanmod.blockentity.CompressorNetworkTerminalBlockEntity;
 import net.blackredcoded.brassmanmod.blockentity.DataLinkBlockEntity;
+import net.blackredcoded.brassmanmod.blockentity.KineticMotorBlockEntity;  // ✅ ADD THIS!
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
@@ -13,7 +14,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.function.Supplier;
 
 public class ModBlockEntities {
-
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, BrassManMod.MOD_ID);
 
@@ -36,6 +36,11 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("compressor_network_terminal", () ->
                     BlockEntityType.Builder.of(CompressorNetworkTerminalBlockEntity::new,
                             ModBlocks.COMPRESSOR_NETWORK_TERMINAL.get()).build(null));
+
+    public static final Supplier<BlockEntityType<KineticMotorBlockEntity>> KINETIC_MOTOR =
+            BLOCK_ENTITIES.register("kinetic_motor", () ->
+                    BlockEntityType.Builder.of((pos, state) -> new KineticMotorBlockEntity(ModBlockEntities.KINETIC_MOTOR.get(), pos, state),
+                            ModBlocks.KINETIC_MOTOR.get()).build(null));
 
     public static void register(IEventBus eventBus) {
         BLOCK_ENTITIES.register(eventBus);

@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "north": "brassmanmod:block/compressor_network_terminal_front",
+    "east": "brassmanmod:block/compressor_network_terminal_side",
+    "south": "brassmanmod:block/compressor_network_terminal_back",
+    "west": "brassmanmod:block/compressor_network_terminal_side",
+    "up": "brassmanmod:block/compressor_network_terminal_side",
+    "down": "brassmanmod:block/compressor_network_terminal_side",
+    "particle": "brassmanmod:block/compressor_network_terminal_front"
+  }
+}

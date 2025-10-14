@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "particle": "brassmanmod:block/kinetic_motor",
+    "down": "brassmanmod:block/kinetic_motor",
+    "up": "brassmanmod:block/kinetic_motor",
+    "north": "brassmanmod:block/kinetic_motor_front",
+    "south": "brassmanmod:block/kinetic_motor",
+    "west": "brassmanmod:block/kinetic_motor",
+    "east": "brassmanmod:block/kinetic_motor"
+  }
+}

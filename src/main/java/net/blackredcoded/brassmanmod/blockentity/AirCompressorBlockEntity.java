@@ -3,10 +3,7 @@ package net.blackredcoded.brassmanmod.blockentity;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.blackredcoded.brassmanmod.blocks.BrassArmorStandBaseBlock;
-import net.blackredcoded.brassmanmod.items.BrassBootsItem;
-import net.blackredcoded.brassmanmod.items.BrassChestplateItem;
-import net.blackredcoded.brassmanmod.items.BrassHelmetItem;
-import net.blackredcoded.brassmanmod.items.BrassLeggingsItem;
+import net.blackredcoded.brassmanmod.items.*;
 import net.blackredcoded.brassmanmod.menu.AirCompressorMenu;
 import net.blackredcoded.brassmanmod.registry.MaterialConverter;
 import net.blackredcoded.brassmanmod.util.BatteryHelper;
@@ -36,7 +33,7 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
     private int tickCounter = 0;
     private Component customName = Component.literal("Air Compressor");
 
-    // NEW: Owner tracking
+    // Owner tracking
     private UUID ownerUUID;
 
     // Material storage: [brass, electronics, glass]
@@ -47,6 +44,10 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
     private static final int INPUT_SLOT = 0;
     private static final int CHARGING_SLOT = 1;
 
+    // Redstone control
+    private int redstoneSignal = 0;
+    private int selectedArmorSlot = 0;
+
     public AirCompressorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
     }
@@ -54,10 +55,26 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {}
 
-    // NEW: Owner methods
+    // CRITICAL: Force save when block entity loads
+    @Override
+    public void onLoad() {
+        super.onLoad();
+
+        if (!level.isClientSide() && ownerUUID != null) {
+            setChanged();
+            level.getChunkAt(worldPosition).setUnsaved(true);
+        }
+    }
+
+    // Owner methods
     public void setOwner(UUID uuid) {
         this.ownerUUID = uuid;
         setChanged();
+
+        if (level != null && !level.isClientSide()) {
+            level.getChunkAt(worldPosition).setUnsaved(true);
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
     }
 
     public UUID getOwner() {
@@ -76,26 +93,49 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
             setChanged();
         }
 
+        // Read redstone signal and handle automation
+        redstoneSignal = level.getBestNeighborSignal(worldPosition);
+        handleRedstoneControl();
+
         // Charge every 10 ticks if running
         if (shouldWork && tickCounter % 10 == 0 && Math.abs(getSpeed()) >= 1) {
             var armorStand = getArmorStandAbove();
             if (armorStand != null) {
                 chargeArmorStand(armorStand);
             }
-            // Universal battery charging
-            chargeBatteryItems();
+        }
+
+        // Universal battery charging
+        chargeBatteryItems();
+    }
+
+    // Handle redstone automation
+    private void handleRedstoneControl() {
+        if (redstoneSignal >= 10 && redstoneSignal <= 15) {
+            convertInputToMaterials();
+        } else if (redstoneSignal >= 5 && redstoneSignal <= 9) {
+            repairArmorSlot(selectedArmorSlot);
+        } else if (redstoneSignal >= 1 && redstoneSignal <= 4) {
+            selectedArmorSlot = 3 - (redstoneSignal - 1);
         }
     }
 
     private void chargeBatteryItems() {
         ItemStack chargingItem = inventory.get(CHARGING_SLOT);
-        if (!chargingItem.isEmpty() && BatteryHelper.isBatteryItem(chargingItem)) {
+        if (chargingItem.isEmpty()) return;
+
+        if (chargingItem.getItem() instanceof KineticBatteryItem && !BatteryHelper.isBatteryItem(chargingItem)) {
+            BatteryHelper.initBattery(chargingItem, KineticBatteryItem.BASE_MAX_SU);
+            setChanged();
+            return;
+        }
+
+        if (BatteryHelper.isBatteryItem(chargingItem)) {
             if (!BatteryHelper.isBatteryFull(chargingItem)) {
                 float rpm = Math.abs(getSpeed());
                 if (rpm < 1) return;
-                float rate = Math.min(rpm / 32f, 8f);
-                int maxBattery = BatteryHelper.getMaxBatteryCharge(chargingItem);
-                int chargeAmount = Math.max(1, Math.round(rate * maxBattery / 100f));
+
+                int chargeAmount = 8;
                 BatteryHelper.chargeBattery(chargingItem, chargeAmount);
                 setChanged();
             }
@@ -105,12 +145,15 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
     public void convertInputToMaterials() {
         ItemStack input = inventory.get(INPUT_SLOT);
         if (input.isEmpty()) return;
+
         int[] conv = MaterialConverter.getMaterials(input.getItem());
         if (conv[0] == 0 && conv[1] == 0 && conv[2] == 0) return;
+
         int count = input.getCount();
         for (int i = 0; i < 3; i++) {
             materials[i] += conv[i] * count;
         }
+
         input.shrink(count);
         setChanged();
     }
@@ -118,40 +161,42 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
     public boolean repairArmorSlot(int slot) {
         var stand = getArmorStandAbove();
         if (stand == null) return false;
+
         ItemStack armor = stand.getArmor(slot);
         if (armor.isEmpty() || !armor.isDamaged()) return false;
 
         boolean validType = switch (slot) {
-            case 0 -> armor.getItem() instanceof BrassHelmetItem;
-            case 1 -> armor.getItem() instanceof BrassChestplateItem;
-            case 2 -> armor.getItem() instanceof BrassLeggingsItem;
-            case 3 -> armor.getItem() instanceof BrassBootsItem;
+            case 0 -> armor.getItem() instanceof BrassManHelmetItem;
+            case 1 -> armor.getItem() instanceof BrassManChestplateItem;
+            case 2 -> armor.getItem() instanceof BrassManLeggingsItem;
+            case 3 -> armor.getItem() instanceof BrassManBootsItem;
             default -> false;
         };
+
         if (!validType) return false;
 
         int damageTaken = armor.getDamageValue();
         int maxDurability = armor.getMaxDamage();
         double damagePercent = (double) damageTaken / maxDurability;
-
         int brassCost, electronicsCost, glassCost;
+
         switch (slot) {
-            case 0: // Helmet
+            case 0:
                 brassCost = (int) Math.ceil(damagePercent * 60 / 5) * 5;
                 electronicsCost = (int) Math.ceil(damagePercent * 120 / 5) * 5;
                 glassCost = (int) Math.ceil(damagePercent * 30 / 5) * 5;
                 break;
-            case 1: // Chestplate
+            case 1:
                 brassCost = (int) Math.ceil(damagePercent * 120 / 5) * 5;
                 electronicsCost = (int) Math.ceil(damagePercent * 180 / 5) * 5;
                 glassCost = (int) Math.ceil(damagePercent * 10 / 5) * 5;
                 break;
-            case 2: // Leggings
+            case 2:
                 brassCost = (int) Math.ceil(damagePercent * 100 / 5) * 5;
                 electronicsCost = (int) Math.ceil(damagePercent * 150 / 5) * 5;
                 glassCost = 0;
                 break;
-            case 3: // Boots
+            case 3:
                 brassCost = (int) Math.ceil(damagePercent * 50 / 5) * 5;
                 electronicsCost = (int) Math.ceil(damagePercent * 90 / 5) * 5;
                 glassCost = 0;
@@ -161,6 +206,7 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
         }
 
         if (!consumeMaterials(brassCost, electronicsCost, glassCost)) return false;
+
         armor.setDamageValue(0);
         stand.setChanged();
         setChanged();
@@ -189,6 +235,7 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
     private boolean shouldConsumeStress() {
         var stand = getArmorStandAbove();
         if (stand != null && stand.needsChargingOrRepair()) return true;
+
         ItemStack chargingItem = inventory.get(CHARGING_SLOT);
         if (!chargingItem.isEmpty() && BatteryHelper.isBatteryItem(chargingItem)) {
             if (!BatteryHelper.isBatteryFull(chargingItem)) return true;
@@ -208,10 +255,11 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
     private void chargeArmorStand(BrassArmorStandBlockEntity stand) {
         float rpm = Math.abs(getSpeed());
         if (rpm < 1) return;
+
         float rate = Math.min(rpm / 32f, 8f);
         for (int i = 0; i < 4; i++) {
             ItemStack a = stand.getArmor(i);
-            if (a.getItem() instanceof BrassChestplateItem chest) {
+            if (a.getItem() instanceof BrassManChestplateItem chest) {
                 int air = chest.air(a), pw = chest.power(a);
                 int maxA = chest.getMaxAir(a), maxP = chest.getMaxPower(a);
                 int chargeA = Math.max(1, Math.round(rate * maxA / 100f));
@@ -232,36 +280,68 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
         return shouldConsumeStress() ? BASE_STRESS_IMPACT : 0;
     }
 
+    // Create mod's system - for network sync
     @Override
     protected void write(CompoundTag tag, HolderLookup.Provider regs, boolean clientPacket) {
         super.write(tag, regs, clientPacket);
-        tag.putBoolean("WasWorking", wasWorking);
-        tag.putIntArray("Materials", materials);
-        tag.putString("CustomName", Component.Serializer.toJson(customName, regs));
-        ContainerHelper.saveAllItems(tag, inventory, regs);
 
-        // NEW: Save owner
+        tag.putInt("Brass", materials[0]);
+        tag.putInt("Electronics", materials[1]);
+        tag.putInt("Glass", materials[2]);
+        tag.putInt("RedstoneSignal", redstoneSignal);
+        tag.putInt("SelectedArmorSlot", selectedArmorSlot);
+
         if (ownerUUID != null) {
             tag.putUUID("Owner", ownerUUID);
+            System.out.println("WRITE - UUID: " + ownerUUID + " | clientPacket: " + clientPacket);
         }
+
+        ContainerHelper.saveAllItems(tag, inventory, regs);
     }
 
     @Override
     protected void read(CompoundTag tag, HolderLookup.Provider regs, boolean clientPacket) {
         super.read(tag, regs, clientPacket);
-        wasWorking = tag.getBoolean("WasWorking");
-        materials = tag.getIntArray("Materials");
-        if (materials.length != 3) materials = new int[3];
-        if (tag.contains("CustomName")) {
-            String nameJson = tag.getString("CustomName");
-            Component loadedName = Component.Serializer.fromJson(nameJson, regs);
-            customName = loadedName != null ? loadedName : Component.literal("Air Compressor");
-        }
-        ContainerHelper.loadAllItems(tag, inventory, regs);
 
-        // NEW: Load owner
+        materials[0] = tag.getInt("Brass");
+        materials[1] = tag.getInt("Electronics");
+        materials[2] = tag.getInt("Glass");
+        redstoneSignal = tag.getInt("RedstoneSignal");
+        selectedArmorSlot = tag.getInt("SelectedArmorSlot");
+
         if (tag.hasUUID("Owner")) {
             ownerUUID = tag.getUUID("Owner");
+            System.out.println("READ - UUID: " + ownerUUID + " | clientPacket: " + clientPacket);
+        } else {
+            System.out.println("READ - NO UUID | clientPacket: " + clientPacket);
+        }
+
+        ContainerHelper.loadAllItems(tag, inventory, regs);
+    }
+
+    // Minecraft's native system - for DISK SAVES (called when chunks save/load)
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = super.getUpdateTag(registries);
+
+        if (ownerUUID != null) {
+            tag.putUUID("Owner", ownerUUID);
+            System.out.println("GET UPDATE TAG - UUID: " + ownerUUID);
+        }
+
+        return tag;
+    }
+
+    // Load from disk - receives data from getUpdateTag
+    @Override
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+
+        if (tag.hasUUID("Owner")) {
+            ownerUUID = tag.getUUID("Owner");
+            System.out.println("LOAD ADDITIONAL - UUID: " + ownerUUID);
+        } else {
+            System.out.println("LOAD ADDITIONAL - NO UUID");
         }
     }
 
@@ -271,7 +351,29 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
     @Override public ItemStack getItem(int slot) { return inventory.get(slot); }
     @Override public ItemStack removeItem(int slot, int amt) { return ContainerHelper.removeItem(inventory, slot, amt); }
     @Override public ItemStack removeItemNoUpdate(int slot) { return ContainerHelper.takeItem(inventory, slot); }
-    @Override public void setItem(int slot, ItemStack stack) { inventory.set(slot, stack); setChanged(); }
+
+    @Override
+    public void setItem(int slot, ItemStack stack) {
+        if (!stack.isEmpty() && stack.getItem() instanceof KineticBatteryItem && !BatteryHelper.isBatteryItem(stack)) {
+            BatteryHelper.initBattery(stack, KineticBatteryItem.BASE_MAX_SU);
+            setChanged();
+        }
+
+        if (slot == INPUT_SLOT && !stack.isEmpty()) {
+            if (stack.getItem() instanceof CompressorNetworkTabletItem || BatteryHelper.isBatteryItem(stack)) {
+                if (inventory.get(CHARGING_SLOT).isEmpty()) {
+                    inventory.set(CHARGING_SLOT, stack);
+                    inventory.set(INPUT_SLOT, ItemStack.EMPTY);
+                    setChanged();
+                    return;
+                }
+            }
+        }
+
+        inventory.set(slot, stack);
+        setChanged();
+    }
+
     @Override public boolean stillValid(Player p) { return Container.stillValidBlockEntity(this, p); }
     @Override public void clearContent() { inventory.clear(); }
 
@@ -297,5 +399,9 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
         if (level != null && !level.isClientSide) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
+    }
+
+    public int getSelectedArmorSlot() {
+        return selectedArmorSlot;
     }
 }

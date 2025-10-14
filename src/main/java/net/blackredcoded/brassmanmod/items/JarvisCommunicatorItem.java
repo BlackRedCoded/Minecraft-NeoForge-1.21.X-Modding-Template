@@ -1,6 +1,5 @@
 package net.blackredcoded.brassmanmod.items;
 
-import net.blackredcoded.brassmanmod.registry.ModArmorMaterials;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
@@ -29,6 +28,6 @@ public class JarvisCommunicatorItem extends ArmorItem {
     public static boolean hasJarvis(net.minecraft.world.entity.player.Player player) {
         ItemStack headItem = player.getItemBySlot(EquipmentSlot.HEAD);
         return headItem.getItem() instanceof JarvisCommunicatorItem ||
-                headItem.getItem() instanceof BrassHelmetItem;
+                headItem.getItem() instanceof BrassManHelmetItem;
     }
 }

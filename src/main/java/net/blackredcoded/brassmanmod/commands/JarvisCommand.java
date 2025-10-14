@@ -5,7 +5,7 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.blackredcoded.brassmanmod.config.FlightConfig;
-import net.blackredcoded.brassmanmod.items.BrassHelmetItem;
+import net.blackredcoded.brassmanmod.items.BrassManHelmetItem;
 import net.blackredcoded.brassmanmod.items.JarvisCommunicatorItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -58,7 +58,7 @@ public class JarvisCommand {
 
     private static boolean hasJarvisAccess(ServerPlayer player) {
         ItemStack helmet = player.getItemBySlot(EquipmentSlot.HEAD);
-        return helmet.getItem() instanceof BrassHelmetItem ||
+        return helmet.getItem() instanceof BrassManHelmetItem ||
                 helmet.getItem() instanceof JarvisCommunicatorItem;
     }
 

@@ -1,8 +1,8 @@
 package net.blackredcoded.brassmanmod.network;
 
 import net.blackredcoded.brassmanmod.BrassManMod;
-import net.blackredcoded.brassmanmod.items.BrassChestplateItem;
-import net.blackredcoded.brassmanmod.upgrade.ArmorUpgradeHelper;
+import net.blackredcoded.brassmanmod.items.BrassManChestplateItem;
+import net.blackredcoded.brassmanmod.util.ArmorUpgradeHelper;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -33,7 +33,7 @@ public record ConsumeAirPacket(int amount) implements CustomPacketPayload {
         context.enqueueWork(() -> {
             if (context.player() instanceof ServerPlayer player) {
                 ItemStack chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
-                if (chestplate.getItem() instanceof BrassChestplateItem brass) {
+                if (chestplate.getItem() instanceof BrassManChestplateItem brass) {
 
                     // DEBUG: Check efficiency upgrades
                     int airEffCount = ArmorUpgradeHelper.getUpgradeCount(chestplate, ArmorUpgradeHelper.AIR_EFFICIENCY);
@@ -48,7 +48,7 @@ public record ConsumeAirPacket(int amount) implements CustomPacketPayload {
                     System.out.println("Current Air: " + brass.air(chestplate));
 
                     // Use the instance method that applies efficiency
-                    BrassChestplateItem.consumeAir(chestplate, packet.amount);
+                    BrassManChestplateItem.consumeAir(chestplate, packet.amount);
 
                     System.out.println("Air After Consumption: " + brass.air(chestplate));
                     System.out.println("============================");

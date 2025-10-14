@@ -13,8 +13,9 @@ public class PowerCellUpgradeItem extends UpgradeModuleItem {
 
     @Override
     protected void addUpgradeDescription(List<Component> tooltip) {
-        tooltip.add(Component.literal("+250 Maximum Power").withStyle(ChatFormatting.GOLD));
-        tooltip.add(Component.literal("Max 4 per chestplate").withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.literal("Chestplate: +10% Maximum Power").withStyle(ChatFormatting.GOLD));
+        tooltip.add(Component.literal("Battery: +10% Maximum Capacity").withStyle(ChatFormatting.AQUA));
+        tooltip.add(Component.literal("Max 5 per item").withStyle(ChatFormatting.GRAY));
     }
 
     @Override
@@ -24,6 +25,6 @@ public class PowerCellUpgradeItem extends UpgradeModuleItem {
 
     @Override
     public int getMaxStacksPerArmor() {
-        return 4; // +1000 power total
+        return 5; // CHANGED: 4 -> 5
     }
 }

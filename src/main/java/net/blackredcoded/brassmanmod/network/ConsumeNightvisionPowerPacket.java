@@ -1,7 +1,7 @@
 package net.blackredcoded.brassmanmod.network;
 
 import net.blackredcoded.brassmanmod.BrassManMod;
-import net.blackredcoded.brassmanmod.items.BrassChestplateItem;
+import net.blackredcoded.brassmanmod.items.BrassManChestplateItem;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -32,7 +32,7 @@ public record ConsumeNightvisionPowerPacket(int amount) implements CustomPacketP
         context.enqueueWork(() -> {
             if (context.player() instanceof ServerPlayer player) {
                 ItemStack chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
-                if (chestplate.getItem() instanceof BrassChestplateItem brass) {
+                if (chestplate.getItem() instanceof BrassManChestplateItem brass) {
                     // Use the instance method that applies efficiency
                     brass.consumePower(chestplate, packet.amount);
                 }

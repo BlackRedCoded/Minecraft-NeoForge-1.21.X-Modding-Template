@@ -1,8 +1,8 @@
 package net.blackredcoded.brassmanmod.client;
 
 import net.blackredcoded.brassmanmod.config.FlightConfig;
-import net.blackredcoded.brassmanmod.items.BrassChestplateItem;
-import net.blackredcoded.brassmanmod.items.BrassHelmetItem;
+import net.blackredcoded.brassmanmod.items.BrassManChestplateItem;
+import net.blackredcoded.brassmanmod.items.BrassManHelmetItem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -31,10 +31,10 @@ public class BrassArmorHudOverlay implements LayeredDraw.Layer {
         }
 
         ItemStack helmet = minecraft.player.getItemBySlot(EquipmentSlot.HEAD);
-        if (!(helmet.getItem() instanceof BrassHelmetItem)) return;
+        if (!(helmet.getItem() instanceof BrassManHelmetItem)) return;
 
         ItemStack chestplate = minecraft.player.getItemBySlot(EquipmentSlot.CHEST);
-        if (!(chestplate.getItem() instanceof BrassChestplateItem brassChest)) return;
+        if (!(chestplate.getItem() instanceof BrassManChestplateItem brassChest)) return;
 
         int power = brassChest.power(chestplate);
         int air = brassChest.air(chestplate);
@@ -55,8 +55,8 @@ public class BrassArmorHudOverlay implements LayeredDraw.Layer {
         int y = 7;
 
         // Get upgraded max values
-        int maxPower = BrassChestplateItem.getMaxPower(chestplate);
-        int maxAir = BrassChestplateItem.getMaxAir(chestplate);
+        int maxPower = BrassManChestplateItem.getMaxPower(chestplate);
+        int maxAir = BrassManChestplateItem.getMaxAir(chestplate);
 
         guiGraphics.fill(x - 2, y - 2, x + 108, y + 45, 0xAA000000);
 

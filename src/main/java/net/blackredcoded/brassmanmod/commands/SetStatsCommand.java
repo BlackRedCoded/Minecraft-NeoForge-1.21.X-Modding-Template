@@ -2,7 +2,7 @@ package net.blackredcoded.brassmanmod.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import net.blackredcoded.brassmanmod.items.BrassChestplateItem;
+import net.blackredcoded.brassmanmod.items.BrassManChestplateItem;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -16,7 +16,7 @@ public class SetStatsCommand {
         dispatcher.register(Commands.literal("set")
                 // /set air <amount>
                 .then(Commands.literal("air")
-                        .then(Commands.argument("amount", IntegerArgumentType.integer(0, BrassChestplateItem.MAX_AIR))
+                        .then(Commands.argument("amount", IntegerArgumentType.integer(0, BrassManChestplateItem.MAX_AIR))
                                 .executes(context -> {
                                     int amount = IntegerArgumentType.getInteger(context, "amount");
                                     return fillAir(context.getSource(), amount);
@@ -25,7 +25,7 @@ public class SetStatsCommand {
                 )
                 // /set power <amount>
                 .then(Commands.literal("power")
-                        .then(Commands.argument("amount", IntegerArgumentType.integer(0, BrassChestplateItem.MAX_POWER))
+                        .then(Commands.argument("amount", IntegerArgumentType.integer(0, BrassManChestplateItem.MAX_POWER))
                                 .executes(context -> {
                                     int amount = IntegerArgumentType.getInteger(context, "amount");
                                     return fillPower(context.getSource(), amount);
@@ -38,7 +38,7 @@ public class SetStatsCommand {
     private static int fillAir(CommandSourceStack source, int amount) {
         if (source.getEntity() instanceof Player player) {
             ItemStack chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
-            if (chestplate.getItem() instanceof BrassChestplateItem brassChestplate) {
+            if (chestplate.getItem() instanceof BrassManChestplateItem brassChestplate) {
                 brassChestplate.setAir(chestplate, amount);
                 source.sendSuccess(() -> Component.literal("Set air to " + amount + "!"), false);
                 return 1;
@@ -54,7 +54,7 @@ public class SetStatsCommand {
     private static int fillPower(CommandSourceStack source, int amount) {
         if (source.getEntity() instanceof Player player) {
             ItemStack chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
-            if (chestplate.getItem() instanceof BrassChestplateItem brassChestplate) {
+            if (chestplate.getItem() instanceof BrassManChestplateItem brassChestplate) {
                 brassChestplate.setPower(chestplate, amount);
                 source.sendSuccess(() -> Component.literal("Set power to " + amount + "!"), false);
                 return 1;

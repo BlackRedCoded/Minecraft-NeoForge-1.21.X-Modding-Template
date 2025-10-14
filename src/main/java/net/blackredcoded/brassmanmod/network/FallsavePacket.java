@@ -43,23 +43,37 @@ public record FallsavePacket() implements CustomPacketPayload {
 
             FlightConfig.PlayerFlightData config = FlightConfig.get(player);
 
-            // Check if player has chestplate for flight/hover features
-            ItemStack chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
-            if (chestplate.getItem() instanceof BrassChestplateItem brass) {
-                // Enable flight if fallsaveFlight is true
-                if (config.fallsaveFlight) {
-                    FlightConfig.setFlightEnabled(player, true);
-                }
+            player.getAdvancements().award(
+                    player.server.getAdvancements().get(ResourceLocation.fromNamespaceAndPath("brassmanmod", "brass_man/emergency_landing")),
+                    "fallsave"
+            );
 
-                // Enable hover if fallsaveHover is true
-                if (config.fallsaveHover) {
-                    FlightConfig.setHoverEnabled(player, true);
+            // Check if player has chestplate currently
+            ItemStack chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
+            boolean hasChestplate = chestplate.getItem() instanceof BrassManChestplateItem;
+
+            // If player already has chestplate with air, activate flight/hover immediately
+            if (hasChestplate) {
+                BrassManChestplateItem brass = (BrassManChestplateItem) chestplate.getItem();
+                int currentAir = brass.air(chestplate);
+
+                if (currentAir > 0) {
+                    // Enable flight if fallsaveFlight is true
+                    if (config.fallsaveFlight) {
+                        FlightConfig.setFlightEnabled(player, true);
+                    }
+
+                    // Enable hover if fallsaveHover is true
+                    if (config.fallsaveHover) {
+                        FlightConfig.setHoverEnabled(player, true);
+                    }
                 }
             }
 
             // Auto-call suit (works even without chestplate!)
             if (config.fallsaveCallSuit && hasJarvisAccess(player)) {
-                callBestSuit(player);
+                // Pass config settings to callBestSuit so it can enable flight/hover when suit arrives
+                callBestSuit(player, config.fallsaveFlight, config.fallsaveHover);
             }
         });
     }
@@ -71,30 +85,30 @@ public record FallsavePacket() implements CustomPacketPayload {
     // ADDED: Brass suit validation
     private static boolean isBrassSuit(ItemStack helmet, ItemStack chestplate, ItemStack leggings, ItemStack boots) {
         // At minimum, must have brass chestplate to fly
-        if (!(chestplate.getItem() instanceof BrassChestplateItem)) {
+        if (!(chestplate.getItem() instanceof BrassManChestplateItem)) {
             return false;
         }
 
         // Check other pieces - they should be brass armor or empty
-        if (!helmet.isEmpty() && !(helmet.getItem() instanceof BrassHelmetItem)) {
+        if (!helmet.isEmpty() && !(helmet.getItem() instanceof BrassManHelmetItem)) {
             return false;
         }
-        if (!leggings.isEmpty() && !(leggings.getItem() instanceof BrassLeggingsItem)) {
+        if (!leggings.isEmpty() && !(leggings.getItem() instanceof BrassManLeggingsItem)) {
             return false;
         }
-        if (!boots.isEmpty() && !(boots.getItem() instanceof BrassBootsItem)) {
+        if (!boots.isEmpty() && !(boots.getItem() instanceof BrassManBootsItem)) {
             return false;
         }
 
         return true;
     }
 
-    private static void callBestSuit(ServerPlayer player) {
+    private static void callBestSuit(ServerPlayer player, boolean enableFlight, boolean enableHover) {
         if (!(player.level() instanceof ServerLevel serverLevel)) return;
 
         // Check if player already has a chestplate with air
         ItemStack currentChestplate = player.getItemBySlot(EquipmentSlot.CHEST);
-        if (currentChestplate.getItem() instanceof BrassChestplateItem brass) {
+        if (currentChestplate.getItem() instanceof BrassManChestplateItem brass) {
             int currentAir = brass.air(currentChestplate);
             if (currentAir > 0) {
                 player.sendSystemMessage(Component.literal("JARVIS: Current suit still has air (" + currentAir + "). No need for backup.")
@@ -105,7 +119,6 @@ public record FallsavePacket() implements CustomPacketPayload {
 
         // Get all compressors THIS PLAYER placed
         Set<BlockPos> playerCompressors = CompressorRegistry.getPlayerCompressors(player);
-
         if (playerCompressors.isEmpty()) {
             player.sendSystemMessage(Component.literal("JARVIS: No compressors found. Place some Air Compressors first!")
                     .withStyle(ChatFormatting.RED));
@@ -131,9 +144,9 @@ public record FallsavePacket() implements CustomPacketPayload {
                 ItemStack leggings = armorStand.getArmor(2);
                 ItemStack boots = armorStand.getArmor(3);
 
-                // FIXED: Only accept brass suits!
+                // Only accept brass suits!
                 if (!isBrassSuit(helmet, chestplate, leggings, boots)) {
-                    continue; // Skip non-brass suits
+                    continue;
                 }
 
                 // Check if there's any armor at all
@@ -143,7 +156,7 @@ public record FallsavePacket() implements CustomPacketPayload {
                 if (hasArmor) {
                     // Calculate total charge
                     int totalCharge = 0;
-                    if (chestplate.getItem() instanceof BrassChestplateItem brassChest) {
+                    if (chestplate.getItem() instanceof BrassManChestplateItem brassChest) {
                         totalCharge = brassChest.air(chestplate) + brassChest.power(chestplate);
                     }
 
@@ -186,7 +199,6 @@ public record FallsavePacket() implements CustomPacketPayload {
                 serverLevel, bestSuit.standPos, player,
                 helmet, chestplate, leggings, boots
         );
-
         serverLevel.addFreshEntity(flyingSuit);
 
         // Clear armor from stand
@@ -194,6 +206,20 @@ public record FallsavePacket() implements CustomPacketPayload {
         bestSuit.armorStand.setArmor(1, ItemStack.EMPTY);
         bestSuit.armorStand.setArmor(2, ItemStack.EMPTY);
         bestSuit.armorStand.setArmor(3, ItemStack.EMPTY);
+
+        // FIXED: Enable flight/hover IMMEDIATELY when suit is called (before it arrives)
+        // The suit will arrive and player will be able to fly/hover right away
+        if (enableFlight) {
+            FlightConfig.setFlightEnabled(player, true);
+            player.sendSystemMessage(Component.literal("JARVIS: Flight enabled.")
+                    .withStyle(ChatFormatting.AQUA));
+        }
+
+        if (enableHover) {
+            FlightConfig.setHoverEnabled(player, true);
+            player.sendSystemMessage(Component.literal("JARVIS: Hover enabled.")
+                    .withStyle(ChatFormatting.AQUA));
+        }
 
         player.sendSystemMessage(Component.literal("JARVIS: Emergency brass suit deployed! (Charge: " + bestSuit.totalCharge + ")")
                 .withStyle(ChatFormatting.GREEN));

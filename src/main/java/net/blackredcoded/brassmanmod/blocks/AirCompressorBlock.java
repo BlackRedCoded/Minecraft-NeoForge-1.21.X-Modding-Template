@@ -26,7 +26,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class AirCompressorBlock extends DirectionalKineticBlock implements IBE<AirCompressorBlockEntity> {
-
     public static final MapCodec<AirCompressorBlock> CODEC = simpleCodec(AirCompressorBlock::new);
     private static final VoxelShape SHAPE = box(0, 0, 0, 16, 16, 16);
 
@@ -35,7 +34,7 @@ public class AirCompressorBlock extends DirectionalKineticBlock implements IBE<A
     }
 
     @Override
-    public @NotNull MapCodec<AirCompressorBlock> codec() {
+    public @NotNull MapCodec<? extends AirCompressorBlock> codec() {
         return CODEC;
     }
 
@@ -52,34 +51,30 @@ public class AirCompressorBlock extends DirectionalKineticBlock implements IBE<A
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction direction = context.getNearestLookingDirection().getOpposite();
-        // Force horizontal placement only - no UP or DOWN
         if (direction == Direction.UP || direction == Direction.DOWN) {
             direction = context.getHorizontalDirection().getOpposite();
         }
         return this.defaultBlockState().setValue(FACING, direction);
     }
 
-    // NEW: Track owner when placed
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
 
         if (!level.isClientSide && placer instanceof ServerPlayer player) {
-            // Register this compressor to the player
             CompressorRegistry.registerCompressor(player.getUUID(), pos);
 
-            // Store owner in BlockEntity
             if (level.getBlockEntity(pos) instanceof AirCompressorBlockEntity compressor) {
                 compressor.setOwner(player.getUUID());
+                compressor.setChanged();
+                level.getChunkAt(pos).setUnsaved(true);
             }
         }
     }
 
-    // NEW: Unregister when broken
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if (!level.isClientSide) {
-            // Get owner from BlockEntity before it's destroyed
             if (level.getBlockEntity(pos) instanceof AirCompressorBlockEntity compressor) {
                 if (compressor.getOwner() != null) {
                     CompressorRegistry.unregisterCompressor(compressor.getOwner(), pos);
@@ -93,10 +88,9 @@ public class AirCompressorBlock extends DirectionalKineticBlock implements IBE<A
     public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
         Direction blockFacing = state.getValue(FACING);
         if (face == Direction.UP) {
-            return false; // Top - armor stand placement
+            return false;
         }
-        return face != blockFacing; // Front - decorative terminal
-        // Bottom, back, left, right accept power
+        return face != blockFacing;
     }
 
     @Override

@@ -34,9 +34,14 @@ public class BrassManMod {
     public static final Supplier<CreativeModeTab> BRASS_MAN_TAB = CREATIVE_MODE_TABS.register("brass_man_tab",
             () -> CreativeModeTab.builder()
                     .title(Component.literal("Brass Man"))
-                    .icon(() -> new ItemStack(ModItems.BRASS_CHESTPLATE.get()))
+                    .icon(() -> new ItemStack(ModItems.BRASS_MAN_HELMET.get()))
                     .displayItems((parameters, output) -> {
                         // Armor
+                        output.accept(ModItems.BRASS_MAN_HELMET.get());
+                        output.accept(ModItems.BRASS_MAN_CHESTPLATE.get());
+                        output.accept(ModItems.BRASS_MAN_LEGGINGS.get());
+                        output.accept(ModItems.BRASS_MAN_BOOTS.get());
+
                         output.accept(ModItems.BRASS_HELMET.get());
                         output.accept(ModItems.BRASS_CHESTPLATE.get());
                         output.accept(ModItems.BRASS_LEGGINGS.get());
@@ -44,7 +49,13 @@ public class BrassManMod {
 
                         // Special Items
                         output.accept(ModItems.JARVIS_COMMUNICATOR.get());
-                        output.accept(ModItems.BRASS_PNEUMATIC_CORE.get());
+                        output.accept(ModItems.COMPRESSOR_NETWORK_TABLET.get());
+                        output.accept(ModItems.PNEUMATIC_CORE.get());
+                        output.accept(ModItems.POWER_CORE.get());
+                        output.accept(ModItems.COMPACT_MECHANISM.get());
+                        output.accept(ModItems.KINETIC_CIRCUIT.get());
+                        output.accept(ModItems.KINETIC_BATTERY.get());
+
 
                         // Upgrade Modules
                         output.accept(ModItems.POWER_CELL_UPGRADE.get());
@@ -52,14 +63,15 @@ public class BrassManMod {
                         output.accept(ModItems.SPEED_AMPLIFIER_UPGRADE.get());
                         output.accept(ModItems.AIR_EFFICIENCY_UPGRADE.get());
                         output.accept(ModItems.POWER_EFFICIENCY_UPGRADE.get());
+                        output.accept(ModItems.QUICK_CHARGING_UPGRADE.get());
 
                         // Blocks
                         output.accept(ModBlocks.AIR_COMPRESSOR.get());
-                        output.accept(ModBlocks.BRASS_ARMOR_STAND.get());
+                        output.accept(ModBlocks.BRASS_ARMOR_STAND.get()); // Note: BRASS_ARMOR_STAND_TOP is not added - it's auto-placed
                         output.accept(ModBlocks.DATA_LINK.get());
-                        // Note: BRASS_ARMOR_STAND_TOP is not added - it's auto-placed
                         output.accept(ModBlocks.BRASS_MODIFICATION_STATION.get());
                         output.accept(ModBlocks.COMPRESSOR_NETWORK_TERMINAL.get());
+                        output.accept(ModBlocks.KINETIC_MOTOR.get());
                     })
                     .build()
     );

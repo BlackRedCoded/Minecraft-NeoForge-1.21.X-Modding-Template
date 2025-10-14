@@ -66,7 +66,6 @@ public class CompressorNetworkTerminalBlock extends BaseEntityBlock {
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hitResult) {
-
         // Check for tablet - NORMAL click to bind
         if (stack.getItem() instanceof net.blackredcoded.brassmanmod.items.CompressorNetworkTabletItem) {
             if (level.isClientSide) {
@@ -83,18 +82,9 @@ public class CompressorNetworkTerminalBlock extends BaseEntityBlock {
         if (isBackSide) {
             // Back side: Frequency item management
             if (level.getBlockEntity(pos) instanceof CompressorNetworkTerminalBlockEntity terminal) {
-                if (stack.isEmpty()) {
-                    // Empty hand: Remove frequency item
-                    if (!level.isClientSide) {
-                        ItemStack frequencyItem = terminal.getFrequencyItem();
-                        if (!frequencyItem.isEmpty()) {
-                            player.getInventory().add(frequencyItem);
-                            terminal.setFrequencyItem(ItemStack.EMPTY);
-                            level.playSound(null, pos, SoundEvents.ITEM_FRAME_REMOVE_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
-                        }
-                    }
-                    return ItemInteractionResult.sidedSuccess(level.isClientSide);
-                } else {
+                // REMOVED the empty hand check from here - that's in useWithoutItem now
+                // Only handle setting frequency when holding an item
+                if (!stack.isEmpty()) {
                     // Holding item: Set frequency
                     if (!level.isClientSide) {
                         ItemStack copy = stack.copy();

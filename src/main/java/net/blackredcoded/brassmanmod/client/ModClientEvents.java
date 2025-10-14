@@ -2,6 +2,7 @@ package net.blackredcoded.brassmanmod.client;
 
 import net.blackredcoded.brassmanmod.BrassManMod;
 import net.blackredcoded.brassmanmod.client.renderer.BrassArmorStandRenderer;
+import net.blackredcoded.brassmanmod.client.renderer.CompressorNetworkTerminalBlockEntityRenderer;
 import net.blackredcoded.brassmanmod.client.renderer.DataLinkBlockEntityRenderer;
 import net.blackredcoded.brassmanmod.client.renderer.FlyingSuitRenderer;
 import net.blackredcoded.brassmanmod.entity.FlyingSuitEntity;
@@ -20,9 +21,14 @@ public class ModClientEvents {
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBlockEntities.BRASS_ARMOR_STAND.get(),
                 BrassArmorStandRenderer::new);
+
         event.registerBlockEntityRenderer(ModBlockEntities.DATA_LINK.get(),
                 DataLinkBlockEntityRenderer::new);
+
         event.registerEntityRenderer(ModEntityTypes.FLYING_SUIT.get(),
                 FlyingSuitRenderer::new);
+
+        event.registerBlockEntityRenderer(ModBlockEntities.COMPRESSOR_NETWORK_TERMINAL.get(),
+                CompressorNetworkTerminalBlockEntityRenderer::new);
     }
 }

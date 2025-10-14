@@ -2,8 +2,8 @@ package net.blackredcoded.brassmanmod.client;
 
 import net.blackredcoded.brassmanmod.BrassManMod;
 import net.blackredcoded.brassmanmod.config.FlightConfig;
-import net.blackredcoded.brassmanmod.items.BrassChestplateItem;
-import net.blackredcoded.brassmanmod.items.BrassHelmetItem;
+import net.blackredcoded.brassmanmod.items.BrassManChestplateItem;
+import net.blackredcoded.brassmanmod.items.BrassManHelmetItem;
 import net.blackredcoded.brassmanmod.network.ConsumeNightvisionPowerPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -29,17 +29,17 @@ public class JarvisNightvisionHandler {
 
         // Check if player is wearing brass helmet
         ItemStack helmet = player.getItemBySlot(EquipmentSlot.HEAD);
-        if (!(helmet.getItem() instanceof BrassHelmetItem)) {
+        if (!(helmet.getItem() instanceof BrassManHelmetItem)) {
             return;
         }
 
         // Check for chestplate with power
         ItemStack chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
-        if (!(chestplate.getItem() instanceof BrassChestplateItem)) {
+        if (!(chestplate.getItem() instanceof BrassManChestplateItem)) {
             return;
         }
 
-        int currentPower = BrassChestplateItem.getAir(chestplate); // Note: This seems wrong, should be getPower?
+        int currentPower = BrassManChestplateItem.getAir(chestplate); // Note: This seems wrong, should be getPower?
         FlightConfig.PlayerFlightData config = FlightConfig.get(player);
 
         // If nightvision is enabled and we have power

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "accept_mirrored": false,
+  "pattern": [
+    "BXB",
+    "XVX",
+    "BXB"
+  ],
+  "key": {
+    "B": {
+      "item": "create:brass_ingot"
+    },
+    "X": {
+      "item": "create:"
+    },
+    "V": {
+      "item": "create:"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "brassmanmod:power_core"
+  }
+}

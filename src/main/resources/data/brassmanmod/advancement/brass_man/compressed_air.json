@@ -1,0 +1,30 @@
+{
+  "parent": "brassmanmod:brass_man/root",
+  "display": {
+    "icon": {
+      "id": "brassmanmod:air_compressor"
+    },
+    "title": {
+      "translate": "advancements.brassmanmod.compressed_air.title"
+    },
+    "description": {
+      "translate": "advancements.brassmanmod.compressed_air.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "air_compressor": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": ["brassmanmod:air_compressor"]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -82,10 +82,10 @@ public class MaterialConversionRegistry {
         helper.registerVanilla("DISPENSER", 0, 10, 0);           // Cobble + bow + redstone
 
         // ============================================
-        // ADD YOUR CUSTOM ITEMS HERE
+        // CUSTOM ITEMS HERE
         // ============================================
 
         // Example:
-        // helper.registerByName("yourmod:custom_item", 20, 30, 10);
+        helper.registerByName("brassmanmod:kinetic_battery", 25, 30, 5);
     }
 }

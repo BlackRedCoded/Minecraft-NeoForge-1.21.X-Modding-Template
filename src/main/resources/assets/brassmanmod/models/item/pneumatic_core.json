@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "brassmanmod:item/pneumatic_core"
+  }
+}

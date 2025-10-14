@@ -2,10 +2,10 @@ package net.blackredcoded.brassmanmod.event;
 
 import net.blackredcoded.brassmanmod.BrassManMod;
 import net.blackredcoded.brassmanmod.config.FlightConfig;
-import net.blackredcoded.brassmanmod.items.BrassChestplateItem;
-import net.blackredcoded.brassmanmod.items.BrassLeggingsItem;
+import net.blackredcoded.brassmanmod.items.BrassManChestplateItem;
+import net.blackredcoded.brassmanmod.items.BrassManLeggingsItem;
 import net.blackredcoded.brassmanmod.items.JarvisCommunicatorItem;
-import net.blackredcoded.brassmanmod.upgrade.ArmorUpgradeHelper;
+import net.blackredcoded.brassmanmod.util.ArmorUpgradeHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -25,10 +25,10 @@ public class BrassLeggingsBoostHandler {
         if (!JarvisCommunicatorItem.hasJarvis(player)) return;
 
         ItemStack leggings = player.getItemBySlot(EquipmentSlot.LEGS);
-        if (!(leggings.getItem() instanceof BrassLeggingsItem)) return;
+        if (!(leggings.getItem() instanceof BrassManLeggingsItem)) return;
 
         ItemStack chestplateStack = player.getItemBySlot(EquipmentSlot.CHEST);
-        if (!(chestplateStack.getItem() instanceof BrassChestplateItem brassChest)) return;
+        if (!(chestplateStack.getItem() instanceof BrassManChestplateItem brassChest)) return;
 
         int currentPower = brassChest.power(chestplateStack);
         if (currentPower <= 0) {

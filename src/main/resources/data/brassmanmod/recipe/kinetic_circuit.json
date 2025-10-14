@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "accept_mirrored": false,
+  "pattern": [
+    "CSC",
+    "SMS",
+    "CSC"
+  ],
+  "key": {
+    "C": {
+      "item": "create:cogwheel"
+    },
+    "S": {
+      "item": "create:shaft"
+    },
+    "M": {
+      "item": "brassmanmod:compact_mechanism"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "brassmanmod:kinetic_circuit"
+  }
+}

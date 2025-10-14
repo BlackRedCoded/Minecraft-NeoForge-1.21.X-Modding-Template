@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "accept_mirrored": false,
+  "pattern": [
+    "GLG",
+    "LPL",
+    "GLG"
+  ],
+  "key": {
+    "P": {
+      "item": "create:precision_mechanism"
+    },
+    "G": {
+      "item": "create:cogwheel"
+    },
+    "L": {
+      "item": "create:large_cogwheel"
+    }
+  },
+  "result": {
+    "count": 2,
+    "id": "brassmanmod:compact_mechanism"
+  }
+}

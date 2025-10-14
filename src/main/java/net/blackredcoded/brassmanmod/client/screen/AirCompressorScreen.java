@@ -1,9 +1,9 @@
 package net.blackredcoded.brassmanmod.client.screen;
 
+import net.blackredcoded.brassmanmod.items.BrassManChestplateItem;
 import net.blackredcoded.brassmanmod.network.CallSuitPacket;
 import net.blackredcoded.brassmanmod.network.RenameCompressorPacket;
 import net.minecraft.client.gui.components.EditBox;
-import net.blackredcoded.brassmanmod.items.BrassChestplateItem;
 import net.blackredcoded.brassmanmod.menu.AirCompressorMenu;
 import net.blackredcoded.brassmanmod.network.ConvertMaterialsPacket;
 import net.blackredcoded.brassmanmod.network.RepairArmorPacket;
@@ -172,11 +172,11 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
         // Draw vertical bars OUTSIDE the chestplate slot (slot 1)
         if (slot == 1) {
             ItemStack chestplate = menu.getArmorStacks()[1];
-            if (chestplate.getItem() instanceof BrassChestplateItem chestItem) {
+            if (chestplate.getItem() instanceof BrassManChestplateItem chestItem) {
                 int air = chestItem.air(chestplate);
-                int maxAir = BrassChestplateItem.getMaxAir(chestplate);
+                int maxAir = BrassManChestplateItem.getMaxAir(chestplate);
                 int power = chestItem.power(chestplate);
-                int maxPower = BrassChestplateItem.getMaxPower(chestplate);
+                int maxPower = BrassManChestplateItem.getMaxPower(chestplate);
 
                 int airBarHeight = maxAir > 0 ? (int) ((float) air / maxAir * 16) : 0;
                 int powerBarHeight = maxPower > 0 ? (int) ((float) power / maxPower * 16) : 0;
@@ -286,6 +286,7 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
             }
         }
 
+        // FIXED: Show material gains in green (multiplied by stack count!)
         if (gains != null) {
             if (gains[0] > 0) {
                 guiGraphics.drawString(this.font, " +" + gains[0], currentXBrass, y + 18, 0xFF00AA00, false);
@@ -310,11 +311,11 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
         tooltip.add(Component.literal("Durability: " + remaining + "/" + maxDurability)
                 .withStyle(style -> style.withColor(damage > 0 ? 0xFFAAAA : 0xAAAAAA)));
 
-        if (slot == 1 && armor.getItem() instanceof BrassChestplateItem chestItem) {
+        if (slot == 1 && armor.getItem() instanceof BrassManChestplateItem chestItem) {
             int air = chestItem.air(armor);
-            int maxAir = BrassChestplateItem.getMaxAir(armor);
+            int maxAir = BrassManChestplateItem.getMaxAir(armor);
             int power = chestItem.power(armor);
-            int maxPower = BrassChestplateItem.getMaxPower(armor);
+            int maxPower = BrassManChestplateItem.getMaxPower(armor);
 
             tooltip.add(Component.literal(""));
             tooltip.add(Component.literal("Air: " + air + "/" + maxAir)
@@ -383,6 +384,7 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
         return new int[]{brassCost, electronicsCost, glassCost};
     }
 
+    // FIXED: Multiply by stack count!
     private int[] calculateMaterialGains(ItemStack stack) {
         if (stack.isEmpty()) {
             return null;
@@ -393,7 +395,13 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
             return null;
         }
 
-        return materials;
+        // Multiply by stack count!
+        int count = stack.getCount();
+        return new int[]{
+                materials[0] * count,
+                materials[1] * count,
+                materials[2] * count
+        };
     }
 
     @Override

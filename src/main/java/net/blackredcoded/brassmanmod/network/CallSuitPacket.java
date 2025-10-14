@@ -8,7 +8,6 @@ import net.blackredcoded.brassmanmod.items.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
@@ -35,18 +34,18 @@ public record CallSuitPacket(BlockPos compressorPos) implements CustomPacketPayl
     // ADDED: Brass suit validation
     private static boolean isBrassSuit(ItemStack helmet, ItemStack chestplate, ItemStack leggings, ItemStack boots) {
         // At minimum, must have brass chestplate to fly
-        if (!(chestplate.getItem() instanceof BrassChestplateItem)) {
+        if (!(chestplate.getItem() instanceof BrassManChestplateItem)) {
             return false;
         }
 
         // Check other pieces - they should be brass armor or empty
-        if (!helmet.isEmpty() && !(helmet.getItem() instanceof BrassHelmetItem)) {
+        if (!helmet.isEmpty() && !(helmet.getItem() instanceof BrassManHelmetItem)) {
             return false;
         }
-        if (!leggings.isEmpty() && !(leggings.getItem() instanceof BrassLeggingsItem)) {
+        if (!leggings.isEmpty() && !(leggings.getItem() instanceof BrassManLeggingsItem)) {
             return false;
         }
-        if (!boots.isEmpty() && !(boots.getItem() instanceof BrassBootsItem)) {
+        if (!boots.isEmpty() && !(boots.getItem() instanceof BrassManBootsItem)) {
             return false;
         }
 

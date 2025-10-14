@@ -2,7 +2,7 @@ package net.blackredcoded.brassmanmod.menu;
 
 import net.blackredcoded.brassmanmod.items.upgrades.UpgradeModuleItem;
 import net.blackredcoded.brassmanmod.registry.ModMenuTypes;
-import net.blackredcoded.brassmanmod.upgrade.ArmorUpgradeHelper;
+import net.blackredcoded.brassmanmod.util.ArmorUpgradeHelper;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;

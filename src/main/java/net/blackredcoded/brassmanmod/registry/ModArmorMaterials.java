@@ -7,6 +7,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ArmorItem;
@@ -16,10 +17,43 @@ import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.EnumMap;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class ModArmorMaterials {
 
     public static final Holder<ArmorMaterial> BRASS = register("brass",
+            Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
+                map.put(ArmorItem.Type.BOOTS, 2);
+                map.put(ArmorItem.Type.LEGGINGS, 5);
+                map.put(ArmorItem.Type.CHESTPLATE, 6);
+                map.put(ArmorItem.Type.HELMET, 2);
+                map.put(ArmorItem.Type.BODY, 5);
+            }),
+            10,
+            SoundEvents.ARMOR_EQUIP_IRON,
+            1.0F,
+            0.0F,
+            () -> Ingredient.of(BuiltInRegistries.ITEM.get(
+                    ResourceLocation.fromNamespaceAndPath("create", "brass_ingot")
+            ))
+    );
+
+    private static Holder<ArmorMaterial> register(String name, EnumMap<ArmorItem.Type, Integer> defense,
+                                                  int enchantmentValue, Holder<SoundEvent> equipSound,
+                                                  float toughness, float knockbackResistance,
+                                                  Supplier<Ingredient> repairIngredient) {
+        List<ArmorMaterial.Layer> layers = List.of(
+                new ArmorMaterial.Layer(ResourceLocation.fromNamespaceAndPath(BrassManMod.MOD_ID, name))
+        );
+
+        return Registry.registerForHolder(BuiltInRegistries.ARMOR_MATERIAL,
+                ResourceLocation.fromNamespaceAndPath(BrassManMod.MOD_ID, name),
+                new ArmorMaterial(defense, enchantmentValue, equipSound, repairIngredient, layers,
+                        toughness, knockbackResistance));
+    }
+
+
+    public static final Holder<ArmorMaterial> BRASS_MAN = register("brass_man",
             Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
                 map.put(ArmorItem.Type.BOOTS, 2);
                 map.put(ArmorItem.Type.LEGGINGS, 5);
@@ -33,7 +67,7 @@ public class ModArmorMaterials {
             0.0F,
             () -> Ingredient.of(Items.COPPER_INGOT),
             List.of(new ArmorMaterial.Layer(
-                    ResourceLocation.fromNamespaceAndPath(BrassManMod.MOD_ID, "brass")
+                    ResourceLocation.fromNamespaceAndPath(BrassManMod.MOD_ID, "brass_man")
             ))
     );
 

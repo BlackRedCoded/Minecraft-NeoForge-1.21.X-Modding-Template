@@ -1,7 +1,7 @@
 package net.blackredcoded.brassmanmod.client;
 
 import net.blackredcoded.brassmanmod.BrassManMod;
-import net.blackredcoded.brassmanmod.items.BrassChestplateItem;
+import net.blackredcoded.brassmanmod.items.BrassManChestplateItem;
 import net.blackredcoded.brassmanmod.items.JarvisCommunicatorItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -115,8 +115,8 @@ public class JarvisWarningSystem {
             lowHelmetDurWarned = false;
         }
 
-        // Power and Air checks (only if chestplate is BrassChestplateItem)
-        if (chestplate.getItem() instanceof BrassChestplateItem brass) {
+        // Power and Air checks (only if chestplate is BrassManChestplateItem)
+        if (chestplate.getItem() instanceof BrassManChestplateItem brass) {
             int power = brass.power(chestplate);
             int air = brass.air(chestplate);
 
@@ -128,7 +128,7 @@ public class JarvisWarningSystem {
                 }
             } else if (power < 100) {
                 if (!lowPowerWarned) {
-                    sendJarvisMessage(player, "WARNING: Suit power critically low (" + power + "/" + BrassChestplateItem.MAX_POWER + ")", ChatFormatting.RED);
+                    sendJarvisMessage(player, "WARNING: Suit power critically low (" + power + "/" + BrassManChestplateItem.MAX_POWER + ")", ChatFormatting.RED);
                     lowPowerWarned = true;
                 }
             } else {
@@ -144,7 +144,7 @@ public class JarvisWarningSystem {
                 }
             } else if (air < 1200) {
                 if (!lowAirWarned) {
-                    sendJarvisMessage(player, "WARNING: Air supply critically low (" + air + "/" + BrassChestplateItem.MAX_AIR + ")", ChatFormatting.RED);
+                    sendJarvisMessage(player, "WARNING: Air supply critically low (" + air + "/" + BrassManChestplateItem.MAX_AIR + ")", ChatFormatting.RED);
                     lowAirWarned = true;
                 }
             } else {

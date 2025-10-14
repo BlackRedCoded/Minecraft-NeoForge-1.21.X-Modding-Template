@@ -1,0 +1,46 @@
+{
+  "parent": "brassmanmod:brass_man/root",
+  "display": {
+    "icon": {
+      "id": "brassmanmod:brass_helmet"
+    },
+    "title": {
+      "translate": "advancements.brassmanmod.jarvis_online.title"
+    },
+    "description": {
+      "translate": "advancements.brassmanmod.jarvis_online.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "brass_helmet": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "brassmanmod:brass_helmet"
+          }
+        ]
+      }
+    },
+    "jarvis_communicator": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "brassmanmod:jarvis_communicator"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "brass_helmet",
+      "jarvis_communicator"
+    ]
+  ]
+}

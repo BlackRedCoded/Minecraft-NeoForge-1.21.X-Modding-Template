@@ -76,6 +76,12 @@ public class ModNetworking {
                 CallSuitPacket::handle
         );
 
+        registrar.playToServer(
+                GrantAdvancementPacket.TYPE,
+                GrantAdvancementPacket.STREAM_CODEC,
+                GrantAdvancementPacket::handle
+        );
+
         registrar.playToClient(
                 SyncFlightConfigPacket.TYPE,
                 SyncFlightConfigPacket.STREAM_CODEC,

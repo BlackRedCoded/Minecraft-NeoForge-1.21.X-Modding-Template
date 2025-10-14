@@ -1,6 +1,6 @@
 package net.blackredcoded.brassmanmod.blockentity;
 
-import net.blackredcoded.brassmanmod.items.BrassChestplateItem;
+import net.blackredcoded.brassmanmod.items.BrassManChestplateItem;
 import net.blackredcoded.brassmanmod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -74,9 +74,9 @@ public class BrassArmorStandBlockEntity extends BlockEntity {
     // FIXED: Check if chestplate needs charging (respects upgrades)
     public boolean canCharge() {
         ItemStack chestplate = getArmor(1);
-        if (chestplate.getItem() instanceof BrassChestplateItem brassChest) {
+        if (chestplate.getItem() instanceof BrassManChestplateItem brassChest) {
             int currentAir = brassChest.air(chestplate);
-            int maxAir = BrassChestplateItem.getMaxAir(chestplate);
+            int maxAir = BrassManChestplateItem.getMaxAir(chestplate);
             return currentAir < maxAir;
         }
         return false;
@@ -85,9 +85,9 @@ public class BrassArmorStandBlockEntity extends BlockEntity {
     // FIXED: Charge chestplate (respects upgraded max values)
     public void chargeChestplate(int amount) {
         ItemStack chestplate = getArmor(1);
-        if (chestplate.getItem() instanceof BrassChestplateItem brassChest) {
+        if (chestplate.getItem() instanceof BrassManChestplateItem brassChest) {
             int currentAir = brassChest.air(chestplate);
-            int maxAir = BrassChestplateItem.getMaxAir(chestplate);
+            int maxAir = BrassManChestplateItem.getMaxAir(chestplate);
             brassChest.setAir(chestplate, Math.min(currentAir + amount, maxAir));
             setChanged();
         }
@@ -104,11 +104,11 @@ public class BrassArmorStandBlockEntity extends BlockEntity {
                 }
 
                 // Check if Brass armor needs charging (with upgraded max values)
-                if (armor.getItem() instanceof BrassChestplateItem brassChest) {
+                if (armor.getItem() instanceof BrassManChestplateItem brassChest) {
                     int currentAir = brassChest.air(armor);
                     int currentPower = brassChest.power(armor);
-                    int maxAir = BrassChestplateItem.getMaxAir(armor);
-                    int maxPower = BrassChestplateItem.getMaxPower(armor);
+                    int maxAir = BrassManChestplateItem.getMaxAir(armor);
+                    int maxPower = BrassManChestplateItem.getMaxPower(armor);
 
                     if (currentAir < maxAir || currentPower < maxPower) {
                         return true;
