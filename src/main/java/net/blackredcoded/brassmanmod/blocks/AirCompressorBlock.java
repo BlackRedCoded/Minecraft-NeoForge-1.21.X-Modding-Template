@@ -8,6 +8,7 @@ import net.blackredcoded.brassmanmod.registry.ModBlockEntities;
 import net.blackredcoded.brassmanmod.util.CompressorRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -60,10 +61,8 @@ public class AirCompressorBlock extends DirectionalKineticBlock implements IBE<A
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
-
-        if (!level.isClientSide && placer instanceof ServerPlayer player) {
-            CompressorRegistry.registerCompressor(player.getUUID(), pos);
-
+        if (!level.isClientSide && placer instanceof ServerPlayer player && level instanceof ServerLevel serverLevel) {
+            CompressorRegistry.registerCompressor(serverLevel, player.getUUID(), pos);
             if (level.getBlockEntity(pos) instanceof AirCompressorBlockEntity compressor) {
                 compressor.setOwner(player.getUUID());
                 compressor.setChanged();
@@ -74,10 +73,10 @@ public class AirCompressorBlock extends DirectionalKineticBlock implements IBE<A
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide && level instanceof ServerLevel serverLevel) {
             if (level.getBlockEntity(pos) instanceof AirCompressorBlockEntity compressor) {
                 if (compressor.getOwner() != null) {
-                    CompressorRegistry.unregisterCompressor(compressor.getOwner(), pos);
+                    CompressorRegistry.unregisterCompressor(serverLevel, compressor.getOwner(), pos);
                 }
             }
         }
