@@ -1,0 +1,30 @@
+{
+  "parent": "brassmanmod:brass_man/remote_access",
+  "display": {
+    "icon": {
+      "id": "brassmanmod:compressor_network_tablet"
+    },
+    "title": {
+      "translate": "advancements.brassmanmod.pocket_remote_access.title"
+    },
+    "description": {
+      "translate": "advancements.brassmanmod.pocket_remote_access.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "tablet": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": ["brassmanmod:compressor_network_tablet"]
+          }
+        ]
+      }
+    }
+  }
+}

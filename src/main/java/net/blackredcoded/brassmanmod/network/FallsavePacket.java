@@ -43,6 +43,9 @@ public record FallsavePacket() implements CustomPacketPayload {
         context.enqueueWork(() -> {
             if (!(context.player() instanceof ServerPlayer player)) return;
 
+            if (player.getPersistentData().getBoolean("BrassManIced")) return; // Don't execute fallsave if suit is iced
+
+
             FlightConfig.PlayerFlightData config = FlightConfig.get(player);
 
             // Track if fallsave actually did something

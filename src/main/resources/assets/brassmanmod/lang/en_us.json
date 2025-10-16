@@ -14,7 +14,6 @@
   "item.brassmanmod.compressor_network_tablet": "Compressor Network Tablet",
   "item.brassmanmod.kinetic_battery": "Kinetic Battery",
 
-
   "item.brassmanmod.power_cell_upgrade": "Power Cell Upgrade",
   "item.brassmanmod.air_tank_upgrade": "Air Tank Upgrade",
   "item.brassmanmod.speed_amplifier_upgrade": "Speed Boost Upgrade",
@@ -31,6 +30,7 @@
   "item.brassmanmod.compact_mechanism": "Compact Mechanism",
   "item.brassmanmod.kinetic_circuit": "Kinetic Circuit",
 
+
   "block.brassmanmod.air_compressor": "Air Compressor",
   "block.brassmanmod.brass_armor_stand": "Brass Armor Stand",
   "block.brassmanmod.brass_modification_station": "Brass Modification Station",
@@ -39,26 +39,39 @@
   "block.brassmanmod.kinetic_motor": "Kinetic Motor",
   "block.brassmanmod.charger": "Charger",
 
+
   "container.brassmanmod.data_link": "Data Link",
   "container.brassmanmod.air_compressor": "Air Compressor",
   "container.brassmanmod.compressor_network_terminal": "Compressor Network Terminal",
   "container.brassmanmod.kinetic_motor": "Kinetic Motor",
   "container.brassmanmod.charger": "Charger",
 
+
   "ponder.air_compressor.title": "Air Compressor",
   "ponder.air_compressor.description": "Use the compressor to charge your brass man suit.",
 
-  "advancements.brassmanmod.suit_up.title": "Suit Up",
-  "advancements.brassmanmod.suit_up.description": "Craft a Brass Chestplate",
+
+  "advancements.brassmanmod.suit_up.title": "Create: Brass Man",
+  "advancements.brassmanmod.suit_up.description": "Craft a Brass Man Chestplate",
+
   "advancements.brassmanmod.jarvis_online.title": "JARVIS Online",
-  "advancements.brassmanmod.jarvis_online.description": "Obtain a Brass Helmet with AI interface",
+  "advancements.brassmanmod.jarvis_online.description": "Obtain a Brass Helmet or Jarvis communicator in order to use /jarvis",
+
   "advancements.brassmanmod.first_flight.title": "First Flight",
   "advancements.brassmanmod.first_flight.description": "Take to the skies with flight mode",
+
   "advancements.brassmanmod.emergency_landing.title": "Emergency Landing",
   "advancements.brassmanmod.emergency_landing.description": "Trigger the fallsave system",
+
   "advancements.brassmanmod.compressed_air.title": "Compressed Air",
   "advancements.brassmanmod.compressed_air.description": "Build an Air Compressor",
-  "advancements.brassmanmod.remote_access.title": "Remote Access",
-  "advancements.brassmanmod.remote_access.description": "Craft a Compressor Network Tablet"
 
+  "advancements.brassmanmod.remote_access.title": "Remote Access",
+  "advancements.brassmanmod.remote_access.description": "Craft a Compressor Network Terminal",
+
+  "advancements.brassmanmod.pocket_remote_access.title": "Pocket Remote Access",
+  "advancements.brassmanmod.pocket_remote_access.description": "Craft a Compressor Network Tablet",
+
+  "advancements.brassmanmod.icing_problem.title": "The Icing Problem",
+  "advancements.brassmanmod.icing_problem.description": "Experience system failure at high altitude with an unupgraded suit"
 }

@@ -7,6 +7,8 @@ import net.blackredcoded.brassmanmod.items.JarvisCommunicatorItem;
 import net.blackredcoded.brassmanmod.network.ConsumeAirPacket;
 import net.blackredcoded.brassmanmod.network.FallsavePacket;
 import net.blackredcoded.brassmanmod.network.GrantAdvancementPacket;
+import net.blackredcoded.brassmanmod.network.IcingStatePacket;
+import net.blackredcoded.brassmanmod.util.ArmorUpgradeHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -26,12 +28,15 @@ import net.neoforged.neoforge.network.PacketDistributor;
 @EventBusSubscriber(modid = BrassManMod.MOD_ID, value = Dist.CLIENT)
 public class FlightHandler {
 
+    private static ClientTickEvent.Post event;
     private static boolean isFlying = false;
-    private static int floatingTicks = 0;
-    private static int airConsumeTicks = 0;
     private static boolean fallsaveTriggered = false;
     private static boolean firstFlightGranted = false;
-    private static ClientTickEvent.Post event;
+    private static boolean wasAbove500 = false;
+    private static boolean hasGrantedIcingAchievement = false;
+    private static int icingCooldownTicks = 0;
+    private static int floatingTicks = 0;
+    private static int airConsumeTicks = 0;
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
@@ -42,6 +47,76 @@ public class FlightHandler {
         if (player == null || !player.level().isClientSide) return;
 
         FlightConfig.PlayerFlightData config = FlightConfig.get(player);
+
+        ItemStack chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
+        if (!(chestplate.getItem() instanceof BrassManChestplateItem brass)) return;
+
+        // === ICING PROBLEM LOGIC ===
+        boolean isAbove500 = player.getY() >= 500;
+        int upgradeStage = ArmorUpgradeHelper.getRemoteAssemblyLevel(chestplate);
+
+        // Check if player is iced (above Y:500 with upgrade stage 0)
+        boolean isIced = isAbove500 && upgradeStage == 0;
+
+        // Grant achievement when first entering icing zone
+        if (isIced && !wasAbove500) {
+            if (!hasGrantedIcingAchievement) {
+                PacketDistributor.sendToServer(new GrantAdvancementPacket("brassmanmod:brass_man/icing_problem"));
+                hasGrantedIcingAchievement = true;
+            }
+            // Send icing state to server
+            PacketDistributor.sendToServer(new IcingStatePacket(true));
+            icingCooldownTicks = 100; // 5 second cooldown before systems can restart (20 ticks = 1 sec)
+        }
+
+        // When leaving icing zone
+        if (!isIced && wasAbove500) {
+            PacketDistributor.sendToServer(new IcingStatePacket(false));
+        }
+
+        wasAbove500 = isAbove500;
+
+        // Cooldown timer
+        if (icingCooldownTicks > 0) {
+            icingCooldownTicks--;
+        }
+
+        // Apply maximum powdered snow overlay effect when iced (140 = max freeze, damage threshold)
+        if (isIced) {
+            player.setTicksFrozen(140); // Maximum freeze overlay (same as when taking freeze damage)
+        } else {
+            // Clear frozen overlay when not iced
+            if (player.getTicksFrozen() > 0) {
+                player.setTicksFrozen(Math.max(0, player.getTicksFrozen() - 5)); // Quickly thaw
+            }
+        }
+
+        // If iced, completely disable all suit functions and stop here
+        if (isIced || icingCooldownTicks > 0) {
+            // Force disable flight
+            if (player.getAbilities().flying) {
+                player.getAbilities().flying = false;
+                player.onUpdateAbilities();
+            }
+
+            // Disable HUD
+            FlightConfig.PlayerFlightData data = FlightConfig.CLIENT_CONFIG;
+            data.hudEnabled = false;
+
+            // Clear any active flight movement
+            if (player.getDeltaMovement().y > 0) {
+                player.setDeltaMovement(player.getDeltaMovement().x,
+                        Math.min(player.getDeltaMovement().y, -0.1),
+                        player.getDeltaMovement().z);
+            }
+
+            return; // Stop all flight processing
+        }
+
+        FlightConfig.PlayerFlightData data = FlightConfig.CLIENT_CONFIG;
+        if (!data.hudEnabled) {
+            data.hudEnabled = true;
+        }
 
         // Fallsave check (works with just JARVIS helmet!)
         if (!player.onGround() && player.getDeltaMovement().y < -0.5) {
@@ -60,7 +135,6 @@ public class FlightHandler {
         }
 
         // Check for chestplate (only needed for flight/hover)
-        ItemStack chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
         if (!(chestplate.getItem() instanceof BrassManChestplateItem)) {
             stopFlying(player);
             return;

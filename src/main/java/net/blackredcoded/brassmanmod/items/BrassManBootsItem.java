@@ -1,5 +1,6 @@
 package net.blackredcoded.brassmanmod.items;
 
+import net.blackredcoded.brassmanmod.blockentity.BrassArmorStandBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Holder;
@@ -21,6 +22,11 @@ public class BrassManBootsItem extends ArmorItem {
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        // Show set name if it exists
+        String setName = BrassArmorStandBlockEntity.getSetName(stack);
+        if (setName != null && !setName.isEmpty()) {
+            tooltip.add(Component.literal("Set: " + setName).withStyle(ChatFormatting.LIGHT_PURPLE));
+        }
         tooltip.add(Component.literal("Shock Absorbing Boots").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
         tooltip.add(Component.literal("Absorbs first 10 HP of fall damage").withStyle(ChatFormatting.AQUA));
         tooltip.add(Component.literal("Power Cost: 2 per HP absorbed").withStyle(ChatFormatting.YELLOW));

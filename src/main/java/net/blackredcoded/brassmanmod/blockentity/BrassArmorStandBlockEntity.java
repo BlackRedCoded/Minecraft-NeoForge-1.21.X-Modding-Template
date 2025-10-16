@@ -5,6 +5,7 @@ import net.blackredcoded.brassmanmod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -12,9 +13,12 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public class BrassArmorStandBlockEntity extends BlockEntity {
 
@@ -146,5 +150,57 @@ public class BrassArmorStandBlockEntity extends BlockEntity {
     @Override
     public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+
+    // Apply set name and owner to all armor pieces
+    public void applySetNameToArmor(String setName, UUID ownerUUID) {
+        for (int i = 0; i < 4; i++) {
+            ItemStack armor = armorSlots.get(i);
+            if (!armor.isEmpty()) {
+                // Get or create custom data (1.21.1 way)
+                CustomData customData = armor.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+                CompoundTag tag = customData.copyTag();
+
+                // Add set name and owner
+                tag.putString("SetName", setName);
+                if (ownerUUID != null) {
+                    tag.putUUID("SetOwner", ownerUUID);
+                }
+
+                // Apply back to item (1.21.1 way)
+                armor.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+            }
+        }
+        setChanged();
+    }
+
+    // Get set name from armor
+    public static String getSetName(ItemStack armor) {
+        CustomData customData = armor.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+        CompoundTag tag = customData.copyTag();
+        if (tag.contains("SetName")) {
+            return tag.getString("SetName");
+        }
+        return null;
+    }
+
+    // Get owner UUID from armor
+    public static UUID getSetOwner(ItemStack armor) {
+        CustomData customData = armor.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+        CompoundTag tag = customData.copyTag();
+        if (tag.hasUUID("SetOwner")) {
+            return tag.getUUID("SetOwner");
+        }
+        return null;
+    }
+
+    public static String getSetUUID(ItemStack stack) {
+        if (stack.isEmpty()) return null;
+        CompoundTag data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+        if (data.hasUUID("SetUUID")) {
+            return data.getUUID("SetUUID").toString();
+        }
+        return null;
     }
 }

@@ -1,8 +1,8 @@
 {
-  "parent": "brassmanmod:brass_man/root",
+  "parent": "brassmanmod:brass_man/compressed_air",
   "display": {
     "icon": {
-      "id": "brassmanmod:compressor_network_tablet"
+      "id": "brassmanmod:compressor_network_terminal"
     },
     "title": {
       "translate": "advancements.brassmanmod.remote_access.title"
@@ -10,7 +10,7 @@
     "description": {
       "translate": "advancements.brassmanmod.remote_access.description"
     },
-    "frame": "challenge",
+    "frame": "task",
     "show_toast": true,
     "announce_to_chat": true,
     "hidden": false
@@ -21,7 +21,7 @@
       "conditions": {
         "items": [
           {
-            "items": ["brassmanmod:compressor_network_tablet"]
+            "items": ["brassmanmod:compressor_network_terminal"]
           }
         ]
       }

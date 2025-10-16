@@ -1,0 +1,23 @@
+{
+  "parent": "brassmanmod:brass_man/emergency_landing",
+  "display": {
+    "icon": {
+      "id": "minecraft:ice"
+    },
+    "title": {
+      "translate": "advancements.brassmanmod.icing_problem.title"
+    },
+    "description": {
+      "translate": "advancements.brassmanmod.icing_problem.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": true
+  },
+  "criteria": {
+    "icing": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

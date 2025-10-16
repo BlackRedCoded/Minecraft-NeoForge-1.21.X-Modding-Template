@@ -1,18 +1,36 @@
 package net.blackredcoded.brassmanmod.items;
 
+import net.blackredcoded.brassmanmod.blockentity.BrassArmorStandBlockEntity;
 import net.blackredcoded.brassmanmod.config.FlightConfig;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+
+import java.util.List;
 
 public class BrassManHelmetItem extends ArmorItem {
     public BrassManHelmetItem(Holder<ArmorMaterial> material, Properties properties) {
         super(material, Type.HELMET, properties.durability(Type.HELMET.getDurability(15)));
+    }
+
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, context, tooltip, flag);
+
+        // Show set name if it exists
+        String setName = BrassArmorStandBlockEntity.getSetName(stack);
+        if (setName != null && !setName.isEmpty()) {
+            tooltip.add(Component.literal("Set: " + setName).withStyle(ChatFormatting.LIGHT_PURPLE));
+        }
     }
 
     @Override

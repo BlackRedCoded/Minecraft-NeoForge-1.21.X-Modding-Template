@@ -280,42 +280,43 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
         return shouldConsumeStress() ? BASE_STRESS_IMPACT : 0;
     }
 
-    // Create mod's system - for network sync
     @Override
     protected void write(CompoundTag tag, HolderLookup.Provider regs, boolean clientPacket) {
         super.write(tag, regs, clientPacket);
-
         tag.putInt("Brass", materials[0]);
         tag.putInt("Electronics", materials[1]);
         tag.putInt("Glass", materials[2]);
         tag.putInt("RedstoneSignal", redstoneSignal);
         tag.putInt("SelectedArmorSlot", selectedArmorSlot);
 
-        if (ownerUUID != null) {
-            tag.putUUID("Owner", ownerUUID);
-            System.out.println("WRITE - UUID: " + ownerUUID + " | clientPacket: " + clientPacket);
+        // Simple string save instead of Component JSON
+        if (!customName.getString().equals("Air Compressor")) {
+            tag.putString("CustomNameText", customName.getString());
         }
 
+        if (ownerUUID != null) {
+            tag.putUUID("Owner", ownerUUID);
+        }
         ContainerHelper.saveAllItems(tag, inventory, regs);
     }
 
     @Override
     protected void read(CompoundTag tag, HolderLookup.Provider regs, boolean clientPacket) {
         super.read(tag, regs, clientPacket);
-
         materials[0] = tag.getInt("Brass");
         materials[1] = tag.getInt("Electronics");
         materials[2] = tag.getInt("Glass");
         redstoneSignal = tag.getInt("RedstoneSignal");
         selectedArmorSlot = tag.getInt("SelectedArmorSlot");
 
-        if (tag.hasUUID("Owner")) {
-            ownerUUID = tag.getUUID("Owner");
-            System.out.println("READ - UUID: " + ownerUUID + " | clientPacket: " + clientPacket);
-        } else {
-            System.out.println("READ - NO UUID | clientPacket: " + clientPacket);
+        // Simple string load instead of Component JSON
+        if (tag.contains("CustomNameText")) {
+            customName = Component.literal(tag.getString("CustomNameText"));
         }
 
+        if (tag.hasUUID("Owner")) {
+            ownerUUID = tag.getUUID("Owner");
+        }
         ContainerHelper.loadAllItems(tag, inventory, regs);
     }
 
@@ -398,10 +399,25 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
         setChanged();
         if (level != null && !level.isClientSide) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            // NEW: Tag armor above when renamed
+            tagArmorAbove();
         }
     }
 
     public int getSelectedArmorSlot() {
         return selectedArmorSlot;
     }
+
+    // NEW: Tag armor above with set name when compressor is renamed
+    public void tagArmorAbove() {
+        if (level == null || level.isClientSide) return;
+
+        BrassArmorStandBlockEntity stand = getArmorStandAbove();
+        if (stand == null) return;
+
+        // Apply set name and owner to all armor pieces
+        String setName = customName.getString();
+        stand.applySetNameToArmor(setName, ownerUUID);
+    }
+
 }

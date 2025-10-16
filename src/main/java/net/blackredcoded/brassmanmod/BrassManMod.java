@@ -3,10 +3,12 @@ package net.blackredcoded.brassmanmod;
 import net.blackredcoded.brassmanmod.client.BrassArmorHudOverlay;
 import net.blackredcoded.brassmanmod.commands.JarvisCommand;
 import net.blackredcoded.brassmanmod.commands.SetStatsCommand;
+import net.blackredcoded.brassmanmod.event.ArmorReturnHandler;
 import net.blackredcoded.brassmanmod.registry.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
@@ -18,6 +20,7 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;
@@ -41,7 +44,6 @@ public class BrassManMod {
                         output.accept(ModItems.BRASS_MAN_CHESTPLATE.get());
                         output.accept(ModItems.BRASS_MAN_LEGGINGS.get());
                         output.accept(ModItems.BRASS_MAN_BOOTS.get());
-
                         output.accept(ModItems.BRASS_HELMET.get());
                         output.accept(ModItems.BRASS_CHESTPLATE.get());
                         output.accept(ModItems.BRASS_LEGGINGS.get());
@@ -56,7 +58,6 @@ public class BrassManMod {
                         output.accept(ModItems.KINETIC_CIRCUIT.get());
                         output.accept(ModItems.KINETIC_BATTERY.get());
 
-
                         // Upgrade Modules
                         output.accept(ModItems.POWER_CELL_UPGRADE.get());
                         output.accept(ModItems.AIR_TANK_UPGRADE.get());
@@ -67,7 +68,7 @@ public class BrassManMod {
 
                         // Blocks
                         output.accept(ModBlocks.AIR_COMPRESSOR.get());
-                        output.accept(ModBlocks.BRASS_ARMOR_STAND.get()); // Note: BRASS_ARMOR_STAND_TOP is not added - it's auto-placed
+                        output.accept(ModBlocks.BRASS_ARMOR_STAND.get());
                         output.accept(ModBlocks.DATA_LINK.get());
                         output.accept(ModBlocks.BRASS_MODIFICATION_STATION.get());
                         output.accept(ModBlocks.COMPRESSOR_NETWORK_TERMINAL.get());
@@ -88,7 +89,9 @@ public class BrassManMod {
             modEventBus.addListener(this::registerGuiOverlays);
         }
 
+        // Register event handlers
         NeoForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.register(ArmorReturnHandler.class);
     }
 
     private void registerGuiOverlays(RegisterGuiLayersEvent event) {
@@ -103,5 +106,12 @@ public class BrassManMod {
     public void onRegisterCommands(RegisterCommandsEvent event) {
         JarvisCommand.register(event.getDispatcher());
         SetStatsCommand.register(event.getDispatcher());
+    }
+
+    @SubscribeEvent
+    public void onServerTick(LevelTickEvent.Post event) {
+        if (event.getLevel() instanceof ServerLevel serverLevel) {
+            ArmorReturnHandler.tickArmorReturns(serverLevel);
+        }
     }
 }

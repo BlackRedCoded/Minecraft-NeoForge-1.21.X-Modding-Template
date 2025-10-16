@@ -1,5 +1,6 @@
 package net.blackredcoded.brassmanmod.items;
 
+import net.blackredcoded.brassmanmod.blockentity.BrassArmorStandBlockEntity;
 import net.blackredcoded.brassmanmod.util.ArmorUpgradeHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
@@ -22,6 +23,11 @@ public class BrassManLeggingsItem extends ArmorItem {
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        // Show set name if it exists
+        String setName = BrassArmorStandBlockEntity.getSetName(stack);
+        if (setName != null && !setName.isEmpty()) {
+            tooltip.add(Component.literal("Set: " + setName).withStyle(ChatFormatting.LIGHT_PURPLE));
+        }
         tooltip.add(Component.literal("Hydraulic Leg Enhancements").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
         tooltip.add(Component.literal("Adjustable speed & jump boost").withStyle(ChatFormatting.AQUA));
         tooltip.add(Component.literal("Use /jarvis speedboost & jumpboost").withStyle(ChatFormatting.YELLOW));

@@ -3,22 +3,46 @@ package net.blackredcoded.brassmanmod.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.blackredcoded.brassmanmod.blockentity.AirCompressorBlockEntity;
+import net.blackredcoded.brassmanmod.blockentity.BrassArmorStandBlockEntity;
 import net.blackredcoded.brassmanmod.config.FlightConfig;
+import net.blackredcoded.brassmanmod.entity.FlyingArmorPieceEntity;
+import net.blackredcoded.brassmanmod.entity.FlyingSuitEntity;
+import net.blackredcoded.brassmanmod.items.BrassManChestplateItem;
 import net.blackredcoded.brassmanmod.items.BrassManHelmetItem;
 import net.blackredcoded.brassmanmod.items.JarvisCommunicatorItem;
+import net.blackredcoded.brassmanmod.util.ArmorUpgradeHelper;
+import net.blackredcoded.brassmanmod.util.ChestArmorScanner;
+import net.blackredcoded.brassmanmod.util.CompressorRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+import java.util.*;
 
 public class JarvisCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("jarvis")
+                .then(Commands.literal("call")
+                        .executes(JarvisCommand::callSuit) // /jarvis call (nearest suit)
+                        .then(Commands.argument("setName", StringArgumentType.greedyString())
+                                .executes(JarvisCommand::callNamedSuit))) // /jarvis call "Set Name"
+                .then(Commands.literal("list")
+                        .executes(JarvisCommand::listSuits) // /jarvis list (all suits, names only)
+                        .then(Commands.argument("setName", StringArgumentType.greedyString())
+                                .executes(JarvisCommand::listSuitDetails))) // /jarvis list "Set Name" (detailed info)
+
                 .then(Commands.literal("flight")
                         .then(Commands.argument("enabled", BoolArgumentType.bool())
                                 .executes(JarvisCommand::toggleFlight)))
@@ -203,6 +227,367 @@ public class JarvisCommand {
                 .withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED));
         return 1;
     }
+
+    // Call nearest/best suit
+    private static int callSuit(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        ServerPlayer player = context.getSource().getPlayerOrException();
+        ServerLevel level = (ServerLevel) player.level();
+
+        // Check for Jarvis Communicator
+        ItemStack head = player.getItemBySlot(EquipmentSlot.HEAD);
+        if (!(head.getItem() instanceof JarvisCommunicatorItem)) {
+            player.sendSystemMessage(Component.literal("You need a Jarvis Communicator to use this command!")
+                    .withStyle(ChatFormatting.RED));
+            return 0;
+        }
+
+        // Try armor stands first (Stage 1 and 2)
+        boolean foundInStand = tryCallFromArmorStand(player, level, null);
+        if (foundInStand) return 1;
+
+        // Try chests (Stage 2 only)
+        boolean foundInChest = tryCallFromChests(player, level, null);
+        if (foundInChest) return 1;
+
+        player.sendSystemMessage(Component.literal("No suit found nearby!")
+                .withStyle(ChatFormatting.RED));
+        return 0;
+    }
+
+    // Call specific named suit
+    private static int callNamedSuit(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        ServerPlayer player = context.getSource().getPlayerOrException();
+        ServerLevel level = (ServerLevel) player.level();
+
+        if (!JarvisCommunicatorItem.hasJarvis(player)) {
+            player.sendSystemMessage(Component.literal("You need a JARVIS Communicator to use this command!").withStyle(ChatFormatting.RED));
+            return 0;
+        }
+
+        String targetName = context.getArgument("setName", String.class);
+
+        System.out.println("DEBUG: callNamedSuit called with name: " + targetName);
+
+        // Try armor stands first (Stage 1 and 2)
+        boolean foundInStand = tryCallFromArmorStand(player, level, targetName);
+        if (foundInStand) {
+            System.out.println("DEBUG: Found suit in armor stand");
+            return 1;
+        }
+
+        // Try chests (Stage 2 only)
+        System.out.println("DEBUG: Not found in armor stands, trying chests...");
+        boolean foundInChest = tryCallFromChests(player, level, targetName);
+        if (foundInChest) {
+            System.out.println("DEBUG: Found suit in chest");
+            return 1;
+        }
+
+        player.sendSystemMessage(Component.literal("JARVIS: No suit named \"" + targetName + "\" found, sir.").withStyle(ChatFormatting.RED));
+        return 0;
+    }
+
+    // Find all suits owned by player
+    private static List<SuitInfo> findPlayerSuits(ServerPlayer player) {
+        List<SuitInfo> suits = new ArrayList<>();
+        ServerLevel level = (ServerLevel) player.level();
+        Set<BlockPos> playerCompressors = CompressorRegistry.getPlayerCompressors(player);
+
+        for (BlockPos compressorPos : playerCompressors) {
+            BlockEntity be = level.getBlockEntity(compressorPos);
+            if (!(be instanceof AirCompressorBlockEntity compressor)) continue;
+
+            // Check armor stand above
+            BlockPos standPos = compressorPos.above();
+            BlockEntity standBE = level.getBlockEntity(standPos);
+            if (standBE instanceof BrassArmorStandBlockEntity armorStand) {
+                ItemStack chestplate = armorStand.getArmor(1);
+                if (chestplate.getItem() instanceof BrassManChestplateItem brass) {
+                    int remoteLevel = ArmorUpgradeHelper.getRemoteAssemblyLevel(chestplate);
+                    if (remoteLevel >= 1) {
+                        int totalCharge = brass.air(chestplate) + brass.power(chestplate);
+                        String setName = BrassArmorStandBlockEntity.getSetName(chestplate);
+                        UUID owner = BrassArmorStandBlockEntity.getSetOwner(chestplate);
+
+                        // Only include if owned by player
+                        if (owner != null && owner.equals(player.getUUID())) {
+                            ItemStack helmet = armorStand.getArmor(0);
+                            ItemStack leggings = armorStand.getArmor(2);
+                            ItemStack boots = armorStand.getArmor(3);
+                            suits.add(new SuitInfo(standPos, armorStand, helmet, chestplate, leggings, boots, totalCharge, setName));
+                        }
+                    }
+                }
+            }
+        }
+
+        return suits;
+    }
+
+    // Spawn flying suit from armor stand
+    private static void callSuitFromStand(ServerPlayer player, SuitInfo suit) {
+        ServerLevel level = (ServerLevel) player.level();
+
+        // Spawn flying suit entity
+        FlyingSuitEntity flyingSuit = new FlyingSuitEntity(
+                level, suit.pos, player,
+                suit.helmet, suit.chestplate, suit.leggings, suit.boots
+        );
+        level.addFreshEntity(flyingSuit);
+
+        // Remove armor from stand
+        suit.armorStand.setArmor(0, ItemStack.EMPTY);
+        suit.armorStand.setArmor(1, ItemStack.EMPTY);
+        suit.armorStand.setArmor(2, ItemStack.EMPTY);
+        suit.armorStand.setArmor(3, ItemStack.EMPTY);
+
+        String message = suit.setName != null && !suit.setName.isEmpty()
+                ? "JARVIS: Deploying \"" + suit.setName + "\", sir."
+                : "JARVIS: Deploying suit, sir.";
+        player.sendSystemMessage(Component.literal(message).withStyle(ChatFormatting.GOLD));
+    }
+
+    // List all suits (names only)
+    private static int listSuits(CommandContext<CommandSourceStack> context) {
+        ServerPlayer player = context.getSource().getPlayer();
+        if (player == null) return 0;
+
+        if (!JarvisCommunicatorItem.hasJarvis(player)) {
+            player.sendSystemMessage(Component.literal("You need a JARVIS Communicator to use this command!").withStyle(ChatFormatting.RED));
+            return 0;
+        }
+
+        List<SuitInfo> suits = findPlayerSuits(player);
+        if (suits.isEmpty()) {
+            player.sendSystemMessage(Component.literal("JARVIS: You have no suits available, sir.").withStyle(ChatFormatting.RED));
+            return 0;
+        }
+
+        player.sendSystemMessage(Component.literal("JARVIS: Your available suits:").withStyle(ChatFormatting.GOLD));
+        for (SuitInfo suit : suits) {
+            String name = suit.setName != null && !suit.setName.isEmpty() ? "\"" + suit.setName + "\"" : "Unnamed Suit";
+            player.sendSystemMessage(Component.literal("  • " + name).withStyle(ChatFormatting.AQUA));
+        }
+
+        return 1;
+    }
+
+    // List detailed info about a specific suit
+    private static int listSuitDetails(CommandContext<CommandSourceStack> context) {
+        ServerPlayer player = context.getSource().getPlayer();
+        if (player == null) return 0;
+
+        if (!JarvisCommunicatorItem.hasJarvis(player)) {
+            player.sendSystemMessage(Component.literal("You need a JARVIS Communicator to use this command!").withStyle(ChatFormatting.RED));
+            return 0;
+        }
+
+        String targetName = context.getArgument("setName", String.class);
+        List<SuitInfo> suits = findPlayerSuits(player);
+
+        // Find suit with matching name
+        SuitInfo suit = suits.stream()
+                .filter(s -> s.setName != null && s.setName.equalsIgnoreCase(targetName))
+                .findFirst()
+                .orElse(null);
+
+        if (suit == null) {
+            player.sendSystemMessage(Component.literal("JARVIS: No suit named \"" + targetName + "\" found, sir.").withStyle(ChatFormatting.RED));
+            return 0;
+        }
+
+        // Get detailed info
+        BrassManChestplateItem brass = (BrassManChestplateItem) suit.chestplate.getItem();
+        int currentAir = brass.air(suit.chestplate);
+        int maxAir = BrassManChestplateItem.getMaxAir(suit.chestplate);
+        int airPercent = maxAir > 0 ? (currentAir * 100) / maxAir : 0;
+
+        int currentPower = brass.power(suit.chestplate);
+        int maxPower = BrassManChestplateItem.getMaxPower(suit.chestplate);
+        int powerPercent = maxPower > 0 ? (currentPower * 100) / maxPower : 0;
+
+        BlockPos pos = suit.pos;
+
+        // Send detailed info
+        player.sendSystemMessage(Component.literal("JARVIS: Suit \"" + suit.setName + "\" Status:").withStyle(ChatFormatting.LIGHT_PURPLE));
+        player.sendSystemMessage(Component.literal("  Location: [X: " + pos.getX() + ", Y: " + pos.getY() + ", Z: " + pos.getZ() + "]").withStyle(ChatFormatting.DARK_GREEN));
+        player.sendSystemMessage(Component.literal("  Air: " + airPercent + "% (" + currentAir + "/" + maxAir + ")").withStyle(ChatFormatting.AQUA));
+        player.sendSystemMessage(Component.literal("  Power: " + powerPercent + "% (" + currentPower + "/" + maxPower + ")").withStyle(ChatFormatting.YELLOW));
+        // Later you can add: player.sendSystemMessage(Component.literal("  Appearance: \"" + appearance + "\"").withStyle(ChatFormatting.LIGHT_PURPLE));
+
+        return 1;
+    }
+
+    private static int callSuitWithChestSupport(CommandContext<CommandSourceStack> context, String suitName)
+            throws CommandSyntaxException {
+        ServerPlayer player = context.getSource().getPlayerOrException();
+        ServerLevel level = (ServerLevel) player.level();
+
+        // Check for Jarvis Communicator
+        ItemStack head = player.getItemBySlot(EquipmentSlot.HEAD);
+        if (!(head.getItem() instanceof JarvisCommunicatorItem)) {
+            player.sendSystemMessage(Component.literal("You need a Jarvis Communicator to use this command!")
+                    .withStyle(ChatFormatting.RED));
+            return 0;
+        }
+
+        // First, try to find in armor stands (existing logic)
+        boolean foundInStand = tryCallFromArmorStand(player, level, suitName);
+
+        if (foundInStand) {
+            return 1;
+        }
+
+        // If not found in armor stands, try chests (Stage 2 only)
+        boolean foundInChest = tryCallFromChests(player, level, suitName);
+
+        if (foundInChest) {
+            return 1;
+        }
+
+        player.sendSystemMessage(Component.literal("Could not find suit: " + suitName)
+                .withStyle(ChatFormatting.RED));
+        return 0;
+    }
+
+    private static boolean tryCallFromArmorStand(ServerPlayer player, ServerLevel level, String suitName) {
+        List<SuitInfo> suits = findPlayerSuits(player);
+
+        if (suitName != null) {
+            // Named call - find specific suit
+            SuitInfo match = suits.stream()
+                    .filter(s -> s.setName != null && s.setName.equalsIgnoreCase(suitName))
+                    .findFirst()
+                    .orElse(null);
+
+            if (match != null) {
+                callSuitFromStand(player, match);
+                return true;
+            }
+        } else {
+            // Un-named call - find nearest suit
+            if (!suits.isEmpty()) {
+                // Sort by distance and get nearest
+                BlockPos playerPos = player.blockPosition();
+                SuitInfo nearest = suits.stream()
+                        .min((a, b) -> {
+                            double distA = a.pos.distSqr(playerPos);
+                            double distB = b.pos.distSqr(playerPos);
+                            return Double.compare(distA, distB);
+                        })
+                        .orElse(null);
+
+                if (nearest != null) {
+                    callSuitFromStand(player, nearest);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean tryCallFromChests(ServerPlayer player, ServerLevel level, String suitName) {
+        System.out.println("=== DEBUG tryCallFromChests START ===");
+        System.out.println("DEBUG: Suit name: " + suitName);
+        System.out.println("DEBUG: Player UUID: " + player.getUUID());
+        System.out.println("DEBUG: Player pos: " + player.blockPosition());
+
+        ChestArmorScanner.SuitSet suitSet = ChestArmorScanner.findArmorInChests(
+                level, player.blockPosition(), suitName, player.getUUID(), 64);
+
+        System.out.println("DEBUG: Scan complete");
+        System.out.println("DEBUG: Has helmet? " + (suitSet.helmet != null));
+        System.out.println("DEBUG: Has chest? " + (suitSet.chestplate != null));
+        System.out.println("DEBUG: Has legs? " + (suitSet.leggings != null));
+        System.out.println("DEBUG: Has boots? " + (suitSet.boots != null));
+
+        if (!suitSet.hasAnyPiece()) {
+            System.out.println("DEBUG: No pieces found - RETURNING FALSE");
+            return false;
+        }
+
+        System.out.println("DEBUG: Found pieces! Checking upgrade levels...");
+
+        // Check if ANY piece is Stage 2
+        boolean hasStage2 = false;
+        ItemStack[] pieces = {
+                suitSet.helmet != null ? suitSet.helmet.armor : ItemStack.EMPTY,
+                suitSet.chestplate != null ? suitSet.chestplate.armor : ItemStack.EMPTY,
+                suitSet.leggings != null ? suitSet.leggings.armor : ItemStack.EMPTY,
+                suitSet.boots != null ? suitSet.boots.armor : ItemStack.EMPTY
+        };
+
+        for (ItemStack piece : pieces) {
+            if (!piece.isEmpty()) {
+                int stage = ArmorUpgradeHelper.getRemoteAssemblyLevel(piece);
+                System.out.println("DEBUG: Piece " + piece.getItem() + " has stage: " + stage);
+                if (stage >= 2) {
+                    hasStage2 = true;
+                }
+            }
+        }
+
+        System.out.println("DEBUG: Has Stage 2? " + hasStage2);
+
+        if (!hasStage2) {
+            player.sendSystemMessage(Component.literal("Suit must be upgraded to Stage 2 (3 stars) to call from chests!")
+                    .withStyle(ChatFormatting.YELLOW));
+            System.out.println("DEBUG: No Stage 2 pieces - RETURNING FALSE");
+            return false;
+        }
+
+        System.out.println("DEBUG: Removing armor from chests...");
+        ChestArmorScanner.removeArmorFromChests(level, suitSet);
+
+        System.out.println("DEBUG: Spawning flying pieces...");
+        int piecesFlying = 0;
+
+        if (suitSet.helmet != null) {
+            System.out.println("DEBUG: Spawning helmet entity");
+            FlyingArmorPieceEntity helmetEntity = new FlyingArmorPieceEntity(
+                    level, suitSet.helmet.chestPos, player, suitSet.helmet.armor, EquipmentSlot.HEAD);
+            level.addFreshEntity(helmetEntity);
+            piecesFlying++;
+        }
+
+        if (suitSet.chestplate != null) {
+            System.out.println("DEBUG: Spawning chestplate entity");
+            FlyingArmorPieceEntity chestEntity = new FlyingArmorPieceEntity(
+                    level, suitSet.chestplate.chestPos, player, suitSet.chestplate.armor, EquipmentSlot.CHEST);
+            level.addFreshEntity(chestEntity);
+            piecesFlying++;
+        }
+
+        if (suitSet.leggings != null) {
+            System.out.println("DEBUG: Spawning leggings entity");
+            FlyingArmorPieceEntity legsEntity = new FlyingArmorPieceEntity(
+                    level, suitSet.leggings.chestPos, player, suitSet.leggings.armor, EquipmentSlot.LEGS);
+            level.addFreshEntity(legsEntity);
+            piecesFlying++;
+        }
+
+        if (suitSet.boots != null) {
+            System.out.println("DEBUG: Spawning boots entity");
+            FlyingArmorPieceEntity bootsEntity = new FlyingArmorPieceEntity(
+                    level, suitSet.boots.chestPos, player, suitSet.boots.armor, EquipmentSlot.FEET);
+            level.addFreshEntity(bootsEntity);
+            piecesFlying++;
+        }
+
+        player.sendSystemMessage(Component.literal("Calling " + piecesFlying + " suit piece" + (piecesFlying > 1 ? "s" : "") + " from storage...")
+                .withStyle(ChatFormatting.GOLD));
+
+        System.out.println("DEBUG: SUCCESS - Spawned " + piecesFlying + " pieces");
+        System.out.println("=== DEBUG tryCallFromChests END ===");
+        return true;
+    }
+
+    // Helper record
+    private record SuitInfo(BlockPos pos, BrassArmorStandBlockEntity armorStand,
+                            ItemStack helmet, ItemStack chestplate, ItemStack leggings, ItemStack boots,
+                            int totalCharge, String setName) {}
+
 
     private static int showStatus(CommandContext<CommandSourceStack> context) {
         ServerPlayer player = context.getSource().getPlayer();

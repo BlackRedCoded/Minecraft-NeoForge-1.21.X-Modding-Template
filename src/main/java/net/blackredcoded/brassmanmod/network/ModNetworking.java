@@ -88,6 +88,12 @@ public class ModNetworking {
                 CallSuitFromWorldPacket::handle
         );
 
+        registrar.playToServer(
+                IcingStatePacket.TYPE,
+                IcingStatePacket.STREAM_CODEC,
+                IcingStatePacket::handle
+        );
+
         registrar.playToClient(
                 SyncFlightConfigPacket.TYPE,
                 SyncFlightConfigPacket.STREAM_CODEC,

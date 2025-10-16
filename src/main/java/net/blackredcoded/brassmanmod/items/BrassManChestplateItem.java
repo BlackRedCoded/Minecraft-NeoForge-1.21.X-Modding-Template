@@ -1,5 +1,6 @@
 package net.blackredcoded.brassmanmod.items;
 
+import net.blackredcoded.brassmanmod.blockentity.BrassArmorStandBlockEntity;
 import net.blackredcoded.brassmanmod.registry.ModArmorMaterials;
 import net.blackredcoded.brassmanmod.util.ArmorUpgradeHelper;
 import net.minecraft.ChatFormatting;
@@ -127,6 +128,12 @@ public class BrassManChestplateItem extends ArmorItem {
         int maxPower = getMaxPower(s);
         ChatFormatting airColor = maxAir > BASE_MAX_AIR ? ChatFormatting.GREEN : ChatFormatting.AQUA;
         ChatFormatting powerColor = maxPower > BASE_MAX_POWER ? ChatFormatting.GREEN : ChatFormatting.YELLOW;
+
+        // Show set name if it exists
+        String setName = BrassArmorStandBlockEntity.getSetName(s);
+        if (setName != null && !setName.isEmpty()) {
+            tooltip.add(Component.literal("Set: " + setName).withStyle(ChatFormatting.LIGHT_PURPLE));
+        }
 
         tooltip.add(Component.literal("Air: %d / %d".formatted(air, maxAir)).withStyle(airColor));
         tooltip.add(Component.literal("Power: %d / %d".formatted(power, maxPower)).withStyle(powerColor));
