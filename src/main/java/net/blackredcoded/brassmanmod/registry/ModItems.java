@@ -74,6 +74,8 @@ public class ModItems {
 
     public static final Supplier<Item> QUICK_CHARGING_UPGRADE = ITEMS.register("quick_charging_upgrade",
             () -> new QuickChargeUpgradeItem(new Item.Properties()));
+    public static final Supplier<Item> REMOTE_ASSEMBLY_UPGRADE = ITEMS.register("remote_assembly_upgrade",
+            () -> new RemoteAssemblyUpgradeItem(new Item.Properties()));
 
     // === CRAFTING COMPONENTS ===
     public static final DeferredHolder<Item, Item> PNEUMATIC_CORE = ITEMS.register("pneumatic_core",

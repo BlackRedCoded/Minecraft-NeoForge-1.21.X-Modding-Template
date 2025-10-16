@@ -125,12 +125,45 @@ public class BrassManChestplateItem extends ArmorItem {
         int power = power(s);
         int maxAir = getMaxAir(s);
         int maxPower = getMaxPower(s);
-
         ChatFormatting airColor = maxAir > BASE_MAX_AIR ? ChatFormatting.GREEN : ChatFormatting.AQUA;
         ChatFormatting powerColor = maxPower > BASE_MAX_POWER ? ChatFormatting.GREEN : ChatFormatting.YELLOW;
 
         tooltip.add(Component.literal("Air: %d / %d".formatted(air, maxAir)).withStyle(airColor));
         tooltip.add(Component.literal("Power: %d / %d".formatted(power, maxPower)).withStyle(powerColor));
+
+// NEW: Show Remote Assembly Level (stars) - ALWAYS shown, starting at 1 star
+        int remoteLevel = ArmorUpgradeHelper.getRemoteAssemblyLevel(s);
+        int displayStars = remoteLevel + 1; // 0 -> 1 star, 1 -> 2 stars, 2 -> 3 stars
+
+        tooltip.add(Component.literal(""));
+
+        String stars;
+        ChatFormatting starColor;
+        String levelText;
+
+        if (displayStars == 1) {
+            stars = "⭐";
+            starColor = ChatFormatting.WHITE;
+            levelText = "Base Configuration";
+        } else if (displayStars == 2) {
+            stars = "⭐⭐";
+            starColor = ChatFormatting.AQUA;
+            levelText = "Remote Assembly (MK 7)";
+        } else { // 3 stars
+            stars = "⭐⭐⭐";
+            starColor = ChatFormatting.GOLD;
+            levelText = "Field Assembly (MK 42)";
+        }
+
+        tooltip.add(Component.literal(stars + " " + levelText).withStyle(starColor, ChatFormatting.BOLD));
+
+        if (displayStars == 1) {
+            tooltip.add(Component.literal("Manual suit equipping only").withStyle(ChatFormatting.GRAY));
+        } else if (displayStars == 2) {
+            tooltip.add(Component.literal("Can call suit from Armor Stands").withStyle(ChatFormatting.AQUA));
+        } else {
+            tooltip.add(Component.literal("Can call suit from anywhere!").withStyle(ChatFormatting.GOLD));
+        }
 
         if (ArmorUpgradeHelper.hasUpgrades(s)) {
             tooltip.add(Component.literal(""));

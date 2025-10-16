@@ -89,5 +89,22 @@ public class ArmorUpgradeHelper {
         return total;
     }
 
+    // Get Remote Assembly level (0, 1, or 2)
+    public static int getRemoteAssemblyLevel(ItemStack armorStack) {
+        if (armorStack.isEmpty()) return 0;
+        CustomData data = armorStack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+        CompoundTag tag = data.copyTag();
+        return tag.getInt("RemoteAssemblyLevel");
+    }
+
+    // Set Remote Assembly level
+    public static void setRemoteAssemblyLevel(ItemStack armorStack, int level) {
+        if (armorStack.isEmpty()) return;
+        CustomData data = armorStack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+        CompoundTag tag = data.copyTag();
+        tag.putInt("RemoteAssemblyLevel", Math.min(level, 2)); // Cap at 2
+        armorStack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+    }
+
     public static final int MAX_TOTAL_UPGRADES = 15; // Increased to accommodate efficiency upgrades
 }

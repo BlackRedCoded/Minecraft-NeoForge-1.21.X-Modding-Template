@@ -25,6 +25,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber(modid = BrassManMod.MOD_ID, value = Dist.CLIENT)
 public class FlightHandler {
+
     private static boolean isFlying = false;
     private static int floatingTicks = 0;
     private static int airConsumeTicks = 0;
@@ -37,6 +38,7 @@ public class FlightHandler {
         FlightHandler.event = event;
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
+
         if (player == null || !player.level().isClientSide) return;
 
         FlightConfig.PlayerFlightData config = FlightConfig.get(player);
@@ -65,7 +67,6 @@ public class FlightHandler {
         }
 
         int airAmount = BrassManChestplateItem.getAir(chestplate);
-
         if (airAmount <= 0) {
             stopFlying(player);
             return;
@@ -74,6 +75,7 @@ public class FlightHandler {
         boolean spacePressed = mc.options.keyJump.isDown();
         boolean shiftPressed = mc.options.keyShift.isDown();
         boolean isInAir = player.level().getBlockState(player.blockPosition().below()).isAir();
+
         int speedPercent = config.flightSpeed;
         int ticksPerAir;
         if (speedPercent <= 10) {
@@ -98,11 +100,12 @@ public class FlightHandler {
             ticksPerAir = 2;
         }
 
-        // FLIGHT: Space pressed + flight enabled
-        if (spacePressed && config.flightEnabled) {
+        // FLIGHT: Space pressed + flight enabled + MUST BE IN AIR
+        if (spacePressed && config.flightEnabled && isInAir) { // ADDED: && isInAir
             if (!isFlying) {
                 startFlying(player);
             }
+
             player.fallDistance = 0;
             airConsumeTicks++;
             if (airConsumeTicks >= ticksPerAir) {

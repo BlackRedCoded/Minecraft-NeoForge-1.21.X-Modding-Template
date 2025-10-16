@@ -5,6 +5,7 @@ import net.blackredcoded.brassmanmod.blockentity.AirCompressorBlockEntity;
 import net.blackredcoded.brassmanmod.blockentity.BrassArmorStandBlockEntity;
 import net.blackredcoded.brassmanmod.entity.FlyingSuitEntity;
 import net.blackredcoded.brassmanmod.items.*;
+import net.blackredcoded.brassmanmod.util.ArmorUpgradeHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -17,6 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record CallSuitPacket(BlockPos compressorPos) implements CustomPacketPayload {
+
     public static final Type<CallSuitPacket> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath("brassmanmod", "call_suit"));
 
@@ -42,9 +44,11 @@ public record CallSuitPacket(BlockPos compressorPos) implements CustomPacketPayl
         if (!helmet.isEmpty() && !(helmet.getItem() instanceof BrassManHelmetItem)) {
             return false;
         }
+
         if (!leggings.isEmpty() && !(leggings.getItem() instanceof BrassManLeggingsItem)) {
             return false;
         }
+
         if (!boots.isEmpty() && !(boots.getItem() instanceof BrassManBootsItem)) {
             return false;
         }
@@ -92,6 +96,22 @@ public record CallSuitPacket(BlockPos compressorPos) implements CustomPacketPayl
                 return;
             }
 
+            // NEW: Check Remote Assembly Level (must be Stage 1 or higher)
+            int remoteLevel = ArmorUpgradeHelper.getRemoteAssemblyLevel(chestplate);
+            if (remoteLevel < 1) {
+                player.displayClientMessage(
+                        Component.literal("⚠ Remote Assembly Not Installed!")
+                                .withStyle(ChatFormatting.RED),
+                        false
+                );
+                player.displayClientMessage(
+                        Component.literal("This suit cannot be remotely called. Upgrade it at a Modification Station with Remote Assembly Protocol.")
+                                .withStyle(ChatFormatting.GRAY),
+                        false
+                );
+                return;
+            }
+
             // Create flying suit entity
             FlyingSuitEntity flyingSuit = new FlyingSuitEntity(
                     player.level(), standPos, player,
@@ -105,7 +125,12 @@ public record CallSuitPacket(BlockPos compressorPos) implements CustomPacketPayl
             armorStand.setArmor(2, ItemStack.EMPTY);
             armorStand.setArmor(3, ItemStack.EMPTY);
 
-            player.displayClientMessage(Component.literal("Brass suit incoming!").withStyle(ChatFormatting.GREEN), true);
+            String levelText = remoteLevel == 1 ? "⭐⭐ Remote Assembly" : "⭐⭐⭐ Field Assembly";
+            player.displayClientMessage(
+                    Component.literal("Brass suit incoming! (" + levelText + ")")
+                            .withStyle(ChatFormatting.GREEN),
+                    true
+            );
         });
     }
 }

@@ -6,6 +6,7 @@ import net.blackredcoded.brassmanmod.blockentity.BrassArmorStandBlockEntity;
 import net.blackredcoded.brassmanmod.config.FlightConfig;
 import net.blackredcoded.brassmanmod.entity.FlyingSuitEntity;
 import net.blackredcoded.brassmanmod.items.*;
+import net.blackredcoded.brassmanmod.util.ArmorUpgradeHelper;
 import net.blackredcoded.brassmanmod.util.CompressorRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 public record FallsavePacket() implements CustomPacketPayload {
+
     public static final Type<FallsavePacket> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(BrassManMod.MOD_ID, "fallsave"));
 
@@ -43,10 +45,8 @@ public record FallsavePacket() implements CustomPacketPayload {
 
             FlightConfig.PlayerFlightData config = FlightConfig.get(player);
 
-            player.getAdvancements().award(
-                    player.server.getAdvancements().get(ResourceLocation.fromNamespaceAndPath("brassmanmod", "brass_man/emergency_landing")),
-                    "fallsave"
-            );
+            // Track if fallsave actually did something
+            boolean fallsaveActivated = false;
 
             // Check if player has chestplate currently
             ItemStack chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
@@ -56,16 +56,17 @@ public record FallsavePacket() implements CustomPacketPayload {
             if (hasChestplate) {
                 BrassManChestplateItem brass = (BrassManChestplateItem) chestplate.getItem();
                 int currentAir = brass.air(chestplate);
-
                 if (currentAir > 0) {
                     // Enable flight if fallsaveFlight is true
                     if (config.fallsaveFlight) {
                         FlightConfig.setFlightEnabled(player, true);
+                        fallsaveActivated = true; // Flight was enabled!
                     }
 
                     // Enable hover if fallsaveHover is true
                     if (config.fallsaveHover) {
                         FlightConfig.setHoverEnabled(player, true);
+                        fallsaveActivated = true; // Hover was enabled!
                     }
                 }
             }
@@ -73,7 +74,18 @@ public record FallsavePacket() implements CustomPacketPayload {
             // Auto-call suit (works even without chestplate!)
             if (config.fallsaveCallSuit && hasJarvisAccess(player)) {
                 // Pass config settings to callBestSuit so it can enable flight/hover when suit arrives
-                callBestSuit(player, config.fallsaveFlight, config.fallsaveHover);
+                boolean suitCalled = callBestSuit(player, config.fallsaveFlight, config.fallsaveHover);
+                if (suitCalled) {
+                    fallsaveActivated = true; // Suit was successfully called!
+                }
+            }
+
+            // ONLY award achievement if fallsave actually did something
+            if (fallsaveActivated) {
+                player.getAdvancements().award(
+                        player.server.getAdvancements().get(ResourceLocation.fromNamespaceAndPath("brassmanmod", "brass_man/emergency_landing")),
+                        "fallsave"
+                );
             }
         });
     }
@@ -93,9 +105,11 @@ public record FallsavePacket() implements CustomPacketPayload {
         if (!helmet.isEmpty() && !(helmet.getItem() instanceof BrassManHelmetItem)) {
             return false;
         }
+
         if (!leggings.isEmpty() && !(leggings.getItem() instanceof BrassManLeggingsItem)) {
             return false;
         }
+
         if (!boots.isEmpty() && !(boots.getItem() instanceof BrassManBootsItem)) {
             return false;
         }
@@ -103,8 +117,8 @@ public record FallsavePacket() implements CustomPacketPayload {
         return true;
     }
 
-    private static void callBestSuit(ServerPlayer player, boolean enableFlight, boolean enableHover) {
-        if (!(player.level() instanceof ServerLevel serverLevel)) return;
+    private static boolean callBestSuit(ServerPlayer player, boolean enableFlight, boolean enableHover) {
+        if (!(player.level() instanceof ServerLevel serverLevel)) return false;
 
         // Check if player already has a chestplate with air
         ItemStack currentChestplate = player.getItemBySlot(EquipmentSlot.CHEST);
@@ -113,7 +127,7 @@ public record FallsavePacket() implements CustomPacketPayload {
             if (currentAir > 0) {
                 player.sendSystemMessage(Component.literal("JARVIS: Current suit still has air (" + currentAir + "). No need for backup.")
                         .withStyle(ChatFormatting.YELLOW));
-                return;
+                return false;
             }
         }
 
@@ -122,7 +136,7 @@ public record FallsavePacket() implements CustomPacketPayload {
         if (playerCompressors.isEmpty()) {
             player.sendSystemMessage(Component.literal("JARVIS: No compressors found. Place some Air Compressors first!")
                     .withStyle(ChatFormatting.RED));
-            return;
+            return false;
         }
 
         List<SuitData> availableSuits = new ArrayList<>();
@@ -137,7 +151,6 @@ public record FallsavePacket() implements CustomPacketPayload {
             // Check armor stand above compressor
             BlockPos standPos = compressorPos.above();
             BlockEntity standBE = serverLevel.getBlockEntity(standPos);
-
             if (standBE instanceof BrassArmorStandBlockEntity armorStand) {
                 ItemStack helmet = armorStand.getArmor(0);
                 ItemStack chestplate = armorStand.getArmor(1);
@@ -149,10 +162,15 @@ public record FallsavePacket() implements CustomPacketPayload {
                     continue;
                 }
 
+                // NEW: Check Remote Assembly Level (must be Stage 1 or higher)
+                int remoteLevel = ArmorUpgradeHelper.getRemoteAssemblyLevel(chestplate);
+                if (remoteLevel < 1) {
+                    continue; // Skip suits without Remote Assembly upgrade
+                }
+
                 // Check if there's any armor at all
                 boolean hasArmor = !helmet.isEmpty() || !chestplate.isEmpty() ||
                         !leggings.isEmpty() || !boots.isEmpty();
-
                 if (hasArmor) {
                     // Calculate total charge
                     int totalCharge = 0;
@@ -172,9 +190,9 @@ public record FallsavePacket() implements CustomPacketPayload {
         }
 
         if (availableSuits.isEmpty()) {
-            player.sendSystemMessage(Component.literal("JARVIS: No brass suits available on your compressors!")
+            player.sendSystemMessage(Component.literal("JARVIS: No remotely callable suits available! (Suits need Remote Assembly Protocol ⭐⭐)")
                     .withStyle(ChatFormatting.RED));
-            return;
+            return false;
         }
 
         // Find best suit: Most charged, if tie then closest
@@ -186,7 +204,7 @@ public record FallsavePacket() implements CustomPacketPayload {
                 })
                 .orElse(null);
 
-        if (bestSuit == null) return;
+        if (bestSuit == null) return false;
 
         // Get armor from stand
         ItemStack helmet = bestSuit.armorStand.getArmor(0);
@@ -207,8 +225,7 @@ public record FallsavePacket() implements CustomPacketPayload {
         bestSuit.armorStand.setArmor(2, ItemStack.EMPTY);
         bestSuit.armorStand.setArmor(3, ItemStack.EMPTY);
 
-        // FIXED: Enable flight/hover IMMEDIATELY when suit is called (before it arrives)
-        // The suit will arrive and player will be able to fly/hover right away
+        // Enable flight/hover IMMEDIATELY
         if (enableFlight) {
             FlightConfig.setFlightEnabled(player, true);
             player.sendSystemMessage(Component.literal("JARVIS: Flight enabled.")
@@ -223,6 +240,8 @@ public record FallsavePacket() implements CustomPacketPayload {
 
         player.sendSystemMessage(Component.literal("JARVIS: Emergency brass suit deployed! (Charge: " + bestSuit.totalCharge + ")")
                 .withStyle(ChatFormatting.GREEN));
+
+        return true; // SUCCESS!
     }
 
     private record SuitData(BlockPos compressorPos, BlockPos standPos, int totalCharge,
