@@ -17,5 +17,6 @@ public class ModScreens {
         e.register(ModMenuTypes.COMPRESSOR_NETWORK_TERMINAL_MENU.get(), CompressorNetworkTerminalScreen::new);
         e.register(ModMenuTypes.REMOTE_SUIT_MENU.get(), RemoteSuitScreen::new);
         e.register(ModMenuTypes.KINETIC_MOTOR_MENU.get(), KineticMotorScreen::new);
+        e.register(ModMenuTypes.CUSTOMIZATION_STATION.get(), CustomizationStationScreen::new);
     }
 }

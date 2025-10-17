@@ -73,5 +73,8 @@
   "advancements.brassmanmod.pocket_remote_access.description": "Craft a Compressor Network Tablet",
 
   "advancements.brassmanmod.icing_problem.title": "The Icing Problem",
-  "advancements.brassmanmod.icing_problem.description": "Experience system failure at high altitude with an unupgraded suit"
+  "advancements.brassmanmod.icing_problem.description": "Experience system failure at high altitude with an unupgraded suit",
+
+
+  "entity.brassmanmod.sentry_armor": ""
 }

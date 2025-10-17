@@ -13,6 +13,8 @@ import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.blackredcoded.brassmanmod.client.renderer.BrassArmorRenderer;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
@@ -55,6 +57,11 @@ public class BrassManHelmetItem extends ArmorItem {
                 brassChest.consumePower(chestplate, 1); // Uses efficiency multiplier
             }
         }
+    }
+
+    @Override
+    public ResourceLocation getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
+        return BrassArmorRenderer.getArmorTexture(stack, slot, innerModel);
     }
 
 }

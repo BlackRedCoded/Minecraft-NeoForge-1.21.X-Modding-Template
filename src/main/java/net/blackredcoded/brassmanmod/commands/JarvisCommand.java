@@ -537,9 +537,6 @@ public class JarvisCommand {
             return false;
         }
 
-        System.out.println("DEBUG: Removing armor from chests...");
-        ChestArmorScanner.removeArmorFromChests(level, suitSet);
-
         System.out.println("DEBUG: Spawning flying pieces...");
         int piecesFlying = 0;
 
@@ -574,6 +571,10 @@ public class JarvisCommand {
             level.addFreshEntity(bootsEntity);
             piecesFlying++;
         }
+
+        // REMOVE AFTER spawning entities
+        System.out.println("DEBUG: Removing armor from chests...");
+        ChestArmorScanner.removeArmorFromChests(level, suitSet);
 
         player.sendSystemMessage(Component.literal("Calling " + piecesFlying + " suit piece" + (piecesFlying > 1 ? "s" : "") + " from storage...")
                 .withStyle(ChatFormatting.GOLD));

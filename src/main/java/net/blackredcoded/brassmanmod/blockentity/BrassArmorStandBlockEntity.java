@@ -21,16 +21,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 public class BrassArmorStandBlockEntity extends BlockEntity {
-
-    // Armor slots: 0=helmet, 1=chestplate, 2=leggings, 3=boots
     private NonNullList<ItemStack> armorSlots = NonNullList.withSize(4, ItemStack.EMPTY);
-    private int airChargeProgress = 0; // For Create integration later
+    private int airChargeProgress = 0;
 
     public BrassArmorStandBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.BRASS_ARMOR_STAND.get(), pos, blockState);
     }
 
-    // Armor management
     public ItemStack getArmor(int slot) {
         if (slot >= 0 && slot < 4) {
             return armorSlots.get(slot);
@@ -41,6 +38,10 @@ public class BrassArmorStandBlockEntity extends BlockEntity {
     public void setArmor(int slot, ItemStack stack) {
         if (slot >= 0 && slot < 4) {
             armorSlots.set(slot, stack);
+            // Auto-assign UUID when armor is placed
+            if (!stack.isEmpty()) {
+                manageSetUUID(slot, stack);
+            }
             setChanged();
             if (level != null && !level.isClientSide) {
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
@@ -48,6 +49,172 @@ public class BrassArmorStandBlockEntity extends BlockEntity {
         }
     }
 
+    /**
+     * Manages Set UUID assignment when armor is placed on stand
+     * - If piece has no UUID, check if stand has a partial set
+     * - If partial set exists and has room, assign existing UUID
+     * - If set is full or no UUID exists, create new UUID
+     */
+    private void manageSetUUID(int placedSlot, ItemStack placedPiece) {
+        String existingUUID = getSetUUID(placedPiece);
+
+        // Find if there's an existing set UUID on the stand
+        String standSetUUID = null;
+        boolean[] slotsOccupied = {false, false, false, false};
+
+        for (int i = 0; i < 4; i++) {
+            ItemStack piece = armorSlots.get(i);
+            if (!piece.isEmpty() && i != placedSlot) {
+                String pieceUUID = getSetUUID(piece);
+                if (pieceUUID != null) {
+                    standSetUUID = pieceUUID;
+                    // Load which slots are part of this set
+                    boolean[] setSlots = getSetSlots(piece);
+                    for (int j = 0; j < 4; j++) {
+                        slotsOccupied[j] = slotsOccupied[j] || setSlots[j];
+                    }
+                }
+            }
+        }
+
+        // If placed piece has no UUID
+        if (existingUUID == null) {
+            // Check if stand has a partial set with room
+            if (standSetUUID != null && !slotsOccupied[placedSlot]) {
+                // Join existing set
+                setSetUUID(placedPiece, standSetUUID);
+                // Update set slots
+                slotsOccupied[placedSlot] = true;
+                updateAllSetSlots(standSetUUID, slotsOccupied);
+            } else {
+                // Create new set
+                String newUUID = UUID.randomUUID().toString();
+                setSetUUID(placedPiece, newUUID);
+                boolean[] newSetSlots = {false, false, false, false};
+                newSetSlots[placedSlot] = true;
+                setSetSlots(placedPiece, newSetSlots);
+            }
+        } else {
+            // Piece already has UUID - update its set slots
+            boolean[] pieceSetSlots = getSetSlots(placedPiece);
+            pieceSetSlots[placedSlot] = true;
+            setSetSlots(placedPiece, pieceSetSlots);
+        }
+    }
+
+    /**
+     * Updates all pieces with matching UUID to have the same set slot data
+     */
+    private void updateAllSetSlots(String setUUID, boolean[] slots) {
+        for (int i = 0; i < 4; i++) {
+            ItemStack piece = armorSlots.get(i);
+            if (!piece.isEmpty() && setUUID.equals(getSetUUID(piece))) {
+                setSetSlots(piece, slots);
+            }
+        }
+    }
+
+    public ItemStack removeArmor(int slot) {
+        if (slot >= 0 && slot < 4) {
+            ItemStack removed = armorSlots.get(slot);
+            setArmor(slot, ItemStack.EMPTY);
+
+            // Mark this slot as no longer part of the set
+            if (!removed.isEmpty()) {
+                boolean[] setSlots = getSetSlots(removed);
+                setSlots[slot] = false;
+                setSetSlots(removed, setSlots);
+
+                // Update other pieces in the set
+                String removedUUID = getSetUUID(removed);
+                if (removedUUID != null) {
+                    for (int i = 0; i < 4; i++) {
+                        ItemStack piece = armorSlots.get(i);
+                        if (!piece.isEmpty() && removedUUID.equals(getSetUUID(piece))) {
+                            setSetSlots(piece, setSlots);
+                        }
+                    }
+                }
+            }
+
+            return removed;
+        }
+        return ItemStack.EMPTY;
+    }
+
+    // Static NBT helper methods
+    public static String getSetUUID(ItemStack stack) {
+        if (stack.isEmpty()) return null;
+        CompoundTag data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+        if (data.contains("SetUUID")) {
+            return data.getString("SetUUID");
+        }
+        return null;
+    }
+
+    public static void setSetUUID(ItemStack stack, String setUUID) {
+        if (stack.isEmpty()) return;
+        CompoundTag data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+        data.putString("SetUUID", setUUID);
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(data));
+    }
+
+    public static boolean[] getSetSlots(ItemStack stack) {
+        if (stack.isEmpty()) return new boolean[]{false, false, false, false};
+        CompoundTag data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+        boolean[] slots = new boolean[4];
+        slots[0] = data.getBoolean("SetSlot0"); // Helmet
+        slots[1] = data.getBoolean("SetSlot1"); // Chestplate
+        slots[2] = data.getBoolean("SetSlot2"); // Leggings
+        slots[3] = data.getBoolean("SetSlot3"); // Boots
+        return slots;
+    }
+
+    public static void setSetSlots(ItemStack stack, boolean[] slots) {
+        if (stack.isEmpty()) return;
+        CompoundTag data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+        data.putBoolean("SetSlot0", slots[0]);
+        data.putBoolean("SetSlot1", slots[1]);
+        data.putBoolean("SetSlot2", slots[2]);
+        data.putBoolean("SetSlot3", slots[3]);
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(data));
+    }
+
+    public static String getSetName(ItemStack armor) {
+        CustomData customData = armor.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+        CompoundTag tag = customData.copyTag();
+        if (tag.contains("SetName")) {
+            return tag.getString("SetName");
+        }
+        return null;
+    }
+
+    public static UUID getSetOwner(ItemStack armor) {
+        CustomData customData = armor.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+        CompoundTag tag = customData.copyTag();
+        if (tag.hasUUID("SetOwner")) {
+            return tag.getUUID("SetOwner");
+        }
+        return null;
+    }
+
+    public void applySetNameToArmor(String setName, UUID ownerUUID) {
+        for (int i = 0; i < 4; i++) {
+            ItemStack armor = armorSlots.get(i);
+            if (!armor.isEmpty()) {
+                CustomData customData = armor.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+                CompoundTag tag = customData.copyTag();
+                tag.putString("SetName", setName);
+                if (ownerUUID != null) {
+                    tag.putUUID("SetOwner", ownerUUID);
+                }
+                armor.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+            }
+        }
+        setChanged();
+    }
+
+    // Rest of your existing methods (charging, NBT, etc.)
     public boolean canEquipArmor(ItemStack stack) {
         if (!(stack.getItem() instanceof ArmorItem armorItem)) {
             return false;
@@ -66,16 +233,6 @@ public class BrassArmorStandBlockEntity extends BlockEntity {
         };
     }
 
-    public ItemStack removeArmor(int slot) {
-        if (slot >= 0 && slot < 4) {
-            ItemStack removed = armorSlots.get(slot);
-            setArmor(slot, ItemStack.EMPTY);
-            return removed;
-        }
-        return ItemStack.EMPTY;
-    }
-
-    // FIXED: Check if chestplate needs charging (respects upgrades)
     public boolean canCharge() {
         ItemStack chestplate = getArmor(1);
         if (chestplate.getItem() instanceof BrassManChestplateItem brassChest) {
@@ -86,7 +243,6 @@ public class BrassArmorStandBlockEntity extends BlockEntity {
         return false;
     }
 
-    // FIXED: Charge chestplate (respects upgraded max values)
     public void chargeChestplate(int amount) {
         ItemStack chestplate = getArmor(1);
         if (chestplate.getItem() instanceof BrassManChestplateItem brassChest) {
@@ -97,23 +253,18 @@ public class BrassArmorStandBlockEntity extends BlockEntity {
         }
     }
 
-    // FIXED: Check if any armor needs charging or repair (respects upgrades)
     public boolean needsChargingOrRepair() {
         for (int i = 0; i < 4; i++) {
             ItemStack armor = getArmor(i);
             if (!armor.isEmpty()) {
-                // Check if armor is damaged
                 if (armor.isDamaged()) {
                     return true;
                 }
-
-                // Check if Brass armor needs charging (with upgraded max values)
                 if (armor.getItem() instanceof BrassManChestplateItem brassChest) {
                     int currentAir = brassChest.air(armor);
                     int currentPower = brassChest.power(armor);
                     int maxAir = BrassManChestplateItem.getMaxAir(armor);
                     int maxPower = BrassManChestplateItem.getMaxPower(armor);
-
                     if (currentAir < maxAir || currentPower < maxPower) {
                         return true;
                     }
@@ -123,7 +274,6 @@ public class BrassArmorStandBlockEntity extends BlockEntity {
         return false;
     }
 
-    // NBT Saving/Loading
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
@@ -139,7 +289,6 @@ public class BrassArmorStandBlockEntity extends BlockEntity {
         airChargeProgress = tag.getInt("AirChargeProgress");
     }
 
-    // Client sync
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
@@ -150,57 +299,5 @@ public class BrassArmorStandBlockEntity extends BlockEntity {
     @Override
     public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-
-    // Apply set name and owner to all armor pieces
-    public void applySetNameToArmor(String setName, UUID ownerUUID) {
-        for (int i = 0; i < 4; i++) {
-            ItemStack armor = armorSlots.get(i);
-            if (!armor.isEmpty()) {
-                // Get or create custom data (1.21.1 way)
-                CustomData customData = armor.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
-                CompoundTag tag = customData.copyTag();
-
-                // Add set name and owner
-                tag.putString("SetName", setName);
-                if (ownerUUID != null) {
-                    tag.putUUID("SetOwner", ownerUUID);
-                }
-
-                // Apply back to item (1.21.1 way)
-                armor.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
-            }
-        }
-        setChanged();
-    }
-
-    // Get set name from armor
-    public static String getSetName(ItemStack armor) {
-        CustomData customData = armor.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
-        CompoundTag tag = customData.copyTag();
-        if (tag.contains("SetName")) {
-            return tag.getString("SetName");
-        }
-        return null;
-    }
-
-    // Get owner UUID from armor
-    public static UUID getSetOwner(ItemStack armor) {
-        CustomData customData = armor.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
-        CompoundTag tag = customData.copyTag();
-        if (tag.hasUUID("SetOwner")) {
-            return tag.getUUID("SetOwner");
-        }
-        return null;
-    }
-
-    public static String getSetUUID(ItemStack stack) {
-        if (stack.isEmpty()) return null;
-        CompoundTag data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-        if (data.hasUUID("SetUUID")) {
-            return data.getUUID("SetUUID").toString();
-        }
-        return null;
     }
 }

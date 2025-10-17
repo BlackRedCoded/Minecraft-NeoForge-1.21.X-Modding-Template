@@ -4,6 +4,7 @@ import net.blackredcoded.brassmanmod.items.BrassManChestplateItem;
 import net.blackredcoded.brassmanmod.items.upgrades.UpgradeModuleItem;
 import net.blackredcoded.brassmanmod.registry.ModMenuTypes;
 import net.blackredcoded.brassmanmod.util.ArmorUpgradeHelper;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -15,7 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class ModificationStationMenu extends AbstractContainerMenu {
-
     private final Container container;
 
     public static final int ARMOR_SLOT = 0;
@@ -32,11 +32,11 @@ public class ModificationStationMenu extends AbstractContainerMenu {
         checkContainerSize(container, 3);
         container.startOpen(playerInventory.player);
 
-        // Armor input slot - NOW ACCEPTS ANY ITEM
+        // Armor input slot
         this.addSlot(new Slot(container, ARMOR_SLOT, 27, 47) {
             @Override
             public boolean mayPlace(@NotNull ItemStack stack) {
-                return true; // Accept any item
+                return true;
             }
 
             @Override
@@ -46,7 +46,7 @@ public class ModificationStationMenu extends AbstractContainerMenu {
             }
         });
 
-        // Upgrade module slot - ONLY UpgradeModuleItem
+        // Upgrade module slot
         this.addSlot(new Slot(container, UPGRADE_SLOT, 76, 47) {
             @Override
             public boolean mayPlace(@NotNull ItemStack stack) {
@@ -60,7 +60,7 @@ public class ModificationStationMenu extends AbstractContainerMenu {
             }
         });
 
-        // Result slot (display only)
+        // Result slot
         this.addSlot(new Slot(container, RESULT_SLOT, 134, 47) {
             @Override
             public boolean mayPlace(@NotNull ItemStack stack) {
@@ -70,9 +70,26 @@ public class ModificationStationMenu extends AbstractContainerMenu {
             @Override
             public void onTake(@NotNull Player player, @NotNull ItemStack stack) {
                 ItemStack upgradeStack = container.getItem(UPGRADE_SLOT);
+
+                // Store upgrade info BEFORE shrinking
+                String upgradeType = null;
+                if (upgradeStack.getItem() instanceof UpgradeModuleItem upgradeItem) {
+                    upgradeType = upgradeItem.getUpgradeType();
+                }
+
                 if (!upgradeStack.isEmpty()) {
                     upgradeStack.shrink(1);
                 }
+
+                // Now check the stored type
+                if ("remote_assembly".equals(upgradeType)) {
+                    if (player.level() instanceof ServerLevel serverLevel) {
+                        int newLevel = ArmorUpgradeHelper.getRemoteAssemblyLevel(stack);
+                        System.out.println("DEBUG: Remote Assembly upgraded to level " + newLevel + " - syncing to set");
+                        ArmorUpgradeHelper.syncUpgradeAcrossSet(serverLevel, stack, newLevel);
+                    }
+                }
+
                 container.setItem(ARMOR_SLOT, ItemStack.EMPTY);
                 ModificationStationMenu.this.slotsChanged(container);
                 super.onTake(player, stack);
@@ -116,7 +133,7 @@ public class ModificationStationMenu extends AbstractContainerMenu {
         String upgradeType = upgradeItem.getUpgradeType();
         int maxAllowed = upgradeItem.getMaxStacksPerArmor();
 
-        // SPECIAL CASE: Remote Assembly - doesn't use upgrade slots
+        // SPECIAL CASE: Remote Assembly
         if ("remote_assembly".equals(upgradeType)) {
             if (!(armorStack.getItem() instanceof BrassManChestplateItem)) {
                 container.setItem(RESULT_SLOT, ItemStack.EMPTY);
@@ -135,7 +152,7 @@ public class ModificationStationMenu extends AbstractContainerMenu {
             return;
         }
 
-        // STANDARD UPGRADES - check slot limits
+        // STANDARD UPGRADES
         int currentCount = ArmorUpgradeHelper.getUpgradeCount(armorStack, upgradeType);
         int totalUpgrades = ArmorUpgradeHelper.getTotalUpgradeCount(armorStack);
 
@@ -173,7 +190,6 @@ public class ModificationStationMenu extends AbstractContainerMenu {
                 }
                 slot.onQuickCraft(slotStack, itemStack);
             } else if (index >= 3) {
-                // Try to move to armor slot if it's an armor item
                 if (slotStack.getItem() instanceof ArmorItem) {
                     if (!this.moveItemStackTo(slotStack, ARMOR_SLOT, ARMOR_SLOT + 1, false)) {
                         return ItemStack.EMPTY;

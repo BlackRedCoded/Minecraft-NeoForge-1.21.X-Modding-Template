@@ -35,6 +35,10 @@ public class ModMenuTypes {
             MENU_TYPES.register("kinetic_motor_menu",
                     () -> IMenuTypeExtension.create(KineticMotorMenu::new));
 
+    public static final Supplier<MenuType<CustomizationStationMenu>> CUSTOMIZATION_STATION =
+            MENU_TYPES.register("customization_station_menu",
+                    () -> new MenuType<>(CustomizationStationMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
     public static void register(IEventBus eventBus) {
         MENU_TYPES.register(eventBus);
     }

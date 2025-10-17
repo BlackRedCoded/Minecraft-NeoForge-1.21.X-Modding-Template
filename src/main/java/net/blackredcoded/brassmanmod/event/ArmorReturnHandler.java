@@ -28,13 +28,19 @@ public class ArmorReturnHandler {
         ItemStack stack = itemEntity.getItem();
         if (!isUpgradedBrassArmorPiece(stack)) return;
 
-        // Don't check upgrade level - register ALL named armor
         String setName = BrassArmorStandBlockEntity.getSetName(stack);
         UUID owner = BrassArmorStandBlockEntity.getSetOwner(stack);
 
-        System.out.println("DEBUG: Armor dropped - Set: " + setName + ", Owner: " + owner);
-
         if (setName == null || setName.isEmpty() || owner == null) return;
+
+        // CHECK STAGE 2 REQUIREMENT
+        int upgradeStage = ArmorUpgradeHelper.getRemoteAssemblyLevel(stack);
+        System.out.println("DEBUG: Armor dropped - Stage: " + upgradeStage + ", Set: " + setName);
+
+        if (upgradeStage < 2) {
+            System.out.println("DEBUG: Armor is only stage " + upgradeStage + " - needs stage 2 for auto-return");
+            return; // Don't register if not Stage 2
+        }
 
         System.out.println("DEBUG: Armor registered for auto-return!");
 

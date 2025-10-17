@@ -69,6 +69,13 @@ public class ModBlocks {
                     .sound(SoundType.METAL)
                     .noOcclusion()));
 
+    public static final Supplier<Block> CUSTOMIZATION_STATION = BLOCKS.register("customization_station",
+            () -> new CustomizationStationBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0f)
+                    .sound(SoundType.METAL)
+                    .noOcclusion()));
+
     public static void register(IEventBus eventBus) {
         BLOCKS.register(eventBus);
     }
@@ -86,5 +93,7 @@ public class ModBlocks {
                 () -> new BlockItem(COMPRESSOR_NETWORK_TERMINAL.get(), new Item.Properties()));
         items.register("kinetic_motor",
                 () -> new BlockItem(KINETIC_MOTOR.get(), new Item.Properties()));
+        items.register("customization_station",
+                () -> new BlockItem(CUSTOMIZATION_STATION.get(), new Item.Properties()));
     }
 }

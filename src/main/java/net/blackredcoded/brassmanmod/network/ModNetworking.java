@@ -94,6 +94,12 @@ public class ModNetworking {
                 IcingStatePacket::handle
         );
 
+        registrar.playToServer(
+                ApplyArmorStylePacket.TYPE,
+                ApplyArmorStylePacket.STREAM_CODEC,
+                ApplyArmorStylePacket::handle
+        );
+
         registrar.playToClient(
                 SyncFlightConfigPacket.TYPE,
                 SyncFlightConfigPacket.STREAM_CODEC,

@@ -56,9 +56,10 @@ public class SentryArmorEntity extends LivingEntity {
         this.setItemSlot(EquipmentSlot.LEGS, leggings.copy());
         this.setItemSlot(EquipmentSlot.FEET, boots.copy());
 
-        // Make invisible and remove nametag
+        // Make completely invisible
         this.setInvisible(true);
         this.setCustomNameVisible(false);
+        this.setNoGravity(true); // Optional: makes it float
     }
 
     public static AttributeSupplier.Builder createAttributes() {

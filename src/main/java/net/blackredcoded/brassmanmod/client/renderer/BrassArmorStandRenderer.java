@@ -36,15 +36,13 @@ public class BrassArmorStandRenderer implements BlockEntityRenderer<BrassArmorSt
                        MultiBufferSource buffer, int packedLight, int packedOverlay) {
         Direction facing = armorStand.getBlockState().getValue(BrassArmorStandBaseBlock.FACING);
         poseStack.pushPose();
-
         poseStack.translate(0.5, 3, 0.5);
 
-        // FIXED: Corrected EAST/WEST rotation
         float yRotation = switch (facing) {
-            case NORTH -> 0.0F;      // Face NORTH
-            case SOUTH -> 180.0F;    // Face SOUTH
-            case WEST -> 90.0F;      // Face WEST
-            case EAST -> 270.0F;     // Face EAST (was 90°, now 270°)
+            case NORTH -> 0.0F;
+            case SOUTH -> 180.0F;
+            case WEST -> 90.0F;
+            case EAST -> 270.0F;
             default -> 0.0F;
         };
 
@@ -67,14 +65,15 @@ public class BrassArmorStandRenderer implements BlockEntityRenderer<BrassArmorSt
             return;
         }
 
-        Holder<ArmorMaterial> armorMaterial = armorItem.getMaterial();
         boolean isInnerModel = equipmentSlot == EquipmentSlot.LEGS;
         HumanoidArmorModel<?> model = isInnerModel ? innerArmorModel : outerArmorModel;
-        ResourceLocation armorTexture = getArmorResource(armorMaterial, equipmentSlot, isInnerModel);
+
+        // FIXED: Use BrassArmorRenderer to get the correct styled texture!
+        ResourceLocation armorTexture = BrassArmorRenderer.getArmorTexture(itemStack, equipmentSlot, isInnerModel);
+
         VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.armorCutoutNoCull(armorTexture));
 
         poseStack.pushPose();
-
         if (equipmentSlot == EquipmentSlot.HEAD) {
             poseStack.translate(0, 0.3, 0);
             poseStack.scale(0.65F, 0.65F, 0.65F);
@@ -140,19 +139,5 @@ public class BrassArmorStandRenderer implements BlockEntityRenderer<BrassArmorSt
             case FEET -> 3;
             default -> -1;
         };
-    }
-
-    private ResourceLocation getArmorResource(Holder<ArmorMaterial> materialHolder, EquipmentSlot slot, boolean isInnerModel) {
-        String layer = isInnerModel ? "_layer_2" : "_layer_1";
-        ResourceLocation materialKey = BuiltInRegistries.ARMOR_MATERIAL.getKey(materialHolder.value());
-
-        if (materialKey != null) {
-            return ResourceLocation.fromNamespaceAndPath(
-                    materialKey.getNamespace(),
-                    "textures/models/armor/" + materialKey.getPath() + layer + ".png"
-            );
-        }
-
-        return ResourceLocation.fromNamespaceAndPath("minecraft", "textures/models/armor/iron" + layer + ".png");
     }
 }

@@ -65,36 +65,6 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
                         })
                 .bounds(leftPos + 90, topPos + 63, 60, 18)
                 .build());
-
-        // ===== NEW: CALL SUIT BUTTON =====
-        this.addRenderableWidget(Button.builder(
-                        Component.literal("Call Suit"),
-                        button -> {
-                            // Check if any armor exists on the stand
-                            ItemStack[] armorStacks = menu.getArmorStacks();
-                            boolean hasArmor = false;
-                            for (ItemStack stack : armorStacks) {
-                                if (!stack.isEmpty()) {
-                                    hasArmor = true;
-                                    break;
-                                }
-                            }
-
-                            if (hasArmor) {
-                                CallSuitPacket packet = new CallSuitPacket(this.menu.getBlockEntity().getBlockPos());
-                                PacketDistributor.sendToServer(packet);
-                            } else {
-                                // Show error message to player
-                                if (minecraft != null && minecraft.player != null) {
-                                    minecraft.player.displayClientMessage(
-                                            Component.literal("No armor on stand!").withStyle(style -> style.withColor(0xFF0000)),
-                                            true
-                                    );
-                                }
-                            }
-                        })
-                .bounds(leftPos + 90, topPos + 44, 60, 18)
-                .build());
     }
 
     private void onNameChanged(String newName) {

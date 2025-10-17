@@ -1,6 +1,7 @@
 package net.blackredcoded.brassmanmod.items;
 
 import net.blackredcoded.brassmanmod.blockentity.BrassArmorStandBlockEntity;
+import net.blackredcoded.brassmanmod.client.renderer.BrassArmorRenderer;
 import net.blackredcoded.brassmanmod.registry.ModArmorMaterials;
 import net.blackredcoded.brassmanmod.util.ArmorUpgradeHelper;
 import net.minecraft.ChatFormatting;
@@ -8,10 +9,10 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.CustomData;
 import org.jetbrains.annotations.Nullable;
 
@@ -221,4 +222,10 @@ public class BrassManChestplateItem extends ArmorItem {
             tooltip.add(Component.literal("Hold Shift for more info").withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
         }
     }
+
+    @Override
+    public ResourceLocation getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
+        return BrassArmorRenderer.getArmorTexture(stack, slot, innerModel);
+    }
+
 }
