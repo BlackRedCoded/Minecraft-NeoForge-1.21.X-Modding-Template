@@ -53,7 +53,7 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
         this.addRenderableWidget(Button.builder(
                         Component.literal("Convert"),
                         button -> ConvertMaterialsPacket.send(this.menu.getBlockEntity().getBlockPos()))
-                .bounds(leftPos + 30, topPos + 49, 50, 18)
+                .bounds(leftPos + 30, topPos + 43, 50, 18)
                 .build());
 
         this.addRenderableWidget(Button.builder(
@@ -63,7 +63,7 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
                                 RepairArmorPacket.send(this.menu.getBlockEntity().getBlockPos(), selectedArmorSlot);
                             }
                         })
-                .bounds(leftPos + 90, topPos + 63, 60, 18)
+                .bounds(leftPos + 90, topPos + 43, 60, 18)
                 .build());
     }
 
@@ -91,10 +91,10 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
         guiGraphics.fill(x + 7, y + 5, x + 169, y + 28, 0xFFC6C6C6);
 
         // Input slot (slot 0)
-        renderSlot(guiGraphics, x + 7, y + 49);
+        renderSlot(guiGraphics, x + 7, y + 43);
 
         // Charging slot (slot 1)
-        renderSlot(guiGraphics, x + 129, y + 23);
+        renderSlot(guiGraphics, x + 127, y + 23);
 
         // Armor slots
         hoveredArmorSlot = -1;
@@ -226,9 +226,9 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
         String electronicsText = "Electronics: " + electronics;
         String glassText = "Glass: " + glass;
 
-        guiGraphics.drawString(this.font, brassText, x + 8, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, electronicsText, x + 8, y + 28, 0x404040, false);
-        guiGraphics.drawString(this.font, glassText, x + 8, y + 38, 0x404040, false);
+        guiGraphics.drawString(this.font, brassText, x + 8, y + 12, 0x404040, false);
+        guiGraphics.drawString(this.font, electronicsText, x + 8, y + 22, 0x404040, false);
+        guiGraphics.drawString(this.font, glassText, x + 8, y + 32, 0x404040, false);
 
         int brassTextWidth = this.font.width(brassText);
         int electronicsTextWidth = this.font.width(electronicsText);
@@ -241,17 +241,17 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
         if (costs != null) {
             if (costs[0] > 0) {
                 String costText = " -" + costs[0];
-                guiGraphics.drawString(this.font, costText, currentXBrass, y + 18, 0xFFCC0000, false);
+                guiGraphics.drawString(this.font, costText, currentXBrass, y + 12, 0xFFCC0000, false);
                 currentXBrass += this.font.width(costText);
             }
             if (costs[1] > 0) {
                 String costText = " -" + costs[1];
-                guiGraphics.drawString(this.font, costText, currentXElectronics, y + 28, 0xFFCC0000, false);
+                guiGraphics.drawString(this.font, costText, currentXElectronics, y + 22, 0xFFCC0000, false);
                 currentXElectronics += this.font.width(costText);
             }
             if (costs[2] > 0) {
                 String costText = " -" + costs[2];
-                guiGraphics.drawString(this.font, costText, currentXGlass, y + 38, 0xFFCC0000, false);
+                guiGraphics.drawString(this.font, costText, currentXGlass, y + 32, 0xFFCC0000, false);
                 currentXGlass += this.font.width(costText);
             }
         }
@@ -259,13 +259,13 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
         // FIXED: Show material gains in green (multiplied by stack count!)
         if (gains != null) {
             if (gains[0] > 0) {
-                guiGraphics.drawString(this.font, " +" + gains[0], currentXBrass, y + 18, 0xFF00AA00, false);
+                guiGraphics.drawString(this.font, " +" + gains[0], currentXBrass, y + 12, 0xFF00AA00, false);
             }
             if (gains[1] > 0) {
-                guiGraphics.drawString(this.font, " +" + gains[1], currentXElectronics, y + 28, 0xFF00AA00, false);
+                guiGraphics.drawString(this.font, " +" + gains[1], currentXElectronics, y + 22, 0xFF00AA00, false);
             }
             if (gains[2] > 0) {
-                guiGraphics.drawString(this.font, " +" + gains[2], currentXGlass, y + 38, 0xFF00AA00, false);
+                guiGraphics.drawString(this.font, " +" + gains[2], currentXGlass, y + 32, 0xFF00AA00, false);
             }
         }
     }

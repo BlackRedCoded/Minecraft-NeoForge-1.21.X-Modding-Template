@@ -41,8 +41,8 @@ public class AirCompressorMenu extends AbstractContainerMenu {
         this.addDataSlots(this.data);
 
         // Add slots
-        this.addSlot(new Slot(this.blockEntity, 0, 8, 50));        // INPUT_SLOT (existing)
-        this.addSlot(new Slot(this.blockEntity, 1, 130, 24));      // CHARGING_SLOT (new - between repair button and armor)
+        this.addSlot(new Slot(this.blockEntity, 0, 8, 44));        // INPUT_SLOT (existing)
+        this.addSlot(new Slot(this.blockEntity, 1, 128, 24));      // CHARGING_SLOT (new - between repair button and armor)
 
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);

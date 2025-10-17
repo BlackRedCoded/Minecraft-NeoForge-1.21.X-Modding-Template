@@ -84,8 +84,7 @@ public class MaterialConversionRegistry {
         // ============================================
         // CUSTOM ITEMS HERE
         // ============================================
-
-        // Example:
         helper.registerByName("brassmanmod:kinetic_battery", 25, 30, 5);
+        helper.registerByName("brassmanmod:compact_mechanism", 5, 25, 0);
     }
 }

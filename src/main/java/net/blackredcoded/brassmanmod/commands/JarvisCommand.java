@@ -42,7 +42,6 @@ public class JarvisCommand {
                         .executes(JarvisCommand::listSuits) // /jarvis list (all suits, names only)
                         .then(Commands.argument("setName", StringArgumentType.greedyString())
                                 .executes(JarvisCommand::listSuitDetails))) // /jarvis list "Set Name" (detailed info)
-
                 .then(Commands.literal("flight")
                         .then(Commands.argument("enabled", BoolArgumentType.bool())
                                 .executes(JarvisCommand::toggleFlight)))
