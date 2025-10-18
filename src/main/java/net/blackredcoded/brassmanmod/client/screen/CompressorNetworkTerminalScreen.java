@@ -52,8 +52,8 @@ public class CompressorNetworkTerminalScreen extends AbstractContainerScreen<Com
             int column = i / 6;
             int row = i % 6;
 
-            int buttonX = leftPos + 8 + (column * COLUMN_SPACING);
-            int buttonY = topPos + 20 + (row * 22);
+            int buttonX = leftPos + 13 + (column * COLUMN_SPACING);
+            int buttonY = topPos + 14 + (row * 22);
 
             final int globalIndex = currentPage * BUTTONS_PER_PAGE + i;
 
@@ -85,7 +85,7 @@ public class CompressorNetworkTerminalScreen extends AbstractContainerScreen<Com
                                 rebuildWidgets();
                             }
                         })
-                .bounds(leftPos + 8, topPos + imageHeight - 28, 20, 20)
+                .bounds(leftPos + 1, topPos + imageHeight - 21, 20, 20)
                 .build()
         );
         prevPageButton.active = currentPage > 0;
@@ -99,7 +99,7 @@ public class CompressorNetworkTerminalScreen extends AbstractContainerScreen<Com
                                 rebuildWidgets();
                             }
                         })
-                .bounds(leftPos + imageWidth - 28, topPos + imageHeight - 28, 20, 20)
+                .bounds(leftPos + imageWidth - 21, topPos + imageHeight - 21, 20, 20)
                 .build()
         );
         nextPageButton.active = currentPage < maxPages - 1;
@@ -149,8 +149,8 @@ public class CompressorNetworkTerminalScreen extends AbstractContainerScreen<Com
             int buttonY = screenY + 20 + (row * 22);
 
             // Icon position: left side of button, vertically centered
-            int iconX = buttonX + 3;
-            int iconY = buttonY + 2;
+            int iconX = buttonX + 8;
+            int iconY = buttonY - 4;
 
             // Get power status
             boolean hasPower = globalIndex < powerStatus.size() && powerStatus.get(globalIndex);
@@ -178,11 +178,11 @@ public class CompressorNetworkTerminalScreen extends AbstractContainerScreen<Com
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY - 5, 0x404040, false);
 
         Component pageText = Component.literal("Page " + (currentPage + 1) + "/" + maxPages);
         int textWidth = this.font.width(pageText);
-        guiGraphics.drawString(this.font, pageText, (this.imageWidth - textWidth) / 2, this.imageHeight - 24, 0x404040, false);
+        guiGraphics.drawString(this.font, pageText, (this.imageWidth - textWidth) / 2, this.imageHeight - 15, 0x404040, false);
     }
 
     @Override

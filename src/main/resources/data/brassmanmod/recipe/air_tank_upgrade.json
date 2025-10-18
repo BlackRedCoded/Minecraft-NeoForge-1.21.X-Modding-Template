@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "brassmanmod:upgrade_template"
+    },
+    {
+      "item": "minecraft:light_blue_dye"
+    },
+    {
+      "item": "create:fluid_tank"
+    }
+  ],
+  "result": {
+    "id": "brassmanmod:air_tank_upgrade",
+    "count": 1
+  }
+}

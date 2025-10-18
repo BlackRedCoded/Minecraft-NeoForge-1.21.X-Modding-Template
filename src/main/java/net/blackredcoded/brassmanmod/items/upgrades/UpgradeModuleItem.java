@@ -8,6 +8,7 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 
 import java.util.List;
+import java.util.Set;
 
 public abstract class UpgradeModuleItem extends Item {
 
@@ -31,4 +32,5 @@ public abstract class UpgradeModuleItem extends Item {
 
     public abstract String getUpgradeType();
     public abstract int getMaxStacksPerArmor();
+    public abstract Set<Item> getApplicableItems();
 }

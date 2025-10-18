@@ -1,24 +1,82 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "accept_mirrored": false,
-  "pattern": [
-    "CSC",
-    "SMS",
-    "CSC"
-  ],
-  "key": {
-    "C": {
-      "item": "create:cogwheel"
-    },
-    "S": {
-      "item": "create:shaft"
-    },
-    "M": {
-      "item": "create:compact_mechanism"
-    }
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "create:brass_sheet"
   },
-  "result": {
-    "count": 1,
-    "id": "brassmanmod:smart_mechanism"
-  }
+  "transitional_item": {
+    "id": "brassmanmod:incomplete_smart_mechanism"
+  },
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "brassmanmod:incomplete_smart_mechanism"
+        },
+        {
+          "item": "create:cogwheel"
+        }
+      ],
+      "results": [
+        {
+          "id": "brassmanmod:incomplete_smart_mechanism"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "brassmanmod:incomplete_smart_mechanism"
+        },
+        {
+          "tag": "c:nuggets/iron"
+        }
+      ],
+      "results": [
+        {
+          "id": "brassmanmod:incomplete_smart_mechanism"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "brassmanmod:incomplete_smart_mechanism"
+        },
+        {
+          "item": "create:polished_rose_quartz"
+        }
+      ],
+      "results": [
+        {
+          "id": "brassmanmod:incomplete_smart_mechanism"
+        }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "chance": 120.0,
+      "id": "brassmanmod:smart_mechanism"
+    },
+    {
+      "chance": 10.0,
+      "id": "minecraft:iron_nugget"
+    },
+    {
+      "chance": 8.0,
+      "id": "create:brass_sheet"
+    },
+    {
+      "chance": 5.0,
+      "id": "create:cogwheel"
+    },
+    {
+      "chance": 3.0,
+      "id": "create:polished_rose_quartz"
+    }
+  ],
+  "loops": 5
 }

@@ -1,9 +1,13 @@
 package net.blackredcoded.brassmanmod.items.upgrades;
 
+import net.blackredcoded.brassmanmod.registry.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.Item;
 
 import java.util.List;
+import java.util.Set;
 
 public class AirTankUpgradeItem extends UpgradeModuleItem {
 
@@ -25,5 +29,10 @@ public class AirTankUpgradeItem extends UpgradeModuleItem {
     @Override
     public int getMaxStacksPerArmor() {
         return 4; // +12000 air total
+    }
+
+    @Override
+    public Set<Item> getApplicableItems() {
+        return Set.of(ModItems.BRASS_MAN_CHESTPLATE.get());
     }
 }

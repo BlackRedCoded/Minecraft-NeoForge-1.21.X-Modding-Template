@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "brassmanmod:upgrade_template"
+    },
+    {
+      "item": "minecraft:yellow_dye"
+    },
+    {
+      "item": "brassmanmod:power_cell"
+    }
+  ],
+  "result": {
+    "id": "brassmanmod:power_cell_upgrade",
+    "count": 1
+  }
+}

@@ -133,9 +133,11 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
         if (BatteryHelper.isBatteryItem(chargingItem)) {
             if (!BatteryHelper.isBatteryFull(chargingItem)) {
                 float rpm = Math.abs(getSpeed());
+                float multiplier = BatteryHelper.getChargeRateMultiplier(chargingItem);
+                int baseChargeAmount = 8;
                 if (rpm < 1) return;
 
-                int chargeAmount = 8;
+                int chargeAmount = Math.round(baseChargeAmount * multiplier);
                 BatteryHelper.chargeBattery(chargingItem, chargeAmount);
                 setChanged();
             }

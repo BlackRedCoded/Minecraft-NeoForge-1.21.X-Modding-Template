@@ -29,7 +29,9 @@
   "item.brassmanmod.pneumatic_core": "Pneumatic Core",
   "item.brassmanmod.power_core": "Power Core",
   "item.brassmanmod.compact_mechanism": "Compact Mechanism",
+  "item.brassmanmod.incomplete_compact_mechanism": "Incomplete Compact Mechanism",
   "item.brassmanmod.smart_mechanism": "Smart Mechanism",
+  "item.brassmanmod.incomplete_smart_mechanism": "Incomplete Smart Mechanism",
   "item.brassmanmod.kinetic_circuit": "Kinetic Circuit",
 
 

@@ -9,8 +9,8 @@ public class BatteryHelper {
 
     private static final String BATTERY_KEY = "BatteryCharge";
     private static final String MAX_BATTERY_KEY = "MaxBatteryCharge";
-    private static final String BASE_MAX_KEY = "BaseMaxSU"; // NEW: Store base capacity
-    private static final String POWER_CELL_KEY = "PowerCellUpgrades"; // NEW: Store upgrade count
+    private static final String BASE_MAX_KEY = "BaseMaxSU";
+    private static final float chargeRateMultiplier = 2; // +200% Charging Rate per Quick Charge upgrade = +1.000% max
 
     /**
      * Check if an item can be charged (has battery data)
@@ -33,20 +33,22 @@ public class BatteryHelper {
 
     /**
      * Get maximum battery capacity (with upgrades applied)
+     * Now reads from ArmorUpgradeHelper instead of CustomData
      */
     public static int getMaxBatteryCharge(ItemStack stack) {
         if (!isBatteryItem(stack)) return 0;
 
         CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
         CompoundTag tag = data.copyTag();
-
         int baseMax = tag.getInt(BASE_MAX_KEY);
+
         if (baseMax == 0) {
             // Fallback for old batteries without base max stored
             return tag.getInt(MAX_BATTERY_KEY);
         }
 
-        int powerCellUpgrades = tag.getInt(POWER_CELL_KEY);
+        // CHANGED: Read from ArmorUpgradeHelper instead of CustomData
+        int powerCellUpgrades = ArmorUpgradeHelper.getUpgradeCount(stack, "power_cell");
 
         // +10% per upgrade
         float multiplier = 1.0f + (powerCellUpgrades * 0.1f);
@@ -64,38 +66,21 @@ public class BatteryHelper {
 
     /**
      * Get number of power cell upgrades
+     * CHANGED: Now reads from ArmorUpgradeHelper
      */
     public static int getPowerCellUpgrades(ItemStack stack) {
         if (!isBatteryItem(stack)) return 0;
-        CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
-        CompoundTag tag = data.copyTag();
-        return tag.getInt(POWER_CELL_KEY);
+        return ArmorUpgradeHelper.getUpgradeCount(stack, "power_cell");
     }
 
     /**
-     * Set number of power cell upgrades (0-5)
+     * DEPRECATED: Use Modification Station to add upgrades instead
+     * Keeping for backwards compatibility with old code
      */
+    @Deprecated
     public static void setPowerCellUpgrades(ItemStack stack, int count) {
-        if (!isBatteryItem(stack)) return;
-
-        CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
-        CompoundTag tag = data.copyTag();
-
-        tag.putInt(POWER_CELL_KEY, Math.max(0, Math.min(5, count)));
-
-        // Recalculate max capacity
-        int baseMax = tag.getInt(BASE_MAX_KEY);
-        float multiplier = 1.0f + (count * 0.1f);
-        int newMax = Math.round(baseMax * multiplier);
-        tag.putInt(MAX_BATTERY_KEY, newMax);
-
-        // Clamp current charge to new max
-        int currentCharge = tag.getInt(BATTERY_KEY);
-        if (currentCharge > newMax) {
-            tag.putInt(BATTERY_KEY, newMax);
-        }
-
-        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+        // This method is deprecated - upgrades should be added via Modification Station
+        // which uses ArmorUpgradeHelper.addUpgrade()
     }
 
     /**
@@ -104,7 +89,6 @@ public class BatteryHelper {
     public static void setBatteryCharge(ItemStack stack, int charge) {
         CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
         CompoundTag tag = data.copyTag();
-
         int maxCharge = getMaxBatteryCharge(stack);
         if (maxCharge == 0) maxCharge = 100;
 
@@ -129,7 +113,6 @@ public class BatteryHelper {
         tag.putInt(BATTERY_KEY, 0); // Start empty
         tag.putInt(BASE_MAX_KEY, baseMaxCharge); // Store base capacity
         tag.putInt(MAX_BATTERY_KEY, baseMaxCharge); // Effective capacity (no upgrades initially)
-        tag.putInt(POWER_CELL_KEY, 0); // No upgrades initially
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
 
         if (stack.isDamageableItem()) {
@@ -156,7 +139,6 @@ public class BatteryHelper {
      */
     public static void drainBattery(ItemStack stack, int amount) {
         if (!isBatteryItem(stack)) return;
-
         int current = getBatteryCharge(stack);
         int newCharge = Math.max(0, current - amount);
         setBatteryCharge(stack, newCharge);
@@ -170,28 +152,31 @@ public class BatteryHelper {
         setBatteryCharge(stack, current + amount);
     }
 
-    // Get number of quick charge upgrades
+    /**
+     * Get number of quick charge upgrades
+     * CHANGED: Now reads from ArmorUpgradeHelper
+     */
     public static int getQuickChargeUpgrades(ItemStack stack) {
         if (!isBatteryItem(stack)) return 0;
-        CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
-        CompoundTag tag = data.copyTag();
-        return tag.getInt("QuickChargeUpgrades");
+        return ArmorUpgradeHelper.getUpgradeCount(stack, "quick_charge");
     }
 
-    // Set quick charge upgrades (0-5)
+    /**
+     * DEPRECATED: Use Modification Station to add upgrades instead
+     */
+    @Deprecated
     public static void setQuickChargeUpgrades(ItemStack stack, int count) {
-        if (!isBatteryItem(stack)) return;
-
-        CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
-        CompoundTag tag = data.copyTag();
-        tag.putInt("QuickChargeUpgrades", Math.max(0, Math.min(5, count)));
-        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+        // This method is deprecated - upgrades should be added via Modification Station
+        // which uses ArmorUpgradeHelper.addUpgrade()
     }
 
-    // Get charge rate multiplier based on upgrades
-    // Each upgrade adds +20% charge rate: 1.0 -> 1.2 -> 1.4 -> 1.6 -> 1.8 -> 2.0
+    /**
+     * Get charge rate multiplier based on upgrades
+     * Each upgrade adds +20% charge rate: 1.0 -> 1.2 -> 1.4 -> 1.6 -> 1.8 -> 2.0
+     * CHANGED: Now reads from ArmorUpgradeHelper
+     */
     public static float getChargeRateMultiplier(ItemStack stack) {
         int upgrades = getQuickChargeUpgrades(stack);
-        return 1.0f + (upgrades * 0.2f);
+        return 1.0f + (upgrades * chargeRateMultiplier);
     }
 }

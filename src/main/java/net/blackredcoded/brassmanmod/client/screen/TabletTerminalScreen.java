@@ -108,7 +108,7 @@ public class TabletTerminalScreen extends Screen {
                                 rebuildWidgets();
                             }
                         })
-                .bounds(leftPos + 8, topPos + IMAGE_HEIGHT - 28, 20, 20)
+                .bounds(leftPos + 1, topPos + IMAGE_HEIGHT - 21, 20, 20)
                 .build()
         );
         prevPageButton.active = currentPage > 0;
@@ -122,7 +122,7 @@ public class TabletTerminalScreen extends Screen {
                                 rebuildWidgets();
                             }
                         })
-                .bounds(leftPos + IMAGE_WIDTH - 28, topPos + IMAGE_HEIGHT - 28, 20, 20)
+                .bounds(leftPos + IMAGE_WIDTH - 21, topPos + IMAGE_HEIGHT - 21, 20, 20)
                 .build()
         );
         nextPageButton.active = currentPage < maxPages - 1;
@@ -184,11 +184,11 @@ public class TabletTerminalScreen extends Screen {
         renderStatusIndicators(guiGraphics, x, y);
 
         // Title and page number
-        guiGraphics.drawString(this.font, this.title, x + 8, y + 8, 0x404040, false);
+        guiGraphics.drawString(this.font, this.title, x + 8, y + 8, 0xFF00FFFF, false);
 
         Component pageText = Component.literal("Page " + (currentPage + 1) + "/" + maxPages);
         int textWidth = this.font.width(pageText);
-        guiGraphics.drawString(this.font, pageText, x + (IMAGE_WIDTH - textWidth) / 2, y + IMAGE_HEIGHT - 24, 0x404040, false);
+        guiGraphics.drawString(this.font, pageText, x + (IMAGE_WIDTH - textWidth) / 2, y + IMAGE_HEIGHT - 15, 0x404040, false);
 
         // Battery indicator - GET FRESH FROM PLAYER'S HAND using BatteryHelper
         ItemStack freshTablet = getFreshTablet();

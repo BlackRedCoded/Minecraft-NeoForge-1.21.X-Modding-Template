@@ -3,7 +3,7 @@
   "accept_mirrored": false,
   "pattern": [
     "BSB",
-    "SVS",
+    "CKC",
     "BSB"
   ],
   "key": {
@@ -13,8 +13,11 @@
     "S": {
       "item": "create:shaft"
     },
-    "V": {
+    "K": {
       "item": "brassmanmod:kinetic_battery"
+    },
+    "C": {
+      "item": "brassmanmod:compact_mechanism"
     }
   },
   "result": {

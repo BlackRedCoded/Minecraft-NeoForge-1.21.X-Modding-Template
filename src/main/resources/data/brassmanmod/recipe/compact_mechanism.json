@@ -1,24 +1,66 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "accept_mirrored": false,
-  "pattern": [
-    "GLG",
-    "LPL",
-    "GLG"
-  ],
-  "key": {
-    "P": {
-      "item": "create:precision_mechanism"
-    },
-    "G": {
-      "item": "create:cogwheel"
-    },
-    "L": {
-      "item": "create:large_cogwheel"
-    }
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "create:iron_sheet"
   },
-  "result": {
-    "count": 2,
-    "id": "brassmanmod:compact_mechanism"
-  }
+  "transitional_item": {
+    "id": "brassmanmod:incomplete_compact_mechanism"
+  },
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "brassmanmod:incomplete_compact_mechanism"
+        },
+        {
+          "item": "create:cogwheel"
+        }
+      ],
+      "results": [
+        {
+          "id": "brassmanmod:incomplete_compact_mechanism"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "brassmanmod:incomplete_compact_mechanism"
+        },
+        {
+          "item": "create:brass_nugget"
+        }
+      ],
+      "results": [
+        {
+          "id": "brassmanmod:incomplete_compact_mechanism"
+        }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "chance": 120.0,
+      "id": "brassmanmod:compact_mechanism"
+    },
+    {
+      "chance": 10.0,
+      "id": "minecraft:iron_nugget"
+    },
+    {
+      "chance": 8.0,
+      "id": "create:brass_sheet"
+    },
+    {
+      "chance": 5.0,
+      "id": "create:cogwheel"
+    },
+    {
+      "chance": 3.0,
+      "id": "create:polished_rose_quartz"
+    }
+  ],
+  "loops": 5
 }

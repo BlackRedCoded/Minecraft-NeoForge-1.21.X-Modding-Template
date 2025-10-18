@@ -3,15 +3,20 @@
   "accept_mirrored": false,
   "pattern": [
     " C ",
-    "TVT",
+    "TGT",
     " C "
   ],
   "key": {
-    "V": {
-      "item": "create:vertical_gearbox"
-    },
+    "G": [
+      {
+        "item": "create:vertical_gearbox"
+      },
+      {
+        "item": "create:gearbox"
+      }
+      ],
     "T": {
-      "item": "create:fluid_tank"
+      "item": "brassmanmod:power_cell"
     },
     "C": {
       "item": "create:cogwheel"

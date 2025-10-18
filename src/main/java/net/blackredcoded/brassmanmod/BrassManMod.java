@@ -58,6 +58,8 @@ public class BrassManMod {
                         output.accept(ModItems.KINETIC_CIRCUIT.get());
                         output.accept(ModItems.KINETIC_BATTERY.get());
                         output.accept(ModItems.SMART_MECHANISM.get());
+                        output.accept(ModItems.UPGRADE_TEMPLATE.get());
+                        output.accept(ModItems.POWER_CELL.get());
 
                         // Upgrade Modules
                         output.accept(ModItems.POWER_CELL_UPGRADE.get());

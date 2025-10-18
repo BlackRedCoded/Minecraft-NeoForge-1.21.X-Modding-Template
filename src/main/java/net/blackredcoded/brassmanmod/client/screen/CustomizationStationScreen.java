@@ -43,10 +43,10 @@ public class CustomizationStationScreen extends AbstractContainerScreen<Customiz
         int y = (this.height - this.imageHeight) / 2;
 
         // 2x2 grid with MUCH MORE SPACING
-        int col1X = x + 60;  // Left column
-        int col2X = x + 120; // Right column (60px apart)
-        int row1Y = y + 25;  // Top row
-        int row2Y = y + 75;  // Bottom row (50px apart)
+        int col1X = x + 55;  // Left column
+        int col2X = x + 115; // Right column (60px apart)
+        int row1Y = y + 20;  // Top row
+        int row2Y = y + 60;  // Bottom row (50px apart)
 
         // Top left - Brass
         brassButton = Button.builder(Component.literal("Brass"), btn -> selectStyle(0))
@@ -62,11 +62,11 @@ public class CustomizationStationScreen extends AbstractContainerScreen<Customiz
 
         // Bottom right - Flaming
         flamingButton = Button.builder(Component.literal("Flaming"), btn -> selectStyle(3))
-                .bounds(col2X, row2Y, 55, 20).build();
+                .bounds(col2X, row2Y, 56, 20).build();
 
         // Wide purchase button at bottom
         purchaseButton = Button.builder(Component.literal("Apply Style"), btn -> purchaseStyle())
-                .bounds(x + 88, y + 140, 100, 20).build();
+                .bounds(x + 55, y + 140, 117, 20).build();
 
         addRenderableWidget(brassButton);
         addRenderableWidget(aquaButton);
@@ -103,10 +103,10 @@ public class CustomizationStationScreen extends AbstractContainerScreen<Customiz
         renderArmorPreview(guiGraphics, x + 40, y + 75);
 
         // Draw cost displays in 2x2 grid below buttons with more spacing
-        int col1X = x + 60;
-        int col2X = x + 125;
-        int row1Y = y + 45;
-        int row2Y = y + 95;
+        int col1X = x + 55;
+        int col2X = x + 120;
+        int row1Y = y + 40;
+        int row2Y = y + 80;
 
         drawCostDisplay(guiGraphics, col1X, row1Y, ArmorStyleHelper.BRASS);
         drawCostDisplay(guiGraphics, col2X, row1Y, ArmorStyleHelper.AQUA);

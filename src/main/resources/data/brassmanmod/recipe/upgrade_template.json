@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "BKB",
+    "WSG",
+    "BKB"
+  ],
+  "key": {
+    "S": {
+      "item": "create:iron_sheet"
+    },
+    "W": {
+      "item": "minecraft:white_dye"
+    },
+    "G": {
+      "item": "minecraft:green_dye"
+    },
+    "B": {
+      "item": "minecraft:black_dye"
+    },
+    "K": {
+      "item": "brassmanmod:kinetic_circuit"
+    }
+  },
+  "result": {
+    "id": "brassmanmod:upgrade_template",
+    "count": 1
+  }
+}

@@ -12,8 +12,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Set;
 
 public class ModificationStationMenu extends AbstractContainerMenu {
     private final Container container;
@@ -112,15 +115,11 @@ public class ModificationStationMenu extends AbstractContainerMenu {
     @Override
     public void slotsChanged(@NotNull Container container) {
         super.slotsChanged(container);
+
         ItemStack armorStack = container.getItem(ARMOR_SLOT);
         ItemStack upgradeStack = container.getItem(UPGRADE_SLOT);
 
         if (armorStack.isEmpty() || upgradeStack.isEmpty()) {
-            container.setItem(RESULT_SLOT, ItemStack.EMPTY);
-            return;
-        }
-
-        if (!(armorStack.getItem() instanceof ArmorItem)) {
             container.setItem(RESULT_SLOT, ItemStack.EMPTY);
             return;
         }
@@ -132,6 +131,7 @@ public class ModificationStationMenu extends AbstractContainerMenu {
 
         String upgradeType = upgradeItem.getUpgradeType();
         int maxAllowed = upgradeItem.getMaxStacksPerArmor();
+        Set<Item> ApplicableItem = upgradeItem.getApplicableItems();
 
         // SPECIAL CASE: Remote Assembly
         if ("remote_assembly".equals(upgradeType)) {
@@ -166,6 +166,11 @@ public class ModificationStationMenu extends AbstractContainerMenu {
             return;
         }
 
+        if (!ApplicableItem.contains(armorStack.getItem())) {
+            container.setItem(RESULT_SLOT, ItemStack.EMPTY);
+            return;
+        }
+
         ItemStack result = armorStack.copy();
         boolean success = ArmorUpgradeHelper.addUpgrade(result, upgradeType, maxAllowed);
         if (success) {
@@ -190,20 +195,24 @@ public class ModificationStationMenu extends AbstractContainerMenu {
                 }
                 slot.onQuickCraft(slotStack, itemStack);
             } else if (index >= 3) {
-                if (slotStack.getItem() instanceof ArmorItem) {
-                    if (!this.moveItemStackTo(slotStack, ARMOR_SLOT, ARMOR_SLOT + 1, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (slotStack.getItem() instanceof UpgradeModuleItem) {
+                // Check if it's an upgrade module
+                if (slotStack.getItem() instanceof UpgradeModuleItem) {
                     if (!this.moveItemStackTo(slotStack, UPGRADE_SLOT, UPGRADE_SLOT + 1, false)) {
                         return ItemStack.EMPTY;
                     }
-                } else if (index < 30) {
-                    if (!this.moveItemStackTo(slotStack, 30, 39, false)) {
-                        return ItemStack.EMPTY;
+                }
+                // Try to move ANY other item to the armor slot (not just ArmorItem!)
+                else {
+                    if (!this.moveItemStackTo(slotStack, ARMOR_SLOT, ARMOR_SLOT + 1, false)) {
+                        // If armor slot is full, move to inventory
+                        if (index < 30) {
+                            if (!this.moveItemStackTo(slotStack, 30, 39, false)) {
+                                return ItemStack.EMPTY;
+                            }
+                        } else if (!this.moveItemStackTo(slotStack, 3, 30, false)) {
+                            return ItemStack.EMPTY;
+                        }
                     }
-                } else if (!this.moveItemStackTo(slotStack, 3, 30, false)) {
-                    return ItemStack.EMPTY;
                 }
             } else if (!this.moveItemStackTo(slotStack, 3, 39, false)) {
                 return ItemStack.EMPTY;

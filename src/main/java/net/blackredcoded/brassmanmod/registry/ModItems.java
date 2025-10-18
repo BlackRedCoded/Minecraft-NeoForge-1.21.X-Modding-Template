@@ -74,17 +74,22 @@ public class ModItems {
 
     public static final Supplier<Item> QUICK_CHARGING_UPGRADE = ITEMS.register("quick_charging_upgrade",
             () -> new QuickChargeUpgradeItem(new Item.Properties()));
+
     public static final Supplier<Item> REMOTE_ASSEMBLY_UPGRADE = ITEMS.register("remote_assembly_upgrade",
             () -> new RemoteAssemblyUpgradeItem(new Item.Properties()));
 
     // === CRAFTING COMPONENTS ===
     public static final DeferredHolder<Item, Item> PNEUMATIC_CORE = ITEMS.register("pneumatic_core",
             () -> new Item(new Item.Properties()));
+
     public static final DeferredHolder<Item, Item> POWER_CORE = ITEMS.register("power_core",
             () -> new Item(new Item.Properties()));
 
     public static final DeferredHolder<Item, Item> COMPACT_MECHANISM = ITEMS.register("compact_mechanism",
             () -> new Item(new Item.Properties()));
+
+    public static final DeferredHolder<Item, Item> INCOMPLETE_COMPACT_MECHANISM = ITEMS.register("incomplete_compact_mechanism",
+            () -> new IncompleteCompactMechanismItem(new Item.Properties().stacksTo(1)));
 
     public static final DeferredHolder<Item, Item> KINETIC_CIRCUIT = ITEMS.register("kinetic_circuit",
             () -> new Item(new Item.Properties()));
@@ -92,6 +97,14 @@ public class ModItems {
     public static final DeferredHolder<Item, Item> SMART_MECHANISM = ITEMS.register("smart_mechanism",
             () -> new Item(new Item.Properties()));
 
+    public static final DeferredHolder<Item, Item> INCOMPLETE_SMART_MECHANISM = ITEMS.register("incomplete_smart_mechanism",
+            () -> new IncompleteSmartMechanismItem(new Item.Properties().stacksTo(1)));
+
+    public static final DeferredHolder<Item, Item> UPGRADE_TEMPLATE = ITEMS.register("upgrade_template",
+            () -> new Item(new Item.Properties().stacksTo(16)));
+
+    public static final DeferredHolder<Item, Item> POWER_CELL = ITEMS.register("power_cell",
+            () -> new Item(new Item.Properties().stacksTo(16)));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
