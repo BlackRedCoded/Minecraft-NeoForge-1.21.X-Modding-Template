@@ -2,23 +2,23 @@
   "type": "minecraft:crafting_shaped",
   "accept_mirrored": false,
   "pattern": [
-    "BPB",
-    "PCP",
-    "BPB"
+    " B ",
+    "BAB",
+    " C "
   ],
   "key": {
+    "A": {
+      "item": "minecraft:armor_stand"
+    },
     "B": {
       "item": "create:brass_ingot"
     },
-    "P": {
-      "item": "create:fluid_pipe"
-    },
     "C": {
-      "item": "create:copper_backtank"
+      "item": "create:brass_casing"
     }
   },
   "result": {
     "count": 1,
-    "id": "brassmanmod:pneumatic_core"
+    "id": "brassmanmod:brass_armor_stand"
   }
 }

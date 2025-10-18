@@ -2,23 +2,23 @@
   "type": "minecraft:crafting_shaped",
   "accept_mirrored": false,
   "pattern": [
-    "BSB",
-    "SVS",
-    "BSB"
+    "CSC",
+    "SMS",
+    "CSC"
   ],
   "key": {
-    "B": {
-      "item": "create:brass_ingot"
+    "C": {
+      "item": "create:cogwheel"
     },
     "S": {
       "item": "create:shaft"
     },
-    "V": {
-      "item": "brassmanmod:kinetic_battery"
+    "M": {
+      "item": "create:compact_mechanism"
     }
   },
   "result": {
     "count": 1,
-    "id": "brassmanmod:power_core"
+    "id": "brassmanmod:smart_mechanism"
   }
 }

@@ -9,12 +9,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import org.jetbrains.annotations.Nullable;
+import net.blackredcoded.brassmanmod.util.ArmorStyleHelper;
 
 import java.util.List;
 
@@ -48,4 +50,11 @@ public class BrassManBootsItem extends ArmorItem {
         return BrassArmorRenderer.getArmorTexture(stack, slot, innerModel);
     }
 
+    @Override
+    public boolean canWalkOnPowderedSnow(ItemStack stack, net.minecraft.world.entity.LivingEntity wearer) {
+        if (wearer instanceof Player player) {
+            return ArmorStyleHelper.hasArmorStyle(player, ArmorStyleHelper.boots, ArmorStyleHelper.AQUA);
+        }
+        return false;
+    }
 }

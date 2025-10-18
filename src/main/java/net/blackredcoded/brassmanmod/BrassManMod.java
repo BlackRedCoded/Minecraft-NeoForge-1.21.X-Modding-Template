@@ -57,6 +57,7 @@ public class BrassManMod {
                         output.accept(ModItems.COMPACT_MECHANISM.get());
                         output.accept(ModItems.KINETIC_CIRCUIT.get());
                         output.accept(ModItems.KINETIC_BATTERY.get());
+                        output.accept(ModItems.SMART_MECHANISM.get());
 
                         // Upgrade Modules
                         output.accept(ModItems.POWER_CELL_UPGRADE.get());
@@ -65,6 +66,7 @@ public class BrassManMod {
                         output.accept(ModItems.AIR_EFFICIENCY_UPGRADE.get());
                         output.accept(ModItems.POWER_EFFICIENCY_UPGRADE.get());
                         output.accept(ModItems.QUICK_CHARGING_UPGRADE.get());
+                        output.accept(ModItems.REMOTE_ASSEMBLY_UPGRADE.get());
 
                         // Blocks
                         output.accept(ModBlocks.AIR_COMPRESSOR.get());
@@ -73,6 +75,7 @@ public class BrassManMod {
                         output.accept(ModBlocks.BRASS_MODIFICATION_STATION.get());
                         output.accept(ModBlocks.COMPRESSOR_NETWORK_TERMINAL.get());
                         output.accept(ModBlocks.KINETIC_MOTOR.get());
+                        output.accept(ModBlocks.CUSTOMIZATION_STATION.get());
                     })
                     .build()
     );

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "accept_mirrored": false,
+  "pattern": [
+    " C ",
+    "TVT",
+    " C "
+  ],
+  "key": {
+    "V": {
+      "item": "create:vertical_gearbox"
+    },
+    "T": {
+      "item": "create:fluid_tank"
+    },
+    "C": {
+      "item": "create:cogwheel"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "brassmanmod:kinetic_battery"
+  }
+}

@@ -18,11 +18,15 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class KineticMotorBlock extends DirectionalKineticBlock implements IBE<KineticMotorBlockEntity> {
+
+    public static final DirectionProperty FACING = BlockStateProperties.FACING; // All 6 directions
 
     public KineticMotorBlock(Properties properties) {
         super(properties);
@@ -68,5 +72,10 @@ public class KineticMotorBlock extends DirectionalKineticBlock implements IBE<Ki
     @Override
     public BlockEntityType<? extends KineticMotorBlockEntity> getBlockEntityType() {
         return ModBlockEntities.KINETIC_MOTOR.get();
+    }
+
+    @Override
+    public SpeedLevel getMinimumRequiredSpeedLevel() {
+        return SpeedLevel.NONE; // Motor generates its own speed
     }
 }

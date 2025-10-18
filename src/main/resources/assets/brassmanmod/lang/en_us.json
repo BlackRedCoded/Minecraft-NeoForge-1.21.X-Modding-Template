@@ -20,6 +20,7 @@
   "item.brassmanmod.air_efficiency_upgrade": "Air efficiency Upgrade",
   "item.brassmanmod.power_efficiency_upgrade": "Power efficiency Upgrade",
   "item.brassmanmod.quick_charging_upgrade": "Quick charging Upgrade",
+  "item.brassmanmod.remote_assembly_upgrade": "Remote Assembly Upgrade",
 
   "item.brassmanmod.air_compressor": "Air Compressor",
   "item.brassmanmod.brass_armor_stand": "Brass Armor Stand",
@@ -28,6 +29,7 @@
   "item.brassmanmod.pneumatic_core": "Pneumatic Core",
   "item.brassmanmod.power_core": "Power Core",
   "item.brassmanmod.compact_mechanism": "Compact Mechanism",
+  "item.brassmanmod.smart_mechanism": "Smart Mechanism",
   "item.brassmanmod.kinetic_circuit": "Kinetic Circuit",
 
 
@@ -38,6 +40,7 @@
   "block.brassmanmod.compressor_network_terminal": "Compressor Network Terminal",
   "block.brassmanmod.kinetic_motor": "Kinetic Motor",
   "block.brassmanmod.charger": "Charger",
+  "block.brassmanmod.customization_station": "Customization Station",
 
 
   "container.brassmanmod.data_link": "Data Link",

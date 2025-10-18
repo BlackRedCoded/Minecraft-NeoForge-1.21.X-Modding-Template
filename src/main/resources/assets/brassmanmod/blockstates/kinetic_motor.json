@@ -3,6 +3,8 @@
     "facing=north": { "model": "brassmanmod:block/kinetic_motor", "y": 0 },
     "facing=south": { "model": "brassmanmod:block/kinetic_motor", "y": 180 },
     "facing=west": { "model": "brassmanmod:block/kinetic_motor", "y": 270 },
-    "facing=east": { "model": "brassmanmod:block/kinetic_motor", "y": 90 }
+    "facing=east": { "model": "brassmanmod:block/kinetic_motor", "y": 90 },
+    "facing=up": { "model": "brassmanmod:block/kinetic_motor_vertical", "x": 270 },
+    "facing=down": { "model": "brassmanmod:block/kinetic_motor_vertical", "x": 90 }
   }
 }

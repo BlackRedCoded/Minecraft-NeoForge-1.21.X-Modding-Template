@@ -14,7 +14,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
+import net.blackredcoded.brassmanmod.util.ArmorStyleHelper;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.List;
 
@@ -24,6 +27,16 @@ public class BrassManChestplateItem extends ArmorItem {
     public static final int BASE_MAX_POWER = 1_000;
     public static final int MAX_AIR = BASE_MAX_AIR;
     public static final int MAX_POWER = BASE_MAX_POWER;
+
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+        super.inventoryTick(stack, level, entity, slotId, isSelected);
+
+        if (!level.isClientSide() && entity instanceof Player player) {
+            if (player.getItemBySlot(EquipmentSlot.CHEST).equals(stack)) {
+                applyStyleEffects(player);
+            }
+        }
+    }
 
     public BrassManChestplateItem(Properties props) {
         super(ModArmorMaterials.BRASS_MAN, Type.CHESTPLATE,
@@ -220,6 +233,49 @@ public class BrassManChestplateItem extends ArmorItem {
         } else {
             tooltip.add(Component.literal(""));
             tooltip.add(Component.literal("Hold Shift for more info").withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
+        }
+    }
+
+    private void applyStyleEffects(Player player) {
+        boolean fullFlamingArmor;
+
+        if (ArmorStyleHelper.hasArmorStyle(player, ArmorStyleHelper.boots, ArmorStyleHelper.FLAMING) &&
+                ArmorStyleHelper.hasArmorStyle(player, ArmorStyleHelper.leggings, ArmorStyleHelper.FLAMING) &&
+                ArmorStyleHelper.hasArmorStyle(player, ArmorStyleHelper.chestplate, ArmorStyleHelper.FLAMING) &&
+                ArmorStyleHelper.hasArmorStyle(player, ArmorStyleHelper.helmet, ArmorStyleHelper.FLAMING)) {
+            fullFlamingArmor = true;
+        }
+        else fullFlamingArmor = false;
+
+        // Iced/Aqua Style: Prevent freezing completely
+        if (ArmorStyleHelper.hasArmorStyle(player, ArmorStyleHelper.chestplate, ArmorStyleHelper.AQUA)) {
+            // Remove freezing damage by resetting frozen ticks
+            if (player.getTicksFrozen() > 0) {
+                player.setTicksFrozen(0);
+            }
+            // Also prevent powder snow freezing
+            player.setIsInPowderSnow(false);
+        }
+
+        // Ocean Style: Water Breathing + Night Vision underwater
+        if (ArmorStyleHelper.hasArmorStyle(player, ArmorStyleHelper.helmet, ArmorStyleHelper.DARK_AQUA)) {
+            if (player.isInWater()) {
+                player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                        net.minecraft.world.effect.MobEffects.NIGHT_VISION, 20, 0, false, false));
+                player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                        net.minecraft.world.effect.MobEffects.WATER_BREATHING, 20, 0, false, false));
+            }
+        }
+
+        // Flaming Style: Night Vision if player has helmet
+        if (ArmorStyleHelper.hasArmorStyle(player, ArmorStyleHelper.helmet, ArmorStyleHelper.FLAMING) && player.isInLava()) {
+            player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                    net.minecraft.world.effect.MobEffects.NIGHT_VISION, 20, 0, false, false));
+        }
+        // Flaming Style: Fire Resistance if player has full set
+        if (fullFlamingArmor && player.isOnFire()) {
+            player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                    net.minecraft.world.effect.MobEffects.FIRE_RESISTANCE, 20, 0, false, false));
         }
     }
 

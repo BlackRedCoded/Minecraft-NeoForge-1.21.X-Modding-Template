@@ -85,17 +85,17 @@ public class CustomizationStationMenu extends AbstractContainerMenu {
             case ArmorStyleHelper.BRASS -> new ItemStack[]{
                     new ItemStack(Items.YELLOW_DYE, 3),
                     new ItemStack(Items.ORANGE_DYE, 3),
-                    new ItemStack(AllItems.BRASS_INGOT.get(), 1) // Replace with Create brass when available
+                    new ItemStack(AllItems.BRASS_INGOT.get(), 1)
             };
             case ArmorStyleHelper.AQUA -> new ItemStack[]{
                     new ItemStack(Items.CYAN_DYE, 3),
                     new ItemStack(Items.LIGHT_BLUE_DYE, 3),
-                    new ItemStack(Items.DIAMOND, 1)
+                    new ItemStack(Items.BLUE_ICE, 1)
             };
             case ArmorStyleHelper.DARK_AQUA -> new ItemStack[]{
                     new ItemStack(Items.CYAN_DYE, 3),
                     new ItemStack(Items.BLUE_DYE, 3),
-                    new ItemStack(Items.LAPIS_LAZULI, 1)
+                    new ItemStack(Items.HEART_OF_THE_SEA, 1)
             };
             case ArmorStyleHelper.FLAMING -> new ItemStack[]{
                     new ItemStack(Items.RED_DYE, 3),

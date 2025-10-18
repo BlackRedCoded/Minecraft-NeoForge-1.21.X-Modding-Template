@@ -60,11 +60,11 @@ public class JarvisNightvisionHandler {
                 PacketDistributor.sendToServer(new ConsumeNightvisionPowerPacket(1));
                 powerConsumeTicks = 0;
             }
-        } else {
-            // If disabled or no power, remove the effect
-            if (player.hasEffect(MobEffects.NIGHT_VISION)) {
-                player.removeEffect(MobEffects.NIGHT_VISION);
-            }
+        //} else {
+        //    // If disabled or no power, remove the effect
+        //    if (player.hasEffect(MobEffects.NIGHT_VISION)) {
+        //        player.removeEffect(MobEffects.NIGHT_VISION);
+        //    }
             powerConsumeTicks = 0;
         }
     }

@@ -1,6 +1,7 @@
 package net.blackredcoded.brassmanmod.blockentity;
 
 import com.simibubi.create.content.kinetics.base.GeneratingKineticBlockEntity;
+import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.blackredcoded.brassmanmod.items.KineticBatteryItem;
 import net.blackredcoded.brassmanmod.menu.KineticMotorMenu;
 import net.blackredcoded.brassmanmod.util.BatteryHelper;
@@ -20,6 +21,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class KineticMotorBlockEntity extends GeneratingKineticBlockEntity implements Container, MenuProvider {
 
@@ -70,6 +73,11 @@ public class KineticMotorBlockEntity extends GeneratingKineticBlockEntity implem
             if (level.getGameTime() % 20 == 0) {
                 setChanged();
             }
+        }
+
+        // Force visual speed update
+        if (level != null && !level.isClientSide) {
+            updateGeneratedRotation();
         }
 
         updateGeneratedRotation();
@@ -192,5 +200,19 @@ public class KineticMotorBlockEntity extends GeneratingKineticBlockEntity implem
 
     public void openMenu(ServerPlayer player) {
         player.openMenu(this, worldPosition);
+    }
+
+    @Override
+    public boolean isSource() {
+        return true; // This tells Create this is a power source
+    }
+
+    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+        super.addBehaviours(behaviours);
+    }
+
+    @Override
+    protected boolean isNoisy() {
+        return true; // Return true if you want sound effects when running
     }
 }

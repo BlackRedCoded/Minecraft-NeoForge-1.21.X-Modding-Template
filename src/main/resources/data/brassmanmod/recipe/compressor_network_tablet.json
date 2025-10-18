@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "accept_mirrored": false,
+  "pattern": [
+    "BBB",
+    " D ",
+    "BBB"
+  ],
+  "key": {
+    "B": {
+      "tag": "minecraft:wooden_buttons"
+    },
+    "D": {
+      "item": "brassmanmod:data_link"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "brassmanmod:compressor_network_tablet"
+  }
+}

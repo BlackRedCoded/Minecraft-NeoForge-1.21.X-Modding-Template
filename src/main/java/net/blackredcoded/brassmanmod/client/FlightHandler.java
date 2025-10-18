@@ -8,6 +8,7 @@ import net.blackredcoded.brassmanmod.network.ConsumeAirPacket;
 import net.blackredcoded.brassmanmod.network.FallsavePacket;
 import net.blackredcoded.brassmanmod.network.GrantAdvancementPacket;
 import net.blackredcoded.brassmanmod.network.IcingStatePacket;
+import net.blackredcoded.brassmanmod.util.ArmorStyleHelper;
 import net.blackredcoded.brassmanmod.util.ArmorUpgradeHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -24,10 +25,10 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraft.world.level.material.Fluids;
 
 @EventBusSubscriber(modid = BrassManMod.MOD_ID, value = Dist.CLIENT)
 public class FlightHandler {
-
     private static ClientTickEvent.Post event;
     private static boolean isFlying = false;
     private static boolean fallsaveTriggered = false;
@@ -43,20 +44,39 @@ public class FlightHandler {
         FlightHandler.event = event;
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
-
         if (player == null || !player.level().isClientSide) return;
 
         FlightConfig.PlayerFlightData config = FlightConfig.get(player);
-
         ItemStack chestplate = player.getItemBySlot(EquipmentSlot.CHEST);
-        if (!(chestplate.getItem() instanceof BrassManChestplateItem brass)) return;
+
+        // === FALLSAVE CHECK (BEFORE CHESTPLATE CHECK - WORKS WITH JUST JARVIS ACCESS) ===
+        if (!player.onGround() && player.getDeltaMovement().y < -0.5) {
+            if (!fallsaveTriggered && isFalling(player)) {
+                if (JarvisCommunicatorItem.hasJarvis(player)) {
+                    PacketDistributor.sendToServer(new FallsavePacket());
+                    fallsaveTriggered = true;
+                    player.displayClientMessage(
+                            Component.literal("JARVIS: Fall detected! Emergency protocols engaged").withStyle(ChatFormatting.RED),
+                            true
+                    );
+                }
+            }
+        } else if (player.onGround()) {
+            fallsaveTriggered = false;
+        }
+
+        // === CHESTPLATE REQUIRED BEYOND THIS POINT ===
+        if (!(chestplate.getItem() instanceof BrassManChestplateItem brass)) {
+            stopFlying(player);
+            return;
+        }
 
         // === ICING PROBLEM LOGIC ===
         boolean isAbove500 = player.getY() >= 500;
         int upgradeStage = ArmorUpgradeHelper.getRemoteAssemblyLevel(chestplate);
 
         // Check if player is iced (above Y:500 with upgrade stage 0)
-        boolean isIced = isAbove500 && upgradeStage == 0;
+        boolean isIced = isAbove500 && upgradeStage == 0 && !ArmorStyleHelper.hasArmorStyle(player, ArmorStyleHelper.chestplate, ArmorStyleHelper.AQUA);
 
         // Grant achievement when first entering icing zone
         if (isIced && !wasAbove500) {
@@ -64,6 +84,7 @@ public class FlightHandler {
                 PacketDistributor.sendToServer(new GrantAdvancementPacket("brassmanmod:brass_man/icing_problem"));
                 hasGrantedIcingAchievement = true;
             }
+
             // Send icing state to server
             PacketDistributor.sendToServer(new IcingStatePacket(true));
             icingCooldownTicks = 100; // 5 second cooldown before systems can restart (20 ticks = 1 sec)
@@ -118,28 +139,6 @@ public class FlightHandler {
             data.hudEnabled = true;
         }
 
-        // Fallsave check (works with just JARVIS helmet!)
-        if (!player.onGround() && player.getDeltaMovement().y < -0.5) {
-            if (!fallsaveTriggered && isFalling(player)) {
-                if (JarvisCommunicatorItem.hasJarvis(player)) {
-                    PacketDistributor.sendToServer(new FallsavePacket());
-                    fallsaveTriggered = true;
-                    player.displayClientMessage(
-                            Component.literal("JARVIS: Fall detected! Emergency protocols engaged").withStyle(ChatFormatting.RED),
-                            true
-                    );
-                }
-            }
-        } else if (player.onGround()) {
-            fallsaveTriggered = false;
-        }
-
-        // Check for chestplate (only needed for flight/hover)
-        if (!(chestplate.getItem() instanceof BrassManChestplateItem)) {
-            stopFlying(player);
-            return;
-        }
-
         int airAmount = BrassManChestplateItem.getAir(chestplate);
         if (airAmount <= 0) {
             stopFlying(player);
@@ -149,6 +148,8 @@ public class FlightHandler {
         boolean spacePressed = mc.options.keyJump.isDown();
         boolean shiftPressed = mc.options.keyShift.isDown();
         boolean isInAir = player.level().getBlockState(player.blockPosition().below()).isAir();
+        boolean isInWater = player.isInWater();
+        boolean isInLava = player.isInLava();
 
         int speedPercent = config.flightSpeed;
         int ticksPerAir;
@@ -174,8 +175,14 @@ public class FlightHandler {
             ticksPerAir = 2;
         }
 
+        // Ocean style allows water flight
+        boolean canFlyInWater = isInWater && ArmorStyleHelper.hasArmorStyle(player, ArmorStyleHelper.chestplate, ArmorStyleHelper.DARK_AQUA);
+        // Flaming style allows lava flight
+        boolean canFlyInLava = isInLava && ArmorStyleHelper.hasArmorStyle(player, ArmorStyleHelper.chestplate, ArmorStyleHelper.FLAMING);
+        boolean canFly = isInAir || canFlyInWater || canFlyInLava;
+
         // FLIGHT: Space pressed + flight enabled + MUST BE IN AIR
-        if (spacePressed && config.flightEnabled && isInAir) { // ADDED: && isInAir
+        if (spacePressed && config.flightEnabled && canFly) {
             if (!isFlying) {
                 startFlying(player);
             }
@@ -200,6 +207,7 @@ public class FlightHandler {
                     movement.y,
                     currentMovement.z * 0.8 + movement.z
             );
+
             player.setPose(Pose.STANDING);
             player.setSwimming(false);
             floatingTicks = 0;
@@ -209,6 +217,7 @@ public class FlightHandler {
         else if (isInAir && airAmount > 0 && config.hoverEnabled) {
             floatingTicks++;
             player.fallDistance = 0;
+
             if (floatingTicks % 40 == 0) {
                 PacketDistributor.sendToServer(new ConsumeAirPacket(1));
             }
@@ -249,6 +258,7 @@ public class FlightHandler {
                 { -0.3, 1.2, 0.0 },
                 { 0.3, 1.2, 0.0 }
         };
+
         for (double[] offset : relativeOffsets) {
             double rotatedX = offset[0] * Math.cos(yaw) - offset[2] * Math.sin(yaw);
             double rotatedZ = offset[0] * Math.sin(yaw) + offset[2] * Math.cos(yaw);

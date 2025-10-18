@@ -53,11 +53,11 @@ public class CustomizationStationScreen extends AbstractContainerScreen<Customiz
                 .bounds(col1X, row1Y, 56, 20).build();
 
         // Top right - Aqua
-        aquaButton = Button.builder(Component.literal("Aqua"), btn -> selectStyle(1))
+        aquaButton = Button.builder(Component.literal("Iced"), btn -> selectStyle(1))
                 .bounds(col2X, row1Y, 56, 20).build();
 
         // Bottom left - Dark Aqua
-        darkAquaButton = Button.builder(Component.literal("Dark Aqua"), btn -> selectStyle(2))
+        darkAquaButton = Button.builder(Component.literal("Ocean"), btn -> selectStyle(2))
                 .bounds(col1X, row2Y, 56, 20).build();
 
         // Bottom right - Flaming

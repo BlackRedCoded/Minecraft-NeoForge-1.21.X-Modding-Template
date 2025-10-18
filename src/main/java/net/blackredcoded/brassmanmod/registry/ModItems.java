@@ -89,6 +89,9 @@ public class ModItems {
     public static final DeferredHolder<Item, Item> KINETIC_CIRCUIT = ITEMS.register("kinetic_circuit",
             () -> new Item(new Item.Properties()));
 
+    public static final DeferredHolder<Item, Item> SMART_MECHANISM = ITEMS.register("smart_mechanism",
+            () -> new Item(new Item.Properties()));
+
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
