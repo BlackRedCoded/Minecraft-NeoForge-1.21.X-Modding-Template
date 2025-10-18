@@ -214,36 +214,39 @@ public record FallsavePacket() implements CustomPacketPayload {
         ItemStack leggings = bestSuit.armorStand.getArmor(2);
         ItemStack boots = bestSuit.armorStand.getArmor(3);
 
-        // Spawn flying suit
+    // Spawn flying suit - Now with smart positioning!
         FlyingSuitEntity flyingSuit = new FlyingSuitEntity(
                 serverLevel, bestSuit.standPos, player,
                 helmet, chestplate, leggings, boots
         );
         serverLevel.addFreshEntity(flyingSuit);
 
-        // Clear armor from stand
+    // Clear armor from stand
         bestSuit.armorStand.setArmor(0, ItemStack.EMPTY);
         bestSuit.armorStand.setArmor(1, ItemStack.EMPTY);
         bestSuit.armorStand.setArmor(2, ItemStack.EMPTY);
         bestSuit.armorStand.setArmor(3, ItemStack.EMPTY);
 
-        // Enable flight/hover IMMEDIATELY
+    // Enable flight/hover IMMEDIATELY
         if (enableFlight) {
             FlightConfig.setFlightEnabled(player, true);
             player.sendSystemMessage(Component.literal("JARVIS: Flight enabled.")
                     .withStyle(ChatFormatting.AQUA));
         }
-
         if (enableHover) {
             FlightConfig.setHoverEnabled(player, true);
             player.sendSystemMessage(Component.literal("JARVIS: Hover enabled.")
                     .withStyle(ChatFormatting.AQUA));
         }
 
-        player.sendSystemMessage(Component.literal("JARVIS: Emergency brass suit deployed! (Charge: " + bestSuit.totalCharge + ")")
-                .withStyle(ChatFormatting.GREEN));
+    // Calculate distance to give player feedback
+        double distance = Math.sqrt(bestSuit.distanceSquared);
+        String distanceInfo = distance > 128 ? " (Spawning nearby)" : " (En route from base)";
 
+        player.sendSystemMessage(Component.literal("JARVIS: Emergency brass suit deployed!" + distanceInfo + " (Charge: " + bestSuit.totalCharge + ")")
+                .withStyle(ChatFormatting.GREEN));
         return true; // SUCCESS!
+
     }
 
     private record SuitData(BlockPos compressorPos, BlockPos standPos, int totalCharge,
