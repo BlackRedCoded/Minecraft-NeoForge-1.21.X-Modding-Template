@@ -16,6 +16,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -29,7 +30,10 @@ public class KineticMotorBlock extends DirectionalKineticBlock implements IBE<Ki
     public static final DirectionProperty FACING = BlockStateProperties.FACING; // All 6 directions
 
     public KineticMotorBlock(Properties properties) {
-        super(properties);
+        super(properties.of()
+                .strength(4, 8)
+                .requiresCorrectToolForDrops()
+                .sound(SoundType.METAL));
     }
 
     @Override

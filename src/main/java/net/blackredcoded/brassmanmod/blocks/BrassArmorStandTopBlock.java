@@ -11,6 +11,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -52,7 +53,9 @@ public class BrassArmorStandTopBlock extends Block {
     );
 
     public BrassArmorStandTopBlock(Properties properties) {
-        super(properties);
+        super(properties.of()
+                .strength(3, 6)
+                .sound(SoundType.WOOD));
         registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 

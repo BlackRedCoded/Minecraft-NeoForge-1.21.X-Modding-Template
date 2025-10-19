@@ -152,7 +152,7 @@ public class BrassManChestplateItem extends ArmorItem {
         tooltip.add(Component.literal("Air: %d / %d".formatted(air, maxAir)).withStyle(airColor));
         tooltip.add(Component.literal("Power: %d / %d".formatted(power, maxPower)).withStyle(powerColor));
 
-// NEW: Show Remote Assembly Level (stars) - ALWAYS shown, starting at 1 star
+        // NEW: Show Remote Assembly Level (stars) - ALWAYS shown, starting at 1 star
         int remoteLevel = ArmorUpgradeHelper.getRemoteAssemblyLevel(s);
         int displayStars = remoteLevel + 1; // 0 -> 1 star, 1 -> 2 stars, 2 -> 3 stars
 

@@ -33,7 +33,6 @@ public class QuickChargeUpgradeItem extends UpgradeModuleItem {
     @Override
     public Set<Item> getApplicableItems() {
         return Set.of(
-                ModItems.KINETIC_BATTERY.get(),
-                ModItems.COMPRESSOR_NETWORK_TABLET.get());
+                ModItems.KINETIC_BATTERY.get());
     }
 }

@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -23,7 +24,11 @@ public class BrassModificationStationBlock extends Block {
     private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 12, 16);
 
     public BrassModificationStationBlock(Properties properties) {
-        super(properties);
+        super(properties.of()
+                .strength(3, 6)
+                .requiresCorrectToolForDrops()
+                .sound(SoundType.ANVIL)
+                .noOcclusion());
     }
 
     @Override

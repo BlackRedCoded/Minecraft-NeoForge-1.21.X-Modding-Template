@@ -18,6 +18,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -31,7 +32,10 @@ public class AirCompressorBlock extends DirectionalKineticBlock implements IBE<A
     private static final VoxelShape SHAPE = box(0, 0, 0, 16, 16, 16);
 
     public AirCompressorBlock(Properties properties) {
-        super(properties);
+        super(properties.of()
+                .strength(3, 6)
+                .requiresCorrectToolForDrops()
+                .sound(SoundType.WOOD));
     }
 
     @Override

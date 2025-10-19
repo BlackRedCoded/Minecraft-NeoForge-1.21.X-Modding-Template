@@ -28,7 +28,7 @@ public class AirTankUpgradeItem extends UpgradeModuleItem {
 
     @Override
     public int getMaxStacksPerArmor() {
-        return 4; // +12000 air total
+        return 5; // +15000 air total
     }
 
     @Override

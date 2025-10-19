@@ -27,8 +27,8 @@ public class ArmorUpgradeHelper {
     public static final String POWER_EFFICIENCY = "power_efficiency";
 
     // Max stacks per upgrade type
-    public static final int MAX_POWER_CELLS = 4;
-    public static final int MAX_AIR_TANKS = 4;
+    public static final int MAX_POWER_CELLS = 5;
+    public static final int MAX_AIR_TANKS = 5;
     public static final int MAX_SPEED_AMPLIFIERS = 2;
     public static final int MAX_AIR_EFFICIENCY = 5;
     public static final int MAX_POWER_EFFICIENCY = 5;

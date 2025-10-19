@@ -37,7 +37,9 @@ public class DataLinkBlock extends BaseEntityBlock {
     private static final VoxelShape SHAPE_EAST = Block.box(0, 4, 4, 2, 12, 12);
 
     public DataLinkBlock(Properties properties) {
-        super(properties);
+        super(properties.of()
+                .strength(1, 2)
+                .sound(SoundType.WOOD));
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 

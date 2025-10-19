@@ -37,17 +37,21 @@ public class ModificationStationScreen extends AbstractContainerScreen<Modificat
         renderSlot(guiGraphics, x + 75, y + 46);  // Upgrade slot
         renderSlot(guiGraphics, x + 133, y + 46); // Result slot
 
-        // Draw arrow if upgrade is possible
-        if (this.menu.getSlot(ModificationStationMenu.RESULT_SLOT).hasItem()) {
-            // Draw arrow (pointing right)
-            guiGraphics.fill(x + 99, y + 51, x + 124, y + 52, 0xFF8B8B8B); // Top line
-            guiGraphics.fill(x + 99, y + 51, x + 100, y + 58, 0xFF8B8B8B); // Left line
-            guiGraphics.fill(x + 99, y + 57, x + 124, y + 58, 0xFF8B8B8B); // Bottom line
-            guiGraphics.fill(x + 123, y + 51, x + 124, y + 58, 0xFF8B8B8B); // Right line
-            // Arrow head
-            guiGraphics.fill(x + 120, y + 48, x + 127, y + 54, 0xFF8B8B8B);
-            guiGraphics.fill(x + 120, y + 55, x + 127, y + 61, 0xFF8B8B8B);
-        }
+        var poseStack = guiGraphics.pose();
+
+        // Draw bigger plus sign with scaling
+        poseStack.pushPose();
+        poseStack.translate(205, 90, 0);
+        poseStack.scale(2.0f, 2.0f, 1.0f);
+        guiGraphics.drawString(font, "+", 0, 0, 0x999999, false); // Light gray Plus
+        poseStack.popPose();
+
+        // Draw arrow manually (simple text-based arrow)
+        poseStack.pushPose();
+        poseStack.translate(260, 90, 0);
+        poseStack.scale(2.0f, 2.0f, 1.0f);
+        guiGraphics.drawString(font, "→", 0, 0, 0x999999, false); // Light gray Arrow
+        poseStack.popPose();
 
         // Player inventory slots
         for (int row = 0; row < 3; ++row) {
