@@ -14,6 +14,7 @@ public class SetStatsCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("set")
+                                .requires(source -> source.hasPermission(2))
                 // /set air <amount>
                 .then(Commands.literal("air")
                         .then(Commands.argument("amount", IntegerArgumentType.integer(0, BrassManChestplateItem.MAX_AIR))

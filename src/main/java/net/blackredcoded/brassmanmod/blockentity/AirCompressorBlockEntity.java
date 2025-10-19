@@ -329,7 +329,6 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
 
         if (ownerUUID != null) {
             tag.putUUID("Owner", ownerUUID);
-            System.out.println("GET UPDATE TAG - UUID: " + ownerUUID);
         }
 
         return tag;
@@ -342,9 +341,6 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
 
         if (tag.hasUUID("Owner")) {
             ownerUUID = tag.getUUID("Owner");
-            System.out.println("LOAD ADDITIONAL - UUID: " + ownerUUID);
-        } else {
-            System.out.println("LOAD ADDITIONAL - NO UUID");
         }
     }
 

@@ -4,7 +4,7 @@ license="MIT"
 
 [[mods]]
 modId="brassmanmod"
-displayName="Brass Man"
+displayName="Create: Brass Man"
 credits="BlackRedCoded"
 authors="BlackRedCoded"
 description='''A Create addon that brings Iron Man-inspired technology using brass and pneumatic power.'''
@@ -25,7 +25,7 @@ side="BOTH"
 
 [[dependencies.brassmanmod]]
 modId="create"
-mandatory=false
+mandatory=true
 versionRange="[6.0.6,)"
-ordering="NONE"
+ordering="AFTER"
 side="BOTH"

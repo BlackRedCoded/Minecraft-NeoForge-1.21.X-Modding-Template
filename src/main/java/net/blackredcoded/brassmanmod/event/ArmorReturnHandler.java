@@ -35,14 +35,10 @@ public class ArmorReturnHandler {
 
         // CHECK STAGE 2 REQUIREMENT
         int upgradeStage = ArmorUpgradeHelper.getRemoteAssemblyLevel(stack);
-        System.out.println("DEBUG: Armor dropped - Stage: " + upgradeStage + ", Set: " + setName);
 
         if (upgradeStage < 2) {
-            System.out.println("DEBUG: Armor is only stage " + upgradeStage + " - needs stage 2 for auto-return");
             return; // Don't register if not Stage 2
         }
-
-        System.out.println("DEBUG: Armor registered for auto-return!");
 
         CompoundTag persistentData = itemEntity.getPersistentData();
         persistentData.putBoolean("BrassManReturning", true);
@@ -65,18 +61,14 @@ public class ArmorReturnHandler {
                 continue;
             }
 
-            System.out.println("DEBUG: Processing armor return");
-
             String setName = data.getString("BrassManSetName");
             UUID owner = data.getUUID("BrassManOwner");
 
             BlockPos targetStand = findMatchingArmorStand(level, item.blockPosition(), setName);
 
             if (targetStand != null) {
-                System.out.println("DEBUG: Found matching armor stand");
                 returnToArmorStand(level, item, targetStand);
             } else {
-                System.out.println("DEBUG: No armor stand found, becoming sentry");
                 becomeSentry(level, item, setName);
             }
         }

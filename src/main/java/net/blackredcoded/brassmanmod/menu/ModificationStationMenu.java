@@ -88,7 +88,6 @@ public class ModificationStationMenu extends AbstractContainerMenu {
                 if ("remote_assembly".equals(upgradeType)) {
                     if (player.level() instanceof ServerLevel serverLevel) {
                         int newLevel = ArmorUpgradeHelper.getRemoteAssemblyLevel(stack);
-                        System.out.println("DEBUG: Remote Assembly upgraded to level " + newLevel + " - syncing to set");
                         ArmorUpgradeHelper.syncUpgradeAcrossSet(serverLevel, stack, newLevel);
                     }
                 }

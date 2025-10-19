@@ -25,80 +25,80 @@ public class KineticBatteryItem extends Item {
     public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
         int stored = BatteryHelper.getBatteryCharge(stack);
         int max = BatteryHelper.getMaxBatteryCharge(stack);
+        int baseMax = BatteryHelper.getBaseBatteryCapacity(stack);
+        int upgradeCount = BatteryHelper.getPowerCellUpgrades(stack);
 
         if (max == 0) {
             tooltip.add(Component.literal("Empty Battery").withStyle(ChatFormatting.GRAY));
             tooltip.add(Component.literal("Insert into Air Compressor to charge").withStyle(ChatFormatting.DARK_GRAY));
         } else {
-            int baseMax = BatteryHelper.getBaseBatteryCapacity(stack);
-            int upgradeCount = BatteryHelper.getPowerCellUpgrades(stack);
 
             tooltip.add(Component.literal("Stored SU: " + String.format("%,d", stored) + " / " + String.format("%,d", max)).withStyle(ChatFormatting.AQUA));
 
             double percentage = (double) stored / max * 100.0;
             ChatFormatting percentColor = percentage > 75 ? ChatFormatting.GREEN : percentage > 25 ? ChatFormatting.YELLOW : ChatFormatting.RED;
             tooltip.add(Component.literal(String.format("Charge: %.1f%%", percentage)).withStyle(percentColor));
+        }
 
+        tooltip.add(Component.literal(""));
+
+        // Check if there are ANY upgrades applied via Modification Station
+        if (ArmorUpgradeHelper.hasUpgrades(stack)) {
+            tooltip.add(Component.literal("━━━ Installed Upgrades ━━━").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+
+            // Display all possible upgrade types (add your upgrade types here)
+            // Example upgrade types - adjust based on what upgrades can go on batteries
+            int powerCellCount = ArmorUpgradeHelper.getUpgradeCount(stack, "power_cell");
+            if (powerCellCount > 0) {
+                tooltip.add(Component.literal("⚡ Power Cell Upgrades: " + powerCellCount + "/5 (+" + (powerCellCount * 10) + "%)")
+                        .withStyle(ChatFormatting.YELLOW));
+            }
+
+            int quickChargeCount = ArmorUpgradeHelper.getUpgradeCount(stack, "quick_charge");
+            if (quickChargeCount > 0) {
+                float chargeRate = BatteryHelper.getChargeRateMultiplier(stack);
+                tooltip.add(Component.literal("⚡ Quick Charge: " + quickChargeCount + "/5 (+" + ((int)((chargeRate - 1.0f) * 100)) + "% speed)")
+                        .withStyle(ChatFormatting.LIGHT_PURPLE));
+            }
+
+            // Add more upgrade types here as needed
+
+        } else {
+            // Old display for when no Modification Station upgrades are present
+            if (upgradeCount > 0) {
+                int bonusCapacity = max - baseMax;
+                tooltip.add(Component.literal("⚡ Power Cell Upgrades: " + upgradeCount + "/5 (+" + (upgradeCount * 10) + "%)")
+                        .withStyle(ChatFormatting.YELLOW));
+                tooltip.add(Component.literal("  Base: " + String.format("%,d", baseMax) + " SU")
+                        .withStyle(ChatFormatting.GRAY));
+                tooltip.add(Component.literal("  Bonus: +" + String.format("%,d", bonusCapacity) + " SU")
+                        .withStyle(ChatFormatting.GOLD));
+            } else {
+                tooltip.add(Component.literal("⚡ No Power Cell Upgrades")
+                        .withStyle(ChatFormatting.GRAY));
+            }
+
+            // Quick Charge section
+            int quickChargeUpgrades = BatteryHelper.getQuickChargeUpgrades(stack);
+            if (quickChargeUpgrades > 0) {
+                float chargeRate = BatteryHelper.getChargeRateMultiplier(stack);
+                tooltip.add(Component.literal("⚡ Quick Charge: " + quickChargeUpgrades + "/5 (+" + ((int)((chargeRate - 1.0f) * 100)) + "% speed)")
+                        .withStyle(ChatFormatting.LIGHT_PURPLE));
+            } else {
+                tooltip.add(Component.literal("⚡ No Quick Charge Upgrades")
+                        .withStyle(ChatFormatting.GRAY));
+            }
+        }
+
+        // Shift details section (like leggings)
+        if (Screen.hasShiftDown()) {
             tooltip.add(Component.literal(""));
-
-            // Check if there are ANY upgrades applied via Modification Station
-            if (ArmorUpgradeHelper.hasUpgrades(stack)) {
-                tooltip.add(Component.literal("━━━ Installed Upgrades ━━━").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
-
-                // Display all possible upgrade types (add your upgrade types here)
-                // Example upgrade types - adjust based on what upgrades can go on batteries
-                int powerCellCount = ArmorUpgradeHelper.getUpgradeCount(stack, "power_cell");
-                if (powerCellCount > 0) {
-                    tooltip.add(Component.literal("⚡ Power Cell Upgrades: " + powerCellCount + "/5 (+" + (powerCellCount * 10) + "%)")
-                            .withStyle(ChatFormatting.YELLOW));
-                }
-
-                int quickChargeCount = ArmorUpgradeHelper.getUpgradeCount(stack, "quick_charge");
-                if (quickChargeCount > 0) {
-                    float chargeRate = BatteryHelper.getChargeRateMultiplier(stack);
-                    tooltip.add(Component.literal("⚡ Quick Charge: " + quickChargeCount + "/5 (+" + ((int)((chargeRate - 1.0f) * 100)) + "% speed)")
-                            .withStyle(ChatFormatting.LIGHT_PURPLE));
-                }
-
-                // Add more upgrade types here as needed
-
-            } else {
-                // Old display for when no Modification Station upgrades are present
-                if (upgradeCount > 0) {
-                    int bonusCapacity = max - baseMax;
-                    tooltip.add(Component.literal("⚡ Power Cell Upgrades: " + upgradeCount + "/5 (+" + (upgradeCount * 10) + "%)")
-                            .withStyle(ChatFormatting.YELLOW));
-                    tooltip.add(Component.literal("  Base: " + String.format("%,d", baseMax) + " SU")
-                            .withStyle(ChatFormatting.GRAY));
-                    tooltip.add(Component.literal("  Bonus: +" + String.format("%,d", bonusCapacity) + " SU")
-                            .withStyle(ChatFormatting.GOLD));
-                } else {
-                    tooltip.add(Component.literal("⚡ No Power Cell Upgrades")
-                            .withStyle(ChatFormatting.GRAY));
-                }
-
-                // Quick Charge section
-                int quickChargeUpgrades = BatteryHelper.getQuickChargeUpgrades(stack);
-                if (quickChargeUpgrades > 0) {
-                    float chargeRate = BatteryHelper.getChargeRateMultiplier(stack);
-                    tooltip.add(Component.literal("⚡ Quick Charge: " + quickChargeUpgrades + "/5 (+" + ((int)((chargeRate - 1.0f) * 100)) + "% speed)")
-                            .withStyle(ChatFormatting.LIGHT_PURPLE));
-                } else {
-                    tooltip.add(Component.literal("⚡ No Quick Charge Upgrades")
-                            .withStyle(ChatFormatting.GRAY));
-                }
-            }
-
-            // Shift details section (like leggings)
-            if (Screen.hasShiftDown()) {
-                tooltip.add(Component.literal(""));
-                tooltip.add(Component.literal("━━━ Information ━━━").withStyle(ChatFormatting.DARK_GRAY));
-                tooltip.add(Component.literal("Stores kinetic energy from Create").withStyle(ChatFormatting.GRAY));
-                tooltip.add(Component.literal("Upgrade at Modification Station").withStyle(ChatFormatting.LIGHT_PURPLE));
-            } else {
-                tooltip.add(Component.literal(""));
-                tooltip.add(Component.literal("Hold Shift for details").withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
-            }
+            tooltip.add(Component.literal("━━━ Information ━━━").withStyle(ChatFormatting.DARK_GRAY));
+            tooltip.add(Component.literal("Stores kinetic energy from Create").withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.literal("Upgrade at Modification Station").withStyle(ChatFormatting.LIGHT_PURPLE));
+        } else {
+            tooltip.add(Component.literal(""));
+            tooltip.add(Component.literal("Hold Shift for details").withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
         }
     }
 

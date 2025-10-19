@@ -127,25 +127,19 @@ public class ArmorUpgradeHelper {
     public static void syncUpgradeAcrossSet(ServerLevel level, ItemStack upgradedChestplate, int newLevel) {
         String setUUID = BrassArmorStandBlockEntity.getSetUUID(upgradedChestplate);
         if (setUUID == null || setUUID.isEmpty()) {
-            System.out.println("WARNING: Cannot sync upgrade - chestplate has no Set UUID!");
             return;
         }
 
         UUID ownerUUID = BrassArmorStandBlockEntity.getSetOwner(upgradedChestplate);
         if (ownerUUID == null) {
-            System.out.println("WARNING: Cannot sync upgrade - chestplate has no owner UUID!");
             return;
         }
-
-        System.out.println("DEBUG: Syncing upgrade level " + newLevel + " across set UUID: " + setUUID);
 
         // Sync all matching pieces in the world
         int piecesSynced = 0;
         piecesSynced += syncPlayerInventories(level, setUUID, ownerUUID, newLevel);
         piecesSynced += syncArmorStands(level, setUUID, ownerUUID, newLevel);
         piecesSynced += syncContainers(level, setUUID, ownerUUID, newLevel);
-
-        System.out.println("DEBUG: Synced " + piecesSynced + " pieces to level " + newLevel);
     }
 
     private static int syncPlayerInventories(ServerLevel level, String setUUID, UUID ownerUUID, int newLevel) {

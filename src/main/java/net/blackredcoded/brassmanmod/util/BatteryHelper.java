@@ -107,12 +107,17 @@ public class BatteryHelper {
 
     /**
      * Initialize battery on item (call when item is created)
+     * PRESERVES existing data like upgrades!
      */
     public static void initBattery(ItemStack stack, int baseMaxCharge) {
-        CompoundTag tag = new CompoundTag();
+        // Get existing data instead of creating new tag
+        CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+        CompoundTag tag = data.copyTag(); // ✅ Copy existing data!
+
         tag.putInt(BATTERY_KEY, 0); // Start empty
         tag.putInt(BASE_MAX_KEY, baseMaxCharge); // Store base capacity
         tag.putInt(MAX_BATTERY_KEY, baseMaxCharge); // Effective capacity (no upgrades initially)
+
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
 
         if (stack.isDamageableItem()) {

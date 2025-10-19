@@ -78,21 +78,16 @@ public class ChestArmorScanner {
     }
 
     public static void removeArmorFromChests(ServerLevel level, SuitSet suitSet) {
-        System.out.println("DEBUG: removeArmorFromChests called");
         if (suitSet.helmet != null) {
-            System.out.println("DEBUG: Removing helmet from chest at " + suitSet.helmet.chestPos);
             removeFromChest(level, suitSet.helmet);
         }
         if (suitSet.chestplate != null) {
-            System.out.println("DEBUG: Removing chestplate from chest at " + suitSet.chestplate.chestPos);
             removeFromChest(level, suitSet.chestplate);
         }
         if (suitSet.leggings != null) {
-            System.out.println("DEBUG: Removing leggings from chest at " + suitSet.leggings.chestPos);
             removeFromChest(level, suitSet.leggings);
         }
         if (suitSet.boots != null) {
-            System.out.println("DEBUG: Removing boots from chest at " + suitSet.boots.chestPos);
             removeFromChest(level, suitSet.boots);
         }
     }
@@ -100,13 +95,9 @@ public class ChestArmorScanner {
     private static void removeFromChest(ServerLevel level, ArmorLocation location) {
         BlockEntity be = level.getBlockEntity(location.chestPos);
         if (be instanceof Container container) {
-            System.out.println("DEBUG: Setting slot " + location.slot + " to EMPTY");
             container.setItem(location.slot, ItemStack.EMPTY);
             container.setChanged(); // CRITICAL: Mark the container as modified!
             level.sendBlockUpdated(location.chestPos, level.getBlockState(location.chestPos), level.getBlockState(location.chestPos), 3);
-            System.out.println("DEBUG: Container updated and synced");
-        } else {
-            System.out.println("DEBUG: BlockEntity at " + location.chestPos + " is not a Container!");
         }
     }
 }

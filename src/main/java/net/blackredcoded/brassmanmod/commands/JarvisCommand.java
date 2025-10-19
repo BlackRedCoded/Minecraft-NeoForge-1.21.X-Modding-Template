@@ -265,20 +265,15 @@ public class JarvisCommand {
 
         String targetName = context.getArgument("setName", String.class);
 
-        System.out.println("DEBUG: callNamedSuit called with name: " + targetName);
-
         // Try armor stands first (Stage 1 and 2)
         boolean foundInStand = tryCallFromArmorStand(player, level, targetName);
         if (foundInStand) {
-            System.out.println("DEBUG: Found suit in armor stand");
             return 1;
         }
 
         // Try chests (Stage 2 only)
-        System.out.println("DEBUG: Not found in armor stands, trying chests...");
         boolean foundInChest = tryCallFromChests(player, level, targetName);
         if (foundInChest) {
-            System.out.println("DEBUG: Found suit in chest");
             return 1;
         }
 
@@ -487,26 +482,12 @@ public class JarvisCommand {
     }
 
     private static boolean tryCallFromChests(ServerPlayer player, ServerLevel level, String suitName) {
-        System.out.println("=== DEBUG tryCallFromChests START ===");
-        System.out.println("DEBUG: Suit name: " + suitName);
-        System.out.println("DEBUG: Player UUID: " + player.getUUID());
-        System.out.println("DEBUG: Player pos: " + player.blockPosition());
-
         ChestArmorScanner.SuitSet suitSet = ChestArmorScanner.findArmorInChests(
                 level, player.blockPosition(), suitName, player.getUUID(), 64);
 
-        System.out.println("DEBUG: Scan complete");
-        System.out.println("DEBUG: Has helmet? " + (suitSet.helmet != null));
-        System.out.println("DEBUG: Has chest? " + (suitSet.chestplate != null));
-        System.out.println("DEBUG: Has legs? " + (suitSet.leggings != null));
-        System.out.println("DEBUG: Has boots? " + (suitSet.boots != null));
-
         if (!suitSet.hasAnyPiece()) {
-            System.out.println("DEBUG: No pieces found - RETURNING FALSE");
             return false;
         }
-
-        System.out.println("DEBUG: Found pieces! Checking upgrade levels...");
 
         // Check if ANY piece is Stage 2
         boolean hasStage2 = false;
@@ -520,27 +501,21 @@ public class JarvisCommand {
         for (ItemStack piece : pieces) {
             if (!piece.isEmpty()) {
                 int stage = ArmorUpgradeHelper.getRemoteAssemblyLevel(piece);
-                System.out.println("DEBUG: Piece " + piece.getItem() + " has stage: " + stage);
                 if (stage >= 2) {
                     hasStage2 = true;
                 }
             }
         }
 
-        System.out.println("DEBUG: Has Stage 2? " + hasStage2);
-
         if (!hasStage2) {
             player.sendSystemMessage(Component.literal("Suit must be upgraded to Stage 2 (3 stars) to call from chests!")
                     .withStyle(ChatFormatting.YELLOW));
-            System.out.println("DEBUG: No Stage 2 pieces - RETURNING FALSE");
             return false;
         }
 
-        System.out.println("DEBUG: Spawning flying pieces...");
         int piecesFlying = 0;
 
         if (suitSet.helmet != null) {
-            System.out.println("DEBUG: Spawning helmet entity");
             FlyingArmorPieceEntity helmetEntity = new FlyingArmorPieceEntity(
                     level, suitSet.helmet.chestPos, player, suitSet.helmet.armor, EquipmentSlot.HEAD);
             level.addFreshEntity(helmetEntity);
@@ -548,7 +523,6 @@ public class JarvisCommand {
         }
 
         if (suitSet.chestplate != null) {
-            System.out.println("DEBUG: Spawning chestplate entity");
             FlyingArmorPieceEntity chestEntity = new FlyingArmorPieceEntity(
                     level, suitSet.chestplate.chestPos, player, suitSet.chestplate.armor, EquipmentSlot.CHEST);
             level.addFreshEntity(chestEntity);
@@ -556,7 +530,6 @@ public class JarvisCommand {
         }
 
         if (suitSet.leggings != null) {
-            System.out.println("DEBUG: Spawning leggings entity");
             FlyingArmorPieceEntity legsEntity = new FlyingArmorPieceEntity(
                     level, suitSet.leggings.chestPos, player, suitSet.leggings.armor, EquipmentSlot.LEGS);
             level.addFreshEntity(legsEntity);
@@ -564,7 +537,6 @@ public class JarvisCommand {
         }
 
         if (suitSet.boots != null) {
-            System.out.println("DEBUG: Spawning boots entity");
             FlyingArmorPieceEntity bootsEntity = new FlyingArmorPieceEntity(
                     level, suitSet.boots.chestPos, player, suitSet.boots.armor, EquipmentSlot.FEET);
             level.addFreshEntity(bootsEntity);
@@ -572,14 +544,11 @@ public class JarvisCommand {
         }
 
         // REMOVE AFTER spawning entities
-        System.out.println("DEBUG: Removing armor from chests...");
         ChestArmorScanner.removeArmorFromChests(level, suitSet);
 
         player.sendSystemMessage(Component.literal("Calling " + piecesFlying + " suit piece" + (piecesFlying > 1 ? "s" : "") + " from storage...")
                 .withStyle(ChatFormatting.GOLD));
 
-        System.out.println("DEBUG: SUCCESS - Spawned " + piecesFlying + " pieces");
-        System.out.println("=== DEBUG tryCallFromChests END ===");
         return true;
     }
 

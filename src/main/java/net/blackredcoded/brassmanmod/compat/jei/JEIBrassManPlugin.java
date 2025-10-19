@@ -94,7 +94,6 @@ public class JEIBrassManPlugin implements IModPlugin {
             }
         }
 
-        System.out.println("JEI: Generated " + recipes.size() + " armor upgrade recipes");
         return recipes;
     }
 

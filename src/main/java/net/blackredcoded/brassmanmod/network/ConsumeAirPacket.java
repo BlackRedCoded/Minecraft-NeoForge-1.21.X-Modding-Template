@@ -40,18 +40,8 @@ public record ConsumeAirPacket(int amount) implements CustomPacketPayload {
                     float multiplier = ArmorUpgradeHelper.getAirEfficiencyMultiplier(chestplate);
                     int baseAmount = packet.amount;
 
-                    System.out.println("=== AIR CONSUMPTION DEBUG ===");
-                    System.out.println("Air Efficiency Upgrades: " + airEffCount);
-                    System.out.println("Efficiency Multiplier: " + multiplier);
-                    System.out.println("Base Air Cost: " + baseAmount);
-                    System.out.println("Actual Air Cost: " + Math.max(1, (int)(baseAmount * multiplier)));
-                    System.out.println("Current Air: " + brass.air(chestplate));
-
                     // Use the instance method that applies efficiency
                     BrassManChestplateItem.consumeAir(chestplate, packet.amount);
-
-                    System.out.println("Air After Consumption: " + brass.air(chestplate));
-                    System.out.println("============================");
                 }
             }
         });
