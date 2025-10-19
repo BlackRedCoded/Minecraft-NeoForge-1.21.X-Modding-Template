@@ -3,30 +3,22 @@
   "accept_mirrored": false,
   "pattern": [
     "BCB",
-    "PGP",
+    "CFC",
     "BCB"
   ],
   "key": {
-    "G": [
-      {
-        "item": "create:vertical_gearbox"
-      },
-      {
-        "item": "create:gearbox"
-      }
-      ],
-    "P": {
-      "item": "brassmanmod:power_cell"
-    },
     "C": {
       "item": "create:cogwheel"
     },
     "B": {
       "item": "create:brass_casing"
+    },
+    "F": {
+      "item": "create:fluid_tank"
     }
   },
   "result": {
     "count": 1,
-    "id": "brassmanmod:kinetic_battery"
+    "id": "brassmanmod:power_cell"
   }
 }

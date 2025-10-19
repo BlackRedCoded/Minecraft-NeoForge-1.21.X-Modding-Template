@@ -56,6 +56,9 @@ public class ModItems {
     public static final DeferredHolder<Item, Item> KINETIC_BATTERY = ITEMS.register("kinetic_battery",
             () -> new KineticBatteryItem());
 
+    public static final DeferredHolder<Item, Item> AIR_TANK = ITEMS.register("air_tank",
+            () -> new Item(new Item.Properties()));
+
     // Upgrade Modules
     public static final Supplier<Item> POWER_CELL_UPGRADE = ITEMS.register("power_cell_upgrade",
             () -> new PowerCellUpgradeItem(new Item.Properties()));

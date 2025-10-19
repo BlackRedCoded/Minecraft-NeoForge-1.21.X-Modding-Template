@@ -1,0 +1,35 @@
+{
+  "type": "create:mechanical_crafting",
+  "accept_mirrored": false,
+  "pattern": [
+    "  S  ",
+    " CAC ",
+    "MP PM",
+    " CAC ",
+    "  K  "
+  ],
+  "key": {
+    "C": {
+      "item": "create:brass_casing"
+    },
+    "M": {
+      "item": "brassmanmod:compact_mechanism"
+    },
+    "K": {
+      "item": "brassmanmod:kinetic_circuit"
+    },
+    "P": {
+      "item": "create:precision_mechanism"
+    },
+    "S": {
+      "item": "create:shaft"
+    },
+    "A": {
+      "item": "brassmanmod:smart_mechanism"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "brassmanmod:kinetic_motor"
+  }
+}

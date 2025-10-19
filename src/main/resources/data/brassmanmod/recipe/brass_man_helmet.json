@@ -2,29 +2,21 @@
   "type": "create:mechanical_crafting",
   "accept_mirrored": false,
   "pattern": [
-    "   S   ",
-    "  KMK  ",
-    " KBABK ",
-    "SMPCNMS",
-    " KBABK ",
-    "  KMK  ",
-    "   S   "
+    " KMK ",
+    "KBABK",
+    "SDCDS",
+    "KBABK",
+    " KMK "
   ],
   "key": {
     "C": {
-      "item": "brassmanmod:brass_chestplate"
+      "item": "brassmanmod:brass_helmet"
     },
     "M": {
       "item": "brassmanmod:compact_mechanism"
     },
     "K": {
       "item": "brassmanmod:kinetic_circuit"
-    },
-    "P": {
-      "item": "brassmanmod:power_core"
-    },
-    "N": {
-      "item": "brassmanmod:pneumatic_core"
     },
     "B": {
       "item": "create:brass_ingot"
@@ -34,10 +26,13 @@
     },
     "A": {
       "item": "brassmanmod:smart_mechanism"
+    },
+    "D": {
+      "item": "create:display_board"
     }
   },
   "result": {
     "count": 1,
-    "id": "brassmanmod:brass_man_chestplate"
+    "id": "brassmanmod:brass_man_helmet"
   }
 }

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "brassmanmod:item/remote_ass_embly_upgrade"
+  }
+}

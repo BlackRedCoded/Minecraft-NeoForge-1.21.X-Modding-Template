@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "accept_mirrored": false,
+  "pattern": [
+    "AAR",
+    "PPG",
+    "PPB"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "A": {
+      "item": "create:andesite_alloy"
+    },
+    "R": {
+      "item": "minecraft:red_dye"
+    },
+    "G": {
+      "item": "minecraft:green_dye"
+    },
+    "B": {
+      "item": "minecraft:blue_dye"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "brassmanmod:customization_station"
+  }
+}

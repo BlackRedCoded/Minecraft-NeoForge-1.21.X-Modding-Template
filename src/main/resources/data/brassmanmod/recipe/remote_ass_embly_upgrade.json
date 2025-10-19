@@ -6,14 +6,17 @@
       "item": "brassmanmod:upgrade_template"
     },
     {
-      "item": "minecraft:light_blue_dye"
+      "item": "minecraft:green_dye"
     },
     {
-      "item": "brassmanmod:air_tank"
+      "item": "minecraft:gray_dye"
+    },
+    {
+      "item": "brassmanmod:smart_mechanism"
     }
   ],
   "result": {
-    "id": "brassmanmod:air_tank_upgrade",
-    "count": 1
+    "count": 1,
+    "id": "brassmanmod:remote_assembly_upgrade"
   }
 }

@@ -46,7 +46,7 @@
       "id": "brassmanmod:compact_mechanism"
     },
     {
-      "chance": 10.0,
+      "chance": 4.0,
       "id": "minecraft:iron_nugget"
     },
     {
@@ -62,5 +62,5 @@
       "id": "create:polished_rose_quartz"
     }
   ],
-  "loops": 5
+  "loops": 10
 }

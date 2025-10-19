@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "accept_mirrored": false,
+  "pattern": [
+    "BB",
+    "PP",
+    "PP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "B": {
+      "item": "create:brass_ingot"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "brassmanmod:brass_modification_station"
+  }
+}

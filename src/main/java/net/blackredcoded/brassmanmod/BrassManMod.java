@@ -60,6 +60,7 @@ public class BrassManMod {
                         output.accept(ModItems.SMART_MECHANISM.get());
                         output.accept(ModItems.UPGRADE_TEMPLATE.get());
                         output.accept(ModItems.POWER_CELL.get());
+                        output.accept(ModItems.AIR_TANK.get());
 
                         // Upgrade Modules
                         output.accept(ModItems.POWER_CELL_UPGRADE.get());

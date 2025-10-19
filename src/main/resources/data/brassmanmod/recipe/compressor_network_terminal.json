@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "accept_mirrored": false,
+  "pattern": [
+    "CDC",
+    "KAK",
+    "CSC"
+  ],
+  "key": {
+    "D": {
+      "item": "brassmanmod:data_link"
+    },
+    "K": {
+      "item": "brassmanmod:kinetic_circuit"
+    },
+    "C": {
+      "item": "brassmanmod:compact_mechanism"
+    },
+    "A": {
+      "item": "brassmanmod:air_compressor"
+    },
+    "S": {
+      "item": "brassmanmod:smart_mechanism"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "brassmanmod:compressor_network_terminal"
+  }
+}

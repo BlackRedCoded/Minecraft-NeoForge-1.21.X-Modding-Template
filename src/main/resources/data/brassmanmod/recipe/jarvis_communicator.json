@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "accept_mirrored": false,
+  "pattern": [
+    " C ",
+    "TLT",
+    " C "
+  ],
+  "key": {
+    "T": {
+      "item": "create:transmitter"
+    },
+    "L": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "C": {
+      "item": "brassmanmod:compact_mechanism"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "brassmanmod:jarvis_communicator"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "accept_mirrored": false,
+  "pattern": [
+    "WCW",
+    "KBK",
+    "WCW"
+  ],
+  "key": {
+    "W": {
+      "tag": "minecraft:wooden_buttons"
+    },
+    "B": {
+      "item": "create:brass_casing"
+    },
+    "K": {
+      "item": "brassmanmod:kinetic_circuit"
+    },
+    "C": {
+      "item": "brassmanmod:compact_mechanism"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "brassmanmod:air_compressor"
+  }
+}

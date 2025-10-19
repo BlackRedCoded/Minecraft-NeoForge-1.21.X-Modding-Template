@@ -19,7 +19,7 @@ import java.util.List;
 public class TabletTerminalScreen extends Screen {
 
     private static final int IMAGE_WIDTH = 276;
-    private static final int IMAGE_HEIGHT = 166;
+    private static final int IMAGE_HEIGHT = 175;
     private static final int BUTTON_WIDTH = 120;
     private static final int BUTTON_HEIGHT = 20;
     private static final int BUTTONS_PER_PAGE = 12;
@@ -76,7 +76,7 @@ public class TabletTerminalScreen extends Screen {
         for (int i = 0; i < BUTTONS_PER_PAGE; i++) {
             int column = i / 6;
             int row = i % 6;
-            int buttonX = leftPos + 8 + (column * COLUMN_SPACING);
+            int buttonX = leftPos + 12 + (column * COLUMN_SPACING);
             int buttonY = topPos + 20 + (row * 22);
 
             final int globalIndex = currentPage * BUTTONS_PER_PAGE + i;
@@ -108,7 +108,7 @@ public class TabletTerminalScreen extends Screen {
                                 rebuildWidgets();
                             }
                         })
-                .bounds(leftPos + 1, topPos + IMAGE_HEIGHT - 21, 20, 20)
+                .bounds(leftPos + 3, topPos + IMAGE_HEIGHT - 23, 20, 20)
                 .build()
         );
         prevPageButton.active = currentPage > 0;
@@ -122,7 +122,7 @@ public class TabletTerminalScreen extends Screen {
                                 rebuildWidgets();
                             }
                         })
-                .bounds(leftPos + IMAGE_WIDTH - 21, topPos + IMAGE_HEIGHT - 21, 20, 20)
+                .bounds(leftPos + IMAGE_WIDTH - 23, topPos + IMAGE_HEIGHT - 23, 20, 20)
                 .build()
         );
         nextPageButton.active = currentPage < maxPages - 1;
@@ -188,7 +188,7 @@ public class TabletTerminalScreen extends Screen {
 
         Component pageText = Component.literal("Page " + (currentPage + 1) + "/" + maxPages);
         int textWidth = this.font.width(pageText);
-        guiGraphics.drawString(this.font, pageText, x + (IMAGE_WIDTH - textWidth) / 2, y + IMAGE_HEIGHT - 15, 0x404040, false);
+        guiGraphics.drawString(this.font, pageText, x + (IMAGE_WIDTH - textWidth) / 2, y + IMAGE_HEIGHT - 17, 0x404040, false);
 
         // Battery indicator - GET FRESH FROM PLAYER'S HAND using BatteryHelper
         ItemStack freshTablet = getFreshTablet();
@@ -202,13 +202,13 @@ public class TabletTerminalScreen extends Screen {
 
     private void renderTabletBackground(GuiGraphics guiGraphics, int x, int y) {
         // Darker background for tablet (different from terminal block)
-        guiGraphics.fill(x, y, x + IMAGE_WIDTH, y + IMAGE_HEIGHT, 0xFF404040);
+        guiGraphics.fill(x, y, x + IMAGE_WIDTH, y + IMAGE_HEIGHT, 0xFF404040); //LeftX -10 = wider, TopY - 10 = higher, RightX -10 = shorter, BottomY -10 = shorter
 
         // Cyan border (tech look)
-        guiGraphics.fill(x, y, x + IMAGE_WIDTH, y + 1, 0xFF00FFFF);
-        guiGraphics.fill(x, y, x + 1, y + IMAGE_HEIGHT, 0xFF00FFFF);
-        guiGraphics.fill(x + IMAGE_WIDTH - 1, y, x + IMAGE_WIDTH, y + IMAGE_HEIGHT, 0xFF00FFFF);
-        guiGraphics.fill(x, y + IMAGE_HEIGHT - 1, x + IMAGE_WIDTH, y + IMAGE_HEIGHT, 0xFF00FFFF);
+        guiGraphics.fill(x, y, x + IMAGE_WIDTH, y + 1, 0xFF00FFFF); // Left/Top/Right/Bottom
+        guiGraphics.fill(x, y, x + 1, y + IMAGE_HEIGHT, 0xFF00FFFF); // Left/Top/Right/Bottom
+        guiGraphics.fill(x + IMAGE_WIDTH - 1, y, x + IMAGE_WIDTH, y + IMAGE_HEIGHT, 0xFF00FFFF); // Left/Top/Right/Bottom
+        guiGraphics.fill(x, y + IMAGE_HEIGHT - 1, x + IMAGE_WIDTH, y + IMAGE_HEIGHT, 0xFF00FFFF); // Left/Top/Right/Bottom
     }
 
     private void renderStatusIndicators(GuiGraphics guiGraphics, int screenX, int screenY) {

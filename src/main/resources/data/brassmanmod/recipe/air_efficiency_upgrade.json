@@ -9,11 +9,14 @@
       "item": "minecraft:light_blue_dye"
     },
     {
+      "item": "minecraft:lime_dye"
+    },
+    {
       "item": "brassmanmod:air_tank"
     }
   ],
   "result": {
-    "id": "brassmanmod:air_tank_upgrade",
-    "count": 1
+    "count": 1,
+    "id": "brassmanmod:air_efficiency_upgrade"
   }
 }
