@@ -10,21 +10,19 @@
 
 <p align="center">
   <a href="https://www.curseforge.com/minecraft/mc-mods/create-brass-man"><img src="https://img.shields.io/badge/Available%20on-CurseForge-orange?style=flat&logo=curseforge" alt="CurseForge"></a>
-  <a href="https://modrinth.com/mod/create-brass-man"><img src="https://img.shields.io/badge/Available%20on-Modrinth-green?style=flat&logo=modrinth" alt="Modrinth"></a>
-  <a href="https://github.com/BlackRedCoded/Create_Brass_Man/blob/main/LICENSE"><img src="https://img.shields.io/github/license/BlackRedCoded/Create_Brass_Man" alt="License"></a>
 </p>
 
 ---
 
-## 📖 Overview
+## Overview
 
-**Create: Brass Man** seamlessly integrates Marvel's Iron Man technology with the mechanical world of Create. Build advanced powered armor, fly through the skies, and upgrade your equipment using kinetic energy and mechanical engineering.
+**Create: Brass Man** integrates Marvel's Iron Man technology with the mechanical world of Create. Build advanced powered armor, fly through the skies, and upgrade your equipment using kinetic energy and mechanical engineering.
 
 ---
 
-## ✨ Features
+## Features
 
-### 🛡️ Brass Man Armor System
+### Brass Man Armor System
 
 **Complete Powered Armor Set:**
 - **Chestplate** - Flight system, energy storage (air & power)
@@ -35,10 +33,10 @@
 **All armor pieces:**
 - Run on Create's rotational kinetic energy
 - Feature 15 upgrade slots each
-- Support remote assembly system (MK 7 → MK 42 → MK 50)
+- Support upgradable armor system (MK 2 → MK 7 → MK 42)
 - Display upgrade progress with stars (⭐⭐⭐)
 
-### ⚡ Energy & Power Systems
+### Energy & Power Systems
 
 **Kinetic Battery**
 - Portable energy storage device
@@ -55,20 +53,18 @@
 **Power Mechanics:**
 - Compressed air system for flight
 - Kinetic energy for abilities
-- Rechargeable in-field with batteries
 
-### 🔧 Custom Machines
+### Custom Machines
 
 **Modification Station**
 - Install upgrade modules on armor
 - Simple 3-slot interface: Item + Upgrade = Enhanced Item
-- Visual feedback for successful upgrades
 - Supports all armor pieces and batteries
 
 **Customization Station**
 - 4 unique armor styles/skins
 - Personalize your suit appearance
-- Mix and match styles
+- each armor style comes with own abilities
 
 **Brass Armor Stand**
 - Display your suits
@@ -79,20 +75,27 @@
 - Use Kinetic Batteries as portable power source
 - Convert stored energy to rotational force
 
-### 🎯 Upgrade System
+### Upgrade System
 
-**Remote Assembly** (Chestplate-only)
-- **MK 7** (⭐) - Basic remote assembly
-- **MK 42** (⭐⭐) - Advanced remote assembly
-- **MK 50** (⭐⭐⭐) - Master remote assembly
+#### Remote Assembly (Chestplate-only)
+- **MK 2** (⭐) - Manual equip only
+- **MK 7** (⭐⭐) - suit is callable from Brass Armor stand if it's on an Air Compressor
+- **MK 42** (⭐⭐⭐) - Suit can be called from chests, Brass Armor stands and will automatically fly to its assigned Brass Armor stand or enter Sentry mode (if no armor stand assigned) when thrown on the ground
 
-**Standard Upgrades** (All armor pieces)
-- **Field Assembly** - Deploy suit remotely
+#### Standard Upgrades (All armor pieces)
+#### Power Upgrades
 - **Power Cell** - Increased energy capacity
 - **Quick Charge** - Faster charging speed
-- **Repulsor Beam** - Offensive capabilities
-- **Energy Shielding** - Enhanced protection
-- Additional upgrade types for customization
+- **Power Efficiency** - Decreased energy usage
+#### Air Upgrades
+- **Air Tank** - Increased air capacity
+- **Air Efficiency** - Decreased air usage
+#### Other Upgrades
+- **Speed Boost** - increase the max speed boost of your Brass Man leggings
+- **Remote Assembly** - see [Remote Assembly](#remote-assembly-chestplate-only) for more information
+
+#### Planned Upgrades
+- **Jump Boost** - increase the max jump boost of your Brass leggings
 
 **Upgrade Features:**
 - 15 upgrade slots per armor piece
@@ -100,7 +103,7 @@
 - Visual indicators (stars) for upgrade levels
 - Persistent through charging/storage
 
-### 🔍 JEI Integration (Optional)
+### JEI Integration (Optional)
 
 - Full recipe viewing support
 - Cycling upgrade level displays (like anvil enchantments)
@@ -110,18 +113,18 @@
 
 ---
 
-## 📋 Requirements
+## Requirements
 
-| Component | Version |
-|-----------|---------|
-| **Minecraft** | 1.21.1 |
-| **Mod Loader** | NeoForge 21.1.1+ |
-| **Required Mods** | Create 0.5.1+ |
+| Component | Version                                      |
+|-----------|----------------------------------------------|
+| **Minecraft** | 1.21.1                                       |
+| **Mod Loader** | NeoForge 21.1.1+                             |
+| **Required Mods** | Create 6.0.6+                                |
 | **Optional Mods** | JEI (Just Enough Items) - for recipe viewing |
 
 ---
 
-## 📥 Installation
+## Installation
 
 1. **Install NeoForge 1.21.1**
     - Download from [NeoForged.net](https://neoforged.net/)
@@ -129,10 +132,10 @@
 
 2. **Install Create Mod**
     - Download Create 0.5.1+ from [CurseForge](https://www.curseforge.com/minecraft/mc-mods/create)
-    - Place in `mods` folder
+   - Place `.jar` file in `mods` folder
 
 3. **Install Create: Brass Man**
-    - Download from [CurseForge](#) or [Modrinth](#)
+    - Download from [CurseForge](#)
     - Place `.jar` file in `mods` folder
 
 4. **Optional: Install JEI**
@@ -143,7 +146,7 @@
 
 ---
 
-## 🎮 Getting Started
+## Getting Started
 
 ### Your First Armor
 
@@ -169,34 +172,30 @@
 ### Flying Your First Flight
 
 1. **Equip charged Brass Man Chestplate**
-2. **Press Space** to take off
+2. **Press Space** to take off, only if flying is enabled
 3. **Hold Space** and look in direction to fly
-4. **Release Space** to hover/descend
-5. Monitor air and power levels in HUD
+4. **Release Space** to hover/descend if hover ability is enabled
+5. Monitor air and power levels in HUD if wearing helmet
 
 **Flight Controls:**
 - **Space** - Ascend
 - **Shift** - Descend (if airborne)
 - **Mouse Look** - Direction control
-- **W/A/S/D** - Forward/strafe movement
 
 ### Applying Upgrades
 
 1. Open **Modification Station** GUI
-2. Place armor piece in **left slot**
+2. Place Item to upgrade in **left slot**
 3. Place upgrade module in **middle slot**
 4. Take upgraded item from **right slot**
-5. Check tooltip for upgrade count/stars
 
 **Upgrade Tips:**
 - Each armor piece has 15 upgrade slots
-- Remote Assembly requires specific tier items
-- Upgrades persist through charging
 - Mix different upgrade types strategically
 
 ---
 
-## 🔨 Key Crafting Components
+## Key Crafting Components
 
 **Base Components:**
 - **Compact Mechanism** - Sequenced Assembly recipe
@@ -211,21 +210,24 @@
 
 **Upgrade Modules:**
 - Various upgrade items (view in JEI)
-- Remote Assembly upgrade items (MK 7/42/50)
+- Remote Assembly upgrade items (MK 2/7/42)
 
-> 💡 **Tip:** Install JEI to view all crafting recipes in-game!
+> **Tip:** Install JEI to view all crafting recipes in-game!
 
 ---
 
-## 🎨 Customization
+## Customization
 
 ### Armor Styles
 
 Use the **Customization Station** to apply one of 4 unique styles:
-- Classic Brass
-- Stealth Black
-- High-Tech Chrome
-- Military Green
+
+| Style               | Cost: 3 Dyes | Cost: 3 Dyes   | Cost: 1 Material |
+|---------------------|--------------|----------------|------------------|
+| **Default Brass**   | Yellow Dye   | Orange Dye     | Brass Ingot      |
+| **Iced<br/> Brass** | Cyan Dye     | Light Blue Dye | Blue Ice         |
+| **Ocean Brass**     | Cyan Dye     | Blue Dye       | Heart Of the Sea |
+| **Flaming Brass**   | Red Dye      | Yellow Dye     | Blaze Powder     |
 
 ### Jarvis AI Assistant
 
@@ -236,70 +238,71 @@ Use the **Customization Station** to apply one of 4 unique styles:
 
 ---
 
-## 🐛 Known Issues
+## Known Issues
 
 - None currently!
 - Report bugs on [GitHub Issues](https://github.com/BlackRedCoded/Create_Brass_Man/issues)
 
 ---
 
-## 🤝 Compatibility
+## Compatibility
 
-| Mod | Status | Notes |
-|-----|--------|-------|
-| **Create** | ✅ Required | Deep kinetic energy integration |
-| **JEI** | ✅ Optional | Full recipe viewing support |
-| **REI** | ⚠️ Untested | Should work but not officially supported |
-| **EMI** | ⚠️ Untested | Should work but not officially supported |
+| Mod | Status     | Notes |
+|-----|------------|-------|
+| **Create** | Required   | Deep kinetic energy integration |
+| **JEI** | Optional   | Full recipe viewing support |
+| **REI** | ️Untested  | Should work but not officially supported |
+| **EMI** | Untested | Should work but not officially supported |
 
 ---
 
-## 📜 License
+## License
 
 **MIT License** © 2025 BlackRedCoded
 
-This mod is provided as-is. You may:
-- ✅ Use in modpacks (with credit)
-- ✅ Create addon mods
-- ✅ Modify for personal use
-- ❌ Reupload without permission
-- ❌ Claim as your own work
+This mod is provided as-is.
+You may:
+- Use in modpacks (with credit)
+- Create addon mods
+- Modify for personal use
+
+you may **not**:
+- Reupload without permission
+- Claim as your own work
 
 ---
 
-## 💬 Support & Community
+## Support & Community
 
 - **Bug Reports:** [GitHub Issues](https://github.com/BlackRedCoded/Create_Brass_Man/issues)
-- **Discord:** BlackRedCoded
+- **Discord:** [Discord Server](https://discord.com/channels/1429439760916807820/1429439761583575083)
 - **CurseForge:** [Project Page](#)
-- **Modrinth:** [Project Page](#)
 
 ---
 
-## 🙏 Credits
+## Credits
 
 - **Author:** BlackRedCoded
 - **Create Mod Team:** For the amazing Create mod framework
 - **Inspiration:** Marvel's Iron Man universe
-- **Community:** Thanks to all beta testers and contributors!
+- **Community:** A Great thanks to all of **you** for playing this mod!
 
 ---
 
-## 📸 Screenshots
-
-*(Add your screenshots here)*
+## Screenshots
 
 ![Brass Man Armor](screenshots/armor.png)
-![Flying](screenshots/flight.png)
+
+![Flying and Hovering](screenshots/flight.png)
+
 ![Air Compressor](screenshots/compressor.png)
-![Modification Station](screenshots/upgrades.png)
 
 ---
 
 <p align="center">
-  <strong>⭐ If you enjoy this mod, please leave a star on GitHub and a rating on CurseForge! ⭐</strong>
+  <strong>If you enjoy this mod, please leave a rating on CurseForge!</strong>
 </p>
 
 <p align="center">
-  Made with ❤️ and lots of kinetic energy
+  Made with L️ove and lots of kinetic energy
 </p>
