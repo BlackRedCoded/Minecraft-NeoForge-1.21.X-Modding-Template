@@ -24,7 +24,7 @@ public class BrassModificationStationBlock extends Block {
     private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 12, 16);
 
     public BrassModificationStationBlock(Properties properties) {
-        super(properties.of()
+        super(Properties.of()
                 .strength(3, 6)
                 .requiresCorrectToolForDrops()
                 .sound(SoundType.ANVIL)

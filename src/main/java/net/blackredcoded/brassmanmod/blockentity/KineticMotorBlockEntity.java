@@ -26,7 +26,7 @@ import java.util.List;
 
 public class KineticMotorBlockEntity extends GeneratingKineticBlockEntity implements Container, MenuProvider {
 
-    private NonNullList<ItemStack> inventory = NonNullList.withSize(1, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> inventory = NonNullList.withSize(1, ItemStack.EMPTY);
     private static final int BATTERY_SLOT = 0;
 
     // Motor configuration (can be set via GUI or NBT)
@@ -34,7 +34,7 @@ public class KineticMotorBlockEntity extends GeneratingKineticBlockEntity implem
     private float maxStressCapacity = 256.0f; // Max stress this motor can handle
 
     // Runtime tracking
-    private int ticksSinceLastDrain = 0;
+    private final int ticksSinceLastDrain = 0;
     private static final int DRAIN_INTERVAL = 20; // Drain every second (20 ticks)
 
     public KineticMotorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {

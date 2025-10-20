@@ -170,9 +170,9 @@ public class FlyingSuitEntity extends Entity {
         // Visual and sound feedback
         if (level() instanceof ServerLevel serverLevel) {
             for (int i = 0; i < 30; i++) {
-                double offsetX = (random.nextDouble() - 0.5) * 1.0;
+                double offsetX = (random.nextDouble() - 0.5);
                 double offsetY = random.nextDouble() * 2.0;
-                double offsetZ = (random.nextDouble() - 0.5) * 1.0;
+                double offsetZ = (random.nextDouble() - 0.5);
                 serverLevel.sendParticles(ParticleTypes.FLASH,
                         player.getX() + offsetX, player.getY() + offsetY, player.getZ() + offsetZ,
                         1, 0, 0, 0, 0);

@@ -112,11 +112,7 @@ public record FallsavePacket() implements CustomPacketPayload {
             return false;
         }
 
-        if (!boots.isEmpty() && !(boots.getItem() instanceof BrassManBootsItem)) {
-            return false;
-        }
-
-        return true;
+        return boots.isEmpty() || boots.getItem() instanceof BrassManBootsItem;
     }
 
     private static boolean callBestSuit(ServerPlayer player, boolean enableFlight, boolean enableHover) {

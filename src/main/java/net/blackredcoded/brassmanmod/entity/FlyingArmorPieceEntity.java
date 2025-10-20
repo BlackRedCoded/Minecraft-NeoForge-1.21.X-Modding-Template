@@ -124,7 +124,7 @@ public class FlyingArmorPieceEntity extends Entity {
         if (level() instanceof ServerLevel serverLevel) {
             for (int i = 0; i < 10; i++) {
                 double offsetX = (random.nextDouble() - 0.5) * 0.5;
-                double offsetY = random.nextDouble() * 1.0;
+                double offsetY = random.nextDouble();
                 double offsetZ = (random.nextDouble() - 0.5) * 0.5;
                 serverLevel.sendParticles(ParticleTypes.FLASH,
                         player.getX() + offsetX, player.getY() + offsetY, player.getZ() + offsetZ,

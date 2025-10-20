@@ -66,7 +66,7 @@ public class BrassArmorStandBaseBlock extends Block implements EntityBlock {
     );
 
     public BrassArmorStandBaseBlock(Properties properties) {
-        super(properties.of()
+        super(Properties.of()
                 .strength(3, 6)
                 .sound(SoundType.WOOD));
         registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH));

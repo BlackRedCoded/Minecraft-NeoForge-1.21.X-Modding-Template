@@ -30,7 +30,7 @@ public class KineticMotorBlock extends DirectionalKineticBlock implements IBE<Ki
     public static final DirectionProperty FACING = BlockStateProperties.FACING; // All 6 directions
 
     public KineticMotorBlock(Properties properties) {
-        super(properties.of()
+        super(Properties.of()
                 .strength(4, 8)
                 .requiresCorrectToolForDrops()
                 .sound(SoundType.METAL));

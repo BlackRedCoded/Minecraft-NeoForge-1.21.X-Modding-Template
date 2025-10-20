@@ -163,8 +163,7 @@ public record CallSuitFromWorldPacket() implements CustomPacketPayload {
         if (!(chestplate.getItem() instanceof BrassManChestplateItem)) return false;
         if (!helmet.isEmpty() && !(helmet.getItem() instanceof BrassManHelmetItem)) return false;
         if (!leggings.isEmpty() && !(leggings.getItem() instanceof BrassManLeggingsItem)) return false;
-        if (!boots.isEmpty() && !(boots.getItem() instanceof BrassManBootsItem)) return false;
-        return true;
+        return boots.isEmpty() || boots.getItem() instanceof BrassManBootsItem;
     }
 
     private static SuitPieces findSuitInContainer(Container container) {

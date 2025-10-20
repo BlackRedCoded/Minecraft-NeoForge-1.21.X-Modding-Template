@@ -37,10 +37,10 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
     private UUID ownerUUID;
 
     // Material storage: [brass, electronics, glass]
-    private int[] materials = new int[3];
+    private final int[] materials = new int[3];
 
     // Inventory: [input slot, charging slot]
-    private NonNullList<ItemStack> inventory = NonNullList.withSize(2, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> inventory = NonNullList.withSize(2, ItemStack.EMPTY);
     private static final int INPUT_SLOT = 0;
     private static final int CHARGING_SLOT = 1;
 
@@ -240,7 +240,7 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
 
         ItemStack chargingItem = inventory.get(CHARGING_SLOT);
         if (!chargingItem.isEmpty() && BatteryHelper.isBatteryItem(chargingItem)) {
-            if (!BatteryHelper.isBatteryFull(chargingItem)) return true;
+            return !BatteryHelper.isBatteryFull(chargingItem);
         }
         return false;
     }
@@ -263,7 +263,7 @@ public class AirCompressorBlockEntity extends KineticBlockEntity implements Cont
             ItemStack a = stand.getArmor(i);
             if (a.getItem() instanceof BrassManChestplateItem chest) {
                 int air = chest.air(a), pw = chest.power(a);
-                int maxA = chest.getMaxAir(a), maxP = chest.getMaxPower(a);
+                int maxA = BrassManChestplateItem.getMaxAir(a), maxP = BrassManChestplateItem.getMaxPower(a);
                 int chargeA = Math.max(1, Math.round(rate * maxA / 100f));
                 int chargeP = Math.max(1, Math.round(rate * maxP / 100f));
                 if (air < maxA || pw < maxP) {

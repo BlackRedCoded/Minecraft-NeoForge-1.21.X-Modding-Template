@@ -52,7 +52,7 @@ public class FlightConfig {
             fallsaveHover = tag.getBoolean("FallsaveHover");
             fallsaveFlight = tag.getBoolean("FallsaveFlight");
             // REMOVED: fallsavePowerToAir = tag.getInt("FallsavePowerToAir");
-            hudEnabled = tag.contains("HudEnabled") ? tag.getBoolean("HudEnabled") : true;
+            hudEnabled = !tag.contains("HudEnabled") || tag.getBoolean("HudEnabled");
             fallsaveCallSuit = tag.getBoolean("FallsaveCallSuit");
         }
     }

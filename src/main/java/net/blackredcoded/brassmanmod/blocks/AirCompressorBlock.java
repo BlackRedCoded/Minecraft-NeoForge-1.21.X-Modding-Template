@@ -32,7 +32,7 @@ public class AirCompressorBlock extends DirectionalKineticBlock implements IBE<A
     private static final VoxelShape SHAPE = box(0, 0, 0, 16, 16, 16);
 
     public AirCompressorBlock(Properties properties) {
-        super(properties.of()
+        super(Properties.of()
                 .strength(3, 6)
                 .requiresCorrectToolForDrops()
                 .sound(SoundType.WOOD));

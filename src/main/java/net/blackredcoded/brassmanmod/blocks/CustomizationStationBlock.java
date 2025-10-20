@@ -30,7 +30,7 @@ public class CustomizationStationBlock extends Block {
     private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 12, 16);
 
     public CustomizationStationBlock(Properties properties) {
-        super(properties.of()
+        super(Properties.of()
                 .strength(2, 4)
                 .requiresCorrectToolForDrops()
                 .sound(SoundType.METAL)

@@ -53,7 +53,7 @@ public class BrassArmorStandTopBlock extends Block {
     );
 
     public BrassArmorStandTopBlock(Properties properties) {
-        super(properties.of()
+        super(Properties.of()
                 .strength(3, 6)
                 .sound(SoundType.WOOD));
         registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH));

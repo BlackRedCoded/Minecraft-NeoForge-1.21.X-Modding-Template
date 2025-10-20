@@ -143,10 +143,10 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
         if (slot == 1) {
             ItemStack chestplate = menu.getArmorStacks()[1];
             if (chestplate.getItem() instanceof BrassManChestplateItem chestItem) {
-                int air = chestItem.air(chestplate);
-                int maxAir = BrassManChestplateItem.getMaxAir(chestplate);
-                int power = chestItem.power(chestplate);
-                int maxPower = BrassManChestplateItem.getMaxPower(chestplate);
+                int air = menu.getArmorAir();
+                int power = menu.getArmorPower();
+                int maxAir = menu.getArmorMaxAir();
+                int maxPower = menu.getArmorMaxPower();
 
                 int airBarHeight = maxAir > 0 ? (int) ((float) air / maxAir * 16) : 0;
                 int powerBarHeight = maxPower > 0 ? (int) ((float) power / maxPower * 16) : 0;
@@ -282,10 +282,10 @@ public class AirCompressorScreen extends AbstractContainerScreen<AirCompressorMe
                 .withStyle(style -> style.withColor(damage > 0 ? 0xFFAAAA : 0xAAAAAA)));
 
         if (slot == 1 && armor.getItem() instanceof BrassManChestplateItem chestItem) {
-            int air = chestItem.air(armor);
-            int maxAir = BrassManChestplateItem.getMaxAir(armor);
-            int power = chestItem.power(armor);
-            int maxPower = BrassManChestplateItem.getMaxPower(armor);
+            int air = menu.getArmorAir();
+            int power = menu.getArmorPower();
+            int maxAir = menu.getArmorMaxAir();
+            int maxPower = menu.getArmorMaxPower();
 
             tooltip.add(Component.literal(""));
             tooltip.add(Component.literal("Air: " + air + "/" + maxAir)

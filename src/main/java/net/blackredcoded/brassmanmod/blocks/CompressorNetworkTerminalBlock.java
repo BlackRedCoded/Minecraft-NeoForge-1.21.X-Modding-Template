@@ -35,7 +35,7 @@ public class CompressorNetworkTerminalBlock extends BaseEntityBlock {
     private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 16, 16);
 
     public CompressorNetworkTerminalBlock(Properties properties) {
-        super(properties.of()
+        super(Properties.of()
                 .strength(2, 4)
                 .requiresCorrectToolForDrops()
                 .sound(SoundType.WOOD));

@@ -260,13 +260,10 @@ public class BrassManChestplateItem extends ArmorItem {
     private void applyStyleEffects(Player player) {
         boolean fullFlamingArmor;
 
-        if (ArmorStyleHelper.hasArmorStyle(player, ArmorStyleHelper.boots, ArmorStyleHelper.FLAMING) &&
+        fullFlamingArmor = ArmorStyleHelper.hasArmorStyle(player, ArmorStyleHelper.boots, ArmorStyleHelper.FLAMING) &&
                 ArmorStyleHelper.hasArmorStyle(player, ArmorStyleHelper.leggings, ArmorStyleHelper.FLAMING) &&
                 ArmorStyleHelper.hasArmorStyle(player, ArmorStyleHelper.chestplate, ArmorStyleHelper.FLAMING) &&
-                ArmorStyleHelper.hasArmorStyle(player, ArmorStyleHelper.helmet, ArmorStyleHelper.FLAMING)) {
-            fullFlamingArmor = true;
-        }
-        else fullFlamingArmor = false;
+                ArmorStyleHelper.hasArmorStyle(player, ArmorStyleHelper.helmet, ArmorStyleHelper.FLAMING);
 
         // Iced/Aqua Style: Prevent freezing completely
         if (ArmorStyleHelper.hasArmorStyle(player, ArmorStyleHelper.chestplate, ArmorStyleHelper.AQUA)) {

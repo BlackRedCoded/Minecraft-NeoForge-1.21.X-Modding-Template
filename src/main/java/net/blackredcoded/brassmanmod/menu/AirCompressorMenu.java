@@ -2,6 +2,7 @@ package net.blackredcoded.brassmanmod.menu;
 
 import net.blackredcoded.brassmanmod.blockentity.AirCompressorBlockEntity;
 import net.blackredcoded.brassmanmod.blockentity.BrassArmorStandBlockEntity;
+import net.blackredcoded.brassmanmod.items.BrassManChestplateItem;
 import net.blackredcoded.brassmanmod.registry.ModMenuTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -32,7 +33,7 @@ public class AirCompressorMenu extends AbstractContainerMenu {
 
         if (blockEntity instanceof AirCompressorBlockEntity compressor) {
             this.blockEntity = compressor;
-            this.data = new SimpleContainerData(3);
+            this.data = new SimpleContainerData(5);
         } else {
             throw new IllegalStateException("Incorrect block entity type!");
         }
@@ -124,6 +125,22 @@ public class AirCompressorMenu extends AbstractContainerMenu {
             for (int i = 0; i < 3; i++) {
                 this.data.set(i, this.blockEntity.getMaterial(i));
             }
+
+            // Sync armor air and power from armor stand above
+            var stand = getArmorStandAbove();
+            if (stand != null) {
+                ItemStack chestplate = stand.getArmor(1); // Slot 1 = chestplate
+                if (!chestplate.isEmpty() && chestplate.getItem() instanceof BrassManChestplateItem chest) {
+                    this.data.set(3, chest.air(chestplate));     // Air
+                    this.data.set(4, chest.power(chestplate));   // Power
+                } else {
+                    this.data.set(3, 0);
+                    this.data.set(4, 0);
+                }
+            } else {
+                this.data.set(3, 0);
+                this.data.set(4, 0);
+            }
         }
     }
 
@@ -139,5 +156,42 @@ public class AirCompressorMenu extends AbstractContainerMenu {
         for (int col = 0; col < 9; ++col) {
             this.addSlot(new Slot(playerInventory, col, 8 + col * 18, 142));
         }
+    }
+
+    public int getArmorAir() {
+        return this.data.get(3); // Air value
+    }
+
+    public int getArmorPower() {
+        return this.data.get(4); // Power value
+    }
+
+    public int getArmorMaxAir() {
+        // Get from armor stand if present
+        ItemStack[] armor = getArmorStacks();
+        if (!armor[1].isEmpty() && armor[1].getItem() instanceof BrassManChestplateItem chest) {
+            return chest.getMaxAir(armor[1]);
+        }
+        return 1; // Prevent division by zero
+    }
+
+    public int getArmorMaxPower() {
+        // Get from armor stand if present
+        ItemStack[] armor = getArmorStacks();
+        if (!armor[1].isEmpty() && armor[1].getItem() instanceof BrassManChestplateItem chest) {
+            return chest.getMaxPower(armor[1]);
+        }
+        return 1; // Prevent division by zero
+    }
+
+    private BrassArmorStandBlockEntity getArmorStandAbove() {
+        BlockPos armorStandPos = this.blockEntity.getBlockPos().above();
+        if (this.blockEntity.getLevel() != null) {
+            BlockEntity be = this.blockEntity.getLevel().getBlockEntity(armorStandPos);
+            if (be instanceof BrassArmorStandBlockEntity armorStand) {
+                return armorStand;
+            }
+        }
+        return null;
     }
 }

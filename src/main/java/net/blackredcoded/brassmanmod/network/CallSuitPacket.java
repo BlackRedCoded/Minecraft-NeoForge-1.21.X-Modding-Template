@@ -49,11 +49,7 @@ public record CallSuitPacket(BlockPos compressorPos) implements CustomPacketPayl
             return false;
         }
 
-        if (!boots.isEmpty() && !(boots.getItem() instanceof BrassManBootsItem)) {
-            return false;
-        }
-
-        return true;
+        return boots.isEmpty() || boots.getItem() instanceof BrassManBootsItem;
     }
 
     public static void handle(CallSuitPacket packet, IPayloadContext context) {
