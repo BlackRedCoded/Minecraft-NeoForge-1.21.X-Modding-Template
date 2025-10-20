@@ -233,7 +233,7 @@ Use the **Customization Station** to apply one of 4 unique styles:
 
 - Customize flight speed
 - Toggle hover mode
-- Adjust HUD elements
+- Toggle HUD that is shown when wearing helmet and chestplate with power
 - Configure abilities
 
 ---
@@ -300,9 +300,5 @@ you may **not**:
 ---
 
 <p align="center">
-  <strong>If you enjoy this mod, please leave a rating on CurseForge!</strong>
-</p>
-
-<p align="center">
-  Made with L️ove and lots of kinetic energy
+  Made with L️ove, Time and lots of kinetic energy!
 </p>
