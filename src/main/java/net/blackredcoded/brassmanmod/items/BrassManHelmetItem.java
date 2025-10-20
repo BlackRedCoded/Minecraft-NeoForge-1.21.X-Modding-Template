@@ -2,9 +2,12 @@ package net.blackredcoded.brassmanmod.items;
 
 import net.blackredcoded.brassmanmod.blockentity.BrassArmorStandBlockEntity;
 import net.blackredcoded.brassmanmod.config.FlightConfig;
+import net.blackredcoded.brassmanmod.util.ArmorStyleHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -23,7 +26,6 @@ public class BrassManHelmetItem extends ArmorItem {
         super(material, Type.HELMET, properties.durability(Type.HELMET.getDurability(15)));
     }
 
-
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
@@ -40,6 +42,20 @@ public class BrassManHelmetItem extends ArmorItem {
         if (!level.isClientSide && entity instanceof Player player) {
             if (player.getItemBySlot(EquipmentSlot.HEAD).equals(stack)) {
                 consumePowerForHUD(stack, player);
+            }
+        }
+
+        if (entity instanceof Player player && !level.isClientSide) {
+            String armorStyle = ArmorStyleHelper.getArmorStyle(stack);
+
+            // Flaming armor takes damage in water
+            if (armorStyle.equals(ArmorStyleHelper.FLAMING)) {
+                if (player.isInWater() || level.isRainingAt(player.blockPosition())) {
+                    // Damage armor every second (20 ticks)
+                    if (level.getGameTime() % 20 == 0) {
+                        stack.hurtAndBreak(1, player, EquipmentSlot.CHEST);
+                    }
+                }
             }
         }
     }

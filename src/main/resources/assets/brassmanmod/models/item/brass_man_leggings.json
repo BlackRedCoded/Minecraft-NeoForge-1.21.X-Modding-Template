@@ -2,5 +2,10 @@
   "parent": "minecraft:item/generated",
   "textures": {
     "layer0": "brassmanmod:item/brass_man_leggings"
-  }
+  },
+  "overrides": [
+    {"predicate": {"brassmanmod:style": 1.0}, "model": "brassmanmod:item/brass_man_leggings_iced"},
+    {"predicate": {"brassmanmod:style": 2.0}, "model": "brassmanmod:item/brass_man_leggings_ocean"},
+    {"predicate": {"brassmanmod:style": 3.0}, "model": "brassmanmod:item/brass_man_leggings_flaming"}
+  ]
 }

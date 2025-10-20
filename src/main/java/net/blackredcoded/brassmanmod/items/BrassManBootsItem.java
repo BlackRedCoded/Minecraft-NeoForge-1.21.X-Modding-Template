@@ -7,6 +7,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -15,6 +17,7 @@ import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import net.blackredcoded.brassmanmod.util.ArmorStyleHelper;
 
@@ -25,6 +28,26 @@ public class BrassManBootsItem extends ArmorItem {
     public BrassManBootsItem(Holder<ArmorMaterial> material, Properties properties) {
         super(material, Type.BOOTS, properties.durability(Type.BOOTS.getDurability(15)).rarity(Rarity.UNCOMMON));
     }
+
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+        super.inventoryTick(stack, level, entity, slotId, isSelected);
+
+        if (entity instanceof Player player && !level.isClientSide) {
+            String armorStyle = ArmorStyleHelper.getArmorStyle(stack);
+
+            // Flaming armor takes damage in water
+            if (armorStyle.equals(ArmorStyleHelper.FLAMING)) {
+                if (player.isInWater() || level.isRainingAt(player.blockPosition())) {
+                    // Damage armor every second (20 ticks)
+                    if (level.getGameTime() % 20 == 0) {
+                        stack.hurtAndBreak(1, player, EquipmentSlot.CHEST);
+                    }
+                }
+            }
+        }
+    }
+
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable TooltipContext context, List<Component> tooltip, TooltipFlag flag) {

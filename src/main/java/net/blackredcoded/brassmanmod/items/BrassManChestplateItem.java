@@ -10,6 +10,8 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.*;
@@ -34,6 +36,25 @@ public class BrassManChestplateItem extends ArmorItem {
         if (!level.isClientSide() && entity instanceof Player player) {
             if (player.getItemBySlot(EquipmentSlot.CHEST).equals(stack)) {
                 applyStyleEffects(player);
+            }
+        }
+
+        if (entity instanceof Player player && !level.isClientSide) {
+            String armorStyle = ArmorStyleHelper.getArmorStyle(stack);
+
+            // Flaming armor takes damage in water
+            if (armorStyle.equals(ArmorStyleHelper.FLAMING)) {
+                if (player.isInWater() || level.isRainingAt(player.blockPosition())) {
+                    // Damage armor every second (20 ticks)
+                    if (level.getGameTime() % 20 == 0) {
+                        stack.hurtAndBreak(1, player, EquipmentSlot.CHEST);
+
+                        // Optional: Steam particles/sound effect
+                        level.playSound(null, player.blockPosition(),
+                                SoundEvents.LAVA_EXTINGUISH,
+                                SoundSource.PLAYERS, 0.5f, 1.0f);
+                    }
+                }
             }
         }
     }

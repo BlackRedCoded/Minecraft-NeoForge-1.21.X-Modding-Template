@@ -1,6 +1,11 @@
 {
-  "parent": "item/generated",
+  "parent": "minecraft:item/generated",
   "textures": {
     "layer0": "brassmanmod:item/brass_man_chestplate"
-  }
+  },
+  "overrides": [
+    {"predicate": {"brassmanmod:style": 1.0}, "model": "brassmanmod:item/brass_man_chestplate_iced"},
+    {"predicate": {"brassmanmod:style": 2.0}, "model": "brassmanmod:item/brass_man_chestplate_ocean"},
+    {"predicate": {"brassmanmod:style": 3.0}, "model": "brassmanmod:item/brass_man_chestplate_flaming"}
+  ]
 }
